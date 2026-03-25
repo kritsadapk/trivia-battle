@@ -4,6 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
   <title>Team Trivia Battle 🏆</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Bangers&family=Kanit:wght@400;600;700&family=Space+Mono:wght@700&display=swap"
@@ -1094,7 +1096,19 @@
       <div class="card" style="display:flex;flex-direction:column;gap:12px;">
         <div class="flex-between">
           <h3>คำถามทั้งหมด (<span id="qCountBadge">0</span>)</h3>
-          <button class="btn btn-outline btn-sm" onclick="loadSample()">📋 โหลดตัวอย่าง</button>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select id="sampleCat"
+              style="padding:6px 10px;font-size:12px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--text);font-family:'Kanit',sans-serif;">
+              <option value="dev">💻 Dev</option>
+              <option value="qa">🧪 QA</option>
+              <option value="po">📋 PO</option>
+              <option value="pm">📊 PM</option>
+              <option value="mixed">🌀 Mixed ทุกสาย</option>
+              <option value="general">🌍 ความรู้ทั่วไป</option>
+              <option value="funny">😂 ขำๆ</option>
+            </select>
+            <button class="btn btn-outline btn-sm" onclick="loadSample()">📋 โหลดตัวอย่าง</button>
+          </div>
         </div>
         <div id="qList">
           <p class="text-muted text-center" style="padding:16px;">ยังไม่มีคำถาม</p>
@@ -1278,18 +1292,102 @@
     // ══════════════════════════════════════
     const AVATARS = ['🦁', '🐯', '🦊', '🐺', '🐻', '🐼', '🦄', '🐸', '🐙', '🦋', '🦅', '🐬', '🦈', '🦒', '🦓', '🦘', '🐲', '🤖', '👾', '🎭'];
     const COLORS = ['#ffd700', '#00f5ff', '#39ff14', '#ff6b35', '#bf5af2', '#ff073a', '#00bfff', '#ff69b4'];
-    const SAMPLE_QS = [
-      { q: "HTTP Status Code 404 หมายความว่าอะไร?", opts: ["Server Error", "Unauthorized", "Not Found", "OK"], correct: 2 },
-      { q: "Git command ไหนที่ใช้ย้อนกลับ commit ล่าสุด?", opts: ["git reset", "git revert", "git rollback", "git undo"], correct: 0 },
-      { q: "ภาษาโปรแกรมใดที่ Google สร้างขึ้น?", opts: ["Swift", "Kotlin", "Go", "Rust"], correct: 2 },
-      { q: "RAM ย่อมาจากอะไร?", opts: ["Random Access Memory", "Read Access Module", "Rapid Allocation Mode", "Runtime Application Memory"], correct: 0 },
-      { q: "ข้อใดเป็น NoSQL Database?", opts: ["PostgreSQL", "MySQL", "MongoDB", "SQLite"], correct: 2 },
-      { q: "JavaScript ถูกสร้างขึ้นในปี ค.ศ. ใด?", opts: ["1990", "1993", "1995", "1999"], correct: 2 },
-      { q: "HTTPS ใช้ port ใดเป็นค่าเริ่มต้น?", opts: ["80", "8080", "443", "3000"], correct: 2 },
-      { q: "Docker ใช้สำหรับอะไร?", opts: ["Version Control", "Database Mgmt", "Containerization", "Load Balancing"], correct: 2 },
-      { q: "ข้อใด NOT ใช่ JavaScript Framework?", opts: ["React", "Vue", "Django", "Angular"], correct: 2 },
-      { q: "API ย่อมาจากอะไร?", opts: ["Application Programming Interface", "Automated Process Integration", "Advanced Program Interaction", "Application Process Integrator"], correct: 0 },
-    ];
+    const SAMPLE_QS = {
+      dev: [
+        { q: "HTTP Status Code 404 หมายความว่าอะไร?", opts: ["Server Error", "Unauthorized", "Not Found", "OK"], correct: 2 },
+        { q: "Git command ไหนที่ใช้ย้อนกลับ commit ล่าสุด?", opts: ["git reset", "git revert", "git rollback", "git undo"], correct: 0 },
+        { q: "ภาษาโปรแกรมใดที่ Google สร้างขึ้น?", opts: ["Swift", "Kotlin", "Go", "Rust"], correct: 2 },
+        { q: "RAM ย่อมาจากอะไร?", opts: ["Random Access Memory", "Read Access Module", "Rapid Allocation Mode", "Runtime Application Memory"], correct: 0 },
+        { q: "ข้อใดเป็น NoSQL Database?", opts: ["PostgreSQL", "MySQL", "MongoDB", "SQLite"], correct: 2 },
+        { q: "JavaScript ถูกสร้างขึ้นในปี ค.ศ. ใด?", opts: ["1990", "1993", "1995", "1999"], correct: 2 },
+        { q: "HTTPS ใช้ port ใดเป็นค่าเริ่มต้น?", opts: ["80", "8080", "443", "3000"], correct: 2 },
+        { q: "Docker ใช้สำหรับอะไร?", opts: ["Version Control", "Database Mgmt", "Containerization", "Load Balancing"], correct: 2 },
+        { q: "ข้อใด NOT ใช่ JavaScript Framework?", opts: ["React", "Vue", "Django", "Angular"], correct: 2 },
+        { q: "API ย่อมาจากอะไร?", opts: ["Application Programming Interface", "Automated Process Integration", "Advanced Program Interaction", "Application Process Integrator"], correct: 0 },
+      ],
+      qa: [
+        { q: "QA ย่อมาจากอะไร?", opts: ["Quality Assurance", "Quick Analysis", "Query Automation", "Quality Application"], correct: 0 },
+        { q: "Black Box Testing คืออะไร?", opts: ["ทดสอบโดยรู้ source code", "ทดสอบโดยไม่รู้ source code", "ทดสอบ database", "ทดสอบ network"], correct: 1 },
+        { q: "Regression Testing ทำเพื่ออะไร?", opts: ["ทดสอบ feature ใหม่", "ตรวจสอบว่า bug เดิมกลับมาหรือไม่", "ทดสอบ performance", "ทดสอบ security"], correct: 1 },
+        { q: "Bug ที่มี Severity สูงสุดเรียกว่าอะไร?", opts: ["Minor", "Major", "Critical", "Blocker"], correct: 3 },
+        { q: "UAT ย่อมาจากอะไร?", opts: ["Unit Automation Test", "User Acceptance Testing", "Universal App Testing", "Unified API Test"], correct: 1 },
+        { q: "Test Case ที่ดีควรมีอะไรบ้าง?", opts: ["Input เท่านั้น", "Expected Result เท่านั้น", "Input, Steps, Expected Result", "Screenshots เท่านั้น"], correct: 2 },
+        { q: "Smoke Testing คืออะไร?", opts: ["ทดสอบ feature ครบทุกอย่าง", "ทดสอบฟังก์ชันพื้นฐานเบื้องต้น", "ทดสอบ performance", "ทดสอบ security"], correct: 1 },
+        { q: "ข้อใดเป็น Test Management Tool?", opts: ["Jira", "Postman", "Selenium", "Jenkins"], correct: 0 },
+        { q: "Boundary Value Analysis ใช้ทดสอบอะไร?", opts: ["ทดสอบค่าขอบเขตของ input", "ทดสอบ API", "ทดสอบ UI", "ทดสอบ DB"], correct: 0 },
+        { q: "ข้อใดเป็น Automation Testing Framework?", opts: ["Figma", "Selenium", "Trello", "Slack"], correct: 1 },
+      ],
+      po: [
+        { q: "PO ย่อมาจากอะไร?", opts: ["Project Owner", "Product Owner", "Program Officer", "Process Operator"], correct: 1 },
+        { q: "Backlog คืออะไร?", opts: ["รายงาน bug", "รายการ feature/งานที่รอทำ", "Sprint Report", "Test Plan"], correct: 1 },
+        { q: "Definition of Done (DoD) หมายถึงอะไร?", opts: ["งานถูก cancel", "เกณฑ์ที่บอกว่างานเสร็จสมบูรณ์", "รายการ bug ที่แก้", "Sprint Goal"], correct: 1 },
+        { q: "User Story มีรูปแบบที่นิยมคือ?", opts: ["As a [user], I want [goal], So that [benefit]", "Given/When/Then", "If/Else/Return", "Try/Catch/Finally"], correct: 0 },
+        { q: "Acceptance Criteria ทำหน้าที่อะไร?", opts: ["กำหนด timeline", "กำหนดเงื่อนไขที่ feature ต้องผ่าน", "กำหนด budget", "กำหนด team structure"], correct: 1 },
+        { q: "MoSCoW Method ใช้สำหรับอะไร?", opts: ["ตั้งชื่อ project", "จัดลำดับความสำคัญ requirement", "วาง roadmap", "เขียน test case"], correct: 1 },
+        { q: "Sprint Review ทำเพื่ออะไร?", opts: ["วางแผน Sprint ถัดไป", "Demo งานให้ stakeholder ดู", "แก้ process ของทีม", "Review code"], correct: 1 },
+        { q: "Epics กับ User Story ต่างกันอย่างไร?", opts: ["เหมือนกัน", "Epic ใหญ่กว่า แตกเป็น Story ย่อย", "Story ใหญ่กว่า Epic", "Epic คือ bug"], correct: 1 },
+        { q: "Stakeholder ใน Scrum คือใคร?", opts: ["Scrum Master", "ทีม Dev", "ผู้ที่มีส่วนได้ส่วนเสียกับ product", "QA เท่านั้น"], correct: 2 },
+        { q: "Velocity ใน Agile หมายถึงอะไร?", opts: ["ความเร็ว internet", "จำนวน Story Points ที่ทีมทำได้ต่อ Sprint", "จำนวน bug ที่แก้", "จำนวน feature ที่ cancel"], correct: 1 },
+      ],
+      pm: [
+        { q: "PM ย่อมาจากอะไร?", opts: ["Product Manager", "Project Manager", "Platform Manager", "Process Manager"], correct: 1 },
+        { q: "Gantt Chart ใช้สำหรับอะไร?", opts: ["วาด wireframe", "แสดง timeline และ dependency ของงาน", "ทดสอบ API", "เขียน test case"], correct: 1 },
+        { q: "Critical Path Method (CPM) คืออะไร?", opts: ["วิธีหา bug", "การหาเส้นทางงานที่ยาวที่สุดที่กระทบ deadline", "วิธี deploy", "วิธีเขียน code"], correct: 1 },
+        { q: "Risk Matrix ใช้ประเมินอะไร?", opts: ["Performance", "ความเสี่ยงของ project (โอกาสเกิด × ผลกระทบ)", "Quality", "Budget"], correct: 1 },
+        { q: "Scope Creep คืออะไร?", opts: ["งานที่เสร็จเร็ว", "การขยายขอบเขตงานที่ไม่ได้วางแผน", "การลด budget", "การเพิ่ม team"], correct: 1 },
+        { q: "KPI ย่อมาจากอะไร?", opts: ["Key Performance Indicator", "Key Process Integration", "Knowledge Performance Index", "Key Project Input"], correct: 0 },
+        { q: "ใน Scrum Sprint มักกี่สัปดาห์?", opts: ["1 เดือน", "2-4 สัปดาห์", "6 สัปดาห์", "1 สัปดาห์เสมอ"], correct: 1 },
+        { q: "RACI Matrix ย่อมาจากอะไร?", opts: ["Responsible, Accountable, Consulted, Informed", "Risk, Action, Control, Input", "Review, Approve, Check, Implement", "Report, Assign, Complete, Inspect"], correct: 0 },
+        { q: "Milestone ใน Project Management คืออะไร?", opts: ["งานทั่วไป", "จุดสำคัญที่บอกความคืบหน้าของ project", "ชื่อ sprint", "ชื่อ task"], correct: 1 },
+        { q: "Agile ต่างจาก Waterfall อย่างไร?", opts: ["Agile ทำทีเดียวจบ", "Agile ทำงานเป็น iteration สั้น ๆ ปรับได้ตลอด", "Waterfall ยืดหยุ่นกว่า", "เหมือนกัน"], correct: 1 },
+      ],
+      mixed: [
+        { q: "Scrum Master มีหน้าที่หลักคืออะไร?", opts: ["เขียน code", "ดูแล process และเอาอุปสรรคออกให้ทีม", "จัดการ budget", "ทดสอบ software"], correct: 1 },
+        { q: "CI/CD ย่อมาจากอะไร?", opts: ["Code Integration / Code Delivery", "Continuous Integration / Continuous Delivery", "Core Interface / Core Design", "Custom Input / Custom Deploy"], correct: 1 },
+        { q: "Sprint Retrospective ทำเพื่ออะไร?", opts: ["Demo product", "วางแผน sprint", "ทบทวนและปรับปรุง process ของทีม", "Review backlog"], correct: 2 },
+        { q: "REST API ใช้ HTTP method ใดสร้างข้อมูลใหม่?", opts: ["GET", "PUT", "POST", "DELETE"], correct: 2 },
+        { q: "Persona ใน UX คืออะไร?", opts: ["ตัวละครในเกม", "ตัวแทนผู้ใช้สมมติที่ใช้วางแผน feature", "ชื่อ API", "Log ของระบบ"], correct: 1 },
+        { q: "Technical Debt คืออะไร?", opts: ["หนี้ค่า server", "ต้นทุนแฝงจากโค้ดที่เร่งทำโดยไม่มีคุณภาพ", "ค่า license software", "งบ QA"], correct: 1 },
+        { q: "Load Testing ทดสอบอะไร?", opts: ["UI", "ความสามารถรองรับผู้ใช้จำนวนมาก", "Logic ของโค้ด", "Database schema"], correct: 1 },
+        { q: "Stakeholder ที่สำคัญที่สุดใน Scrum คือใคร?", opts: ["Scrum Master", "Developer", "Product Owner", "QA"], correct: 2 },
+        { q: "'Done is better than perfect' มาจากแนวคิดใด?", opts: ["Waterfall", "Lean / Agile", "CMMI", "Six Sigma"], correct: 1 },
+        { q: "Daily Standup ควรใช้เวลาไม่เกินกี่นาที?", opts: ["30 นาที", "1 ชั่วโมง", "15 นาที", "45 นาที"], correct: 2 },
+      ],
+      general: [
+        { q: "ประเทศไทยมีกี่จังหวัด?", opts: ["72", "76", "77", "80"], correct: 2 },
+        { q: "น้ำมีสูตรเคมีว่าอะไร?", opts: ["CO2", "H2O", "O2", "H2SO4"], correct: 1 },
+        { q: "ดาวเคราะห์ที่ใหญ่ที่สุดในระบบสุริยะคือ?", opts: ["โลก", "ดาวอังคาร", "ดาวพฤหัสบดี", "ดาวเสาร์"], correct: 2 },
+        { q: "ประเทศใดมีประชากรมากที่สุดในโลก?", opts: ["อินเดีย", "จีน", "สหรัฐอเมริกา", "อินโดนีเซีย"], correct: 0 },
+        { q: "1 ปีมีกี่วัน (ปกติ)?", opts: ["360", "364", "365", "366"], correct: 2 },
+        { q: "ภาษาใดมีคนพูดมากที่สุดในโลก?", opts: ["อังกฤษ", "จีนกลาง", "สเปน", "ฮินดี"], correct: 1 },
+        { q: "Mount Everest อยู่ที่ประเทศใด?", opts: ["อินเดีย", "จีน", "เนปาล/จีน", "ภูฏาน"], correct: 2 },
+        { q: "แสงเดินทางเร็วเท่าไหร่ (km/s)?", opts: ["100,000", "300,000", "500,000", "1,000,000"], correct: 1 },
+        { q: "แชมป์บอลโลกครั้งแรกคือประเทศใด?", opts: ["บราซิล", "อิตาลี", "อุรุกวัย", "อาร์เจนตินา"], correct: 2 },
+        { q: "DNA ย่อมาจากอะไร?", opts: ["Deoxyribonucleic Acid", "Dynamic Nucleic Array", "Digital Nucleic Acid", "Dual Nitrogen Access"], correct: 0 },
+      ],
+      funny: [
+        { q: "ถ้า Bug ไม่ยอม fix ตัวเอง เราควรทำอะไร?", opts: ["โทษ QA", "บอกว่า 'มันเป็น Feature'", "โทษ PM", "ลบ code ทิ้ง"], correct: 1 },
+        { q: "Dev มักบอกว่าเสร็จ 'ในอีก 2 ชั่วโมง' จริงๆ หมายความว่าอะไร?", opts: ["2 ชั่วโมงจริงๆ", "พรุ่งนี้เช้า", "อีก 2 วัน", "ยังไม่ได้เริ่ม"], correct: 2 },
+        { q: "Meeting ที่ยาวที่สุดในประวัติศาสตร์ IT คือ Meeting อะไร?", opts: ["Sprint Planning", "Daily Standup ที่ไม่มีวัน end", "Retro", "1:1"], correct: 1 },
+        { q: "ทำไม Dev ถึงชอบ Dark Mode?", opts: ["สวยงาม", "Bug ซ่อนได้ดีกว่า", "ถนอมสายตา", "ประหยัดไฟ"], correct: 1 },
+        { q: "สิ่งที่ PM พูดบ่อยที่สุดคือ?", opts: ["'ไม่เป็นไรนะ'", "'Simple มากๆ เลย'", "'ขอบคุณทีม'", "'Budget พอ'"], correct: 1 },
+        { q: "QA เจอ Bug ตอนไหนแน่นอนที่สุด?", opts: ["ตอน Dev บอกว่า 'ไม่น่าจะมี bug'", "ตอนเช้า", "ตอนบ่าย", "ตอนรีวิว code"], correct: 0 },
+        { q: "คำที่ Dev กลัวที่สุดคือ?", opts: ["Deadline", "'ขอแก้นิดนึงนะ'", "Code Review", "Meeting"], correct: 1 },
+        { q: "Standup ที่ดีควรมีกี่คำ?", opts: ["ยิ่งมากยิ่งดี", "'เมื่อวาน ทำ X วันนี้ ทำ Y ไม่ติดอะไร'", "แค่พยักหน้า", "ส่ง Sticker ใน Line"], correct: 1 },
+        { q: "เหตุผลที่ทีมไม่ทำ Documentation คือ?", opts: ["ขี้เกียจ", "'Code อ่านเองได้เลย'", "ไม่มีเวลา", "ทุกข้อถูก"], correct: 3 },
+        { q: "'It works on my machine' หมายความว่าอะไร?", opts: ["ใช้งานได้จริง", "ปัญหาอยู่ที่คนอื่น", "ต้องทดสอบเพิ่ม", "Deploy ได้แล้ว"], correct: 1 },
+        { q: "Scrum Master มีหน้าที่หลักคืออะไร?", opts: ["เขียน code", "ดูแล process และเอาอุปสรรคออกให้ทีม", "จัดการ budget", "ทดสอบ software"], correct: 1 },
+        { q: "CI/CD ย่อมาจากอะไร?", opts: ["Code Integration / Code Delivery", "Continuous Integration / Continuous Delivery", "Core Interface / Core Design", "Custom Input / Custom Deploy"], correct: 1 },
+        { q: "Sprint Retrospective ทำเพื่ออะไร?", opts: ["Demo product", "วางแผน sprint", "ทบทวนและปรับปรุง process ของทีม", "Review backlog"], correct: 2 },
+        { q: "REST API ใช้ HTTP method ใดสร้างข้อมูลใหม่?", opts: ["GET", "PUT", "POST", "DELETE"], correct: 2 },
+        { q: "Persona ใน UX คืออะไร?", opts: ["ตัวละครในเกม", "ตัวแทนผู้ใช้สมมติที่ใช้วางแผน feature", "ชื่อ API", "Log ของระบบ"], correct: 1 },
+        { q: "Technical Debt คืออะไร?", opts: ["หนี้ค่า server", "ต้นทุนแฝงจากโค้ดที่เร่งทำโดยไม่มีคุณภาพ", "ค่า license software", "งบ QA"], correct: 1 },
+        { q: "Load Testing ทดสอบอะไร?", opts: ["UI", "ความสามารถรองรับผู้ใช้จำนวนมาก", "Logic ของโค้ด", "Database schema"], correct: 1 },
+        { q: "Stakeholder ที่สำคัญที่สุดใน Scrum คือใคร?", opts: ["Scrum Master", "Developer", "Product Owner", "QA"], correct: 2 },
+        { q: "'Done is better than perfect' มาจากแนวคิดใด?", opts: ["Waterfall", "Lean / Agile", "CMMI", "Six Sigma"], correct: 1 },
+        { q: "Daily Standup ควรใช้เวลาไม่เกินกี่นาที?", opts: ["30 นาที", "1 ชั่วโมง", "15 นาที", "45 นาที"], correct: 2 },
+      ],
+    };
 
     // ══════════════════════════════════════
     // STATE
@@ -1440,9 +1538,11 @@
     // SETUP
     // ══════════════════════════════════════
     function loadSample() {
-      questions = JSON.parse(JSON.stringify(SAMPLE_QS));
+      const cat = document.getElementById('sampleCat').value;
+      const labels = { dev: 'Dev', qa: 'QA', po: 'PO', pm: 'PM', mixed: 'Mixed', general: 'ความรู้ทั่วไป', funny: 'ขำๆ' };
+      questions = JSON.parse(JSON.stringify(SAMPLE_QS[cat]));
       renderQList();
-      toast('โหลด 10 คำถามตัวอย่างแล้ว ✓');
+      toast(`โหลด 10 คำถาม ${labels[cat]} แล้ว ✓`);
     }
 
     function addQuestion() {

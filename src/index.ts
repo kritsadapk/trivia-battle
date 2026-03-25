@@ -263,7 +263,11 @@ function handleClose(ws: any) {
 // ══════════════════════════════════════
 const app = new Elysia()
   // Serve HTML — no static plugin needed
-  .get("/", () => new Response(HTML, { headers: { "Content-Type": "text/html; charset=utf-8" } }))
+  .get("/", () => new Response(HTML, { headers: {
+    "Content-Type": "text/html; charset=utf-8",
+    "Cache-Control": "no-store, no-cache, must-revalidate",
+    "Pragma": "no-cache",
+  } }))
   .get("/health", () => ({ status: "ok", rooms: rooms.size }))
   .ws("/ws", {
     open(ws) {},
