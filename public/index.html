@@ -429,6 +429,8 @@ function getWsUrl() {
   return `${proto}://${location.host}/ws`;
 }
 
+let sendQueue = [];
+
 function connectWs() {
   if (ws && ws.readyState < 2) return;
   ws = new WebSocket(getWsUrl());
@@ -436,6 +438,11 @@ function connectWs() {
   ws.onopen = () => {
     clearTimeout(reconnectTimer);
     setConnStatus(true);
+    // Flush queued messages
+    while (sendQueue.length > 0) {
+      const msg = sendQueue.shift();
+      ws.send(JSON.stringify(msg));
+    }
   };
 
   ws.onmessage = (e) => {
@@ -444,14 +451,22 @@ function connectWs() {
 
   ws.onclose = () => {
     setConnStatus(false);
-    reconnectTimer = setTimeout(connectWs, 3000);
+    reconnectTimer = setTimeout(connectWs, 2000);
   };
 
   ws.onerror = () => ws.close();
 }
 
 function send(obj) {
-  if (ws?.readyState === 1) ws.send(JSON.stringify(obj));
+  if (ws?.readyState === 1) {
+    ws.send(JSON.stringify(obj));
+  } else {
+    // Queue only the latest action of each type (avoid duplicates)
+    sendQueue = sendQueue.filter(m => m.type !== obj.type);
+    sendQueue.push(obj);
+    // Attempt reconnect if not already connecting
+    if (!ws || ws.readyState > 1) connectWs();
+  }
 }
 
 function setConnStatus(ok) {
