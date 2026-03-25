@@ -264,7 +264,9 @@ const app = new Elysia()
   .ws("/ws", {
     open(ws) {},
     message(ws, message) {
-      handleMessage(ws, message as string);
+      // Elysia may pass Buffer or string — normalize to string
+      const raw = typeof message === "string" ? message : String(message);
+      handleMessage(ws, raw);
     },
     close(ws) {
       handleClose(ws);
