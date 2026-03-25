@@ -1,6 +1,9 @@
 import { Elysia } from "elysia";
-import { staticPlugin } from "@elysiajs/static";
 import { join } from "path";
+import { readFileSync } from "fs";
+
+// Serve index.html natively — works without @elysiajs/static
+const HTML = readFileSync(join(import.meta.dir, "../public/index.html"), "utf-8");
 
 // ══════════════════════════════════════
 // TYPES
@@ -38,7 +41,6 @@ interface Room {
 // STATE
 // ══════════════════════════════════════
 const rooms = new Map<string, Room>();
-// ws → { roomCode, playerName }
 const wsMap = new Map<any, { roomCode: string; playerName: string; role: "host" | "player" }>();
 
 // ══════════════════════════════════════
@@ -94,16 +96,13 @@ function startQuestionTimer(room: Room) {
     question: {
       q: room.questions[room.currentQ].q,
       opts: room.questions[room.currentQ].opts,
-      // Don't send correct answer yet
     },
     timeLeft: room.timeLeft,
   });
 
   room.timerInterval = setInterval(() => {
     room.timeLeft--;
-
     broadcast(room, { type: "timer", timeLeft: room.timeLeft });
-
     if (room.timeLeft <= 0) {
       clearInterval(room.timerInterval);
       revealAndLeaderboard(room);
@@ -114,7 +113,6 @@ function startQuestionTimer(room: Room) {
 function revealAndLeaderboard(room: Room) {
   clearInterval(room.timerInterval);
   room.phase = "leaderboard";
-
   const q = room.questions[room.currentQ];
   broadcast(room, {
     type: "reveal",
@@ -135,7 +133,6 @@ function handleMessage(ws: any, raw: string) {
 
   switch (msg.type) {
 
-    // ── HOST: Create room ──
     case "create_room": {
       const code = genCode();
       const room: Room = {
@@ -156,7 +153,6 @@ function handleMessage(ws: any, raw: string) {
       break;
     }
 
-    // ── PLAYER: Join room ──
     case "join_room": {
       const room = rooms.get(msg.code?.toUpperCase());
       if (!room) { sendTo(ws, { type: "error", message: "ไม่พบห้องนี้" }); return; }
@@ -173,7 +169,6 @@ function handleMessage(ws: any, raw: string) {
       break;
     }
 
-    // ── HOST: Start game ──
     case "start_game": {
       if (!info || info.role !== "host") return;
       const room = rooms.get(info.roomCode);
@@ -184,7 +179,6 @@ function handleMessage(ws: any, raw: string) {
       break;
     }
 
-    // ── PLAYER: Answer ──
     case "answer": {
       if (!info || info.role !== "player") return;
       const room = rooms.get(info.roomCode);
@@ -203,22 +197,18 @@ function handleMessage(ws: any, raw: string) {
       player.lastAnswerTime = Date.now();
 
       sendTo(ws, { type: "answer_result", correct: isCorrect, pts, score: player.score });
-
-      // Update host with answered count
       sendTo(room.hostWs, {
         type: "answer_update",
         answeredCount: room.answeredCount,
         total: room.players.size,
       });
 
-      // All answered → reveal early
       if (room.answeredCount >= room.players.size) {
         revealAndLeaderboard(room);
       }
       break;
     }
 
-    // ── HOST: Next question ──
     case "next_question": {
       if (!info || info.role !== "host") return;
       const room = rooms.get(info.roomCode);
@@ -229,21 +219,14 @@ function handleMessage(ws: any, raw: string) {
       break;
     }
 
-    // ── HOST: End game ──
     case "end_game": {
       if (!info || info.role !== "host") return;
       const room = rooms.get(info.roomCode);
       if (!room) return;
       clearInterval(room.timerInterval);
       room.phase = "final";
-      broadcast(room, {
-        type: "final",
-        leaderboard: getLeaderboard(room),
-      });
-      sendTo(room.hostWs, {
-        type: "final",
-        leaderboard: getLeaderboard(room),
-      });
+      broadcast(room, { type: "final", leaderboard: getLeaderboard(room) });
+      sendTo(room.hostWs, { type: "final", leaderboard: getLeaderboard(room) });
       break;
     }
   }
@@ -262,7 +245,6 @@ function handleClose(ws: any) {
     broadcast(room, { type: "player_left", players: getRoomPublicPlayers(room) });
     sendTo(room.hostWs, { type: "player_left", players: getRoomPublicPlayers(room) });
   } else if (info.role === "host") {
-    // Host disconnected → clean up room after delay
     setTimeout(() => {
       if (!rooms.has(info.roomCode)) return;
       broadcast(room, { type: "error", message: "Host ออกจากเกม" });
@@ -276,7 +258,9 @@ function handleClose(ws: any) {
 // SERVER
 // ══════════════════════════════════════
 const app = new Elysia()
-  .use(staticPlugin({ assets: "public", prefix: "/" }))
+  // Serve HTML — no static plugin needed
+  .get("/", () => new Response(HTML, { headers: { "Content-Type": "text/html; charset=utf-8" } }))
+  .get("/health", () => ({ status: "ok", rooms: rooms.size }))
   .ws("/ws", {
     open(ws) {},
     message(ws, message) {
@@ -286,7 +270,6 @@ const app = new Elysia()
       handleClose(ws);
     },
   })
-  .get("/health", () => ({ status: "ok", rooms: rooms.size }))
   .listen(process.env.PORT || 3000);
 
 console.log(`🎮 Trivia Battle running at http://localhost:${app.server?.port}`);
