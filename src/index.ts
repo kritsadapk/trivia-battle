@@ -133,7 +133,7 @@ function handleMessage(ws: any, raw: string | object) {
     try { msg = JSON.parse(String(raw)); } catch { return; }
   }
 
-  const info = wsMap.get(ws);
+  const info = wsMap.get(ws.raw ?? ws);
 
   switch (msg.type) {
 
@@ -152,7 +152,7 @@ function handleMessage(ws: any, raw: string | object) {
         answeredCount: 0,
       };
       rooms.set(code, room);
-      wsMap.set(ws, { roomCode: code, playerName: "__host__", role: "host" });
+      wsMap.set(ws.raw ?? ws, { roomCode: code, playerName: "__host__", role: "host" });
       sendTo(ws, { type: "room_created", code, gameName: room.gameName });
       break;
     }
@@ -165,7 +165,7 @@ function handleMessage(ws: any, raw: string | object) {
 
       const player: Player = { name: msg.name, avatar: msg.avatar, ws, score: 0, answered: false };
       room.players.set(msg.name, player);
-      wsMap.set(ws, { roomCode: room.code, playerName: msg.name, role: "player" });
+      wsMap.set(ws.raw ?? ws, { roomCode: room.code, playerName: msg.name, role: "player" });
 
       sendTo(ws, { type: "joined", code: room.code, gameName: room.gameName });
       broadcast(room, { type: "player_joined", players: getRoomPublicPlayers(room) }, ws);
@@ -237,9 +237,9 @@ function handleMessage(ws: any, raw: string | object) {
 }
 
 function handleClose(ws: any) {
-  const info = wsMap.get(ws);
+  const info = wsMap.get(ws.raw ?? ws);
   if (!info) return;
-  wsMap.delete(ws);
+  wsMap.delete(ws.raw ?? ws);
 
   const room = rooms.get(info.roomCode);
   if (!room) return;
