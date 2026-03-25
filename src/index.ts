@@ -125,9 +125,13 @@ function revealAndLeaderboard(room: Room) {
 // ══════════════════════════════════════
 // MESSAGE HANDLERS
 // ══════════════════════════════════════
-function handleMessage(ws: any, raw: string) {
+function handleMessage(ws: any, raw: string | object) {
   let msg: any;
-  try { msg = JSON.parse(raw); } catch { return; }
+  if (typeof raw === "object" && raw !== null) {
+    msg = raw;
+  } else {
+    try { msg = JSON.parse(String(raw)); } catch { return; }
+  }
 
   const info = wsMap.get(ws);
 
@@ -264,9 +268,7 @@ const app = new Elysia()
   .ws("/ws", {
     open(ws) {},
     message(ws, message) {
-      // Elysia may pass Buffer or string — normalize to string
-      const raw = typeof message === "string" ? message : String(message);
-      handleMessage(ws, raw);
+      handleMessage(ws, message as any);
     },
     close(ws) {
       handleClose(ws);
