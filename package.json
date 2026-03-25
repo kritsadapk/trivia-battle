@@ -1,0 +1,14 @@
+{
+  "name": "trivia-battle",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "dev": "bun --watch src/index.ts"
+  },
+  "dependencies": {
+    "elysia": "^1.1.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}
