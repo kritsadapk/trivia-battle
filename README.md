@@ -1,76 +1,53 @@
 # 🏆 Team Trivia Battle
 
-เกมตอบคำถาม Real-time สำหรับทีม WFH — Bun + Elysia.js + WebSocket
+เกมตอบคำถาม Real-time สำหรับทีม — Bun + Elysia.js + WebSocket
 
 ## Stack
 - **Runtime**: Bun
 - **Framework**: Elysia.js
 - **Realtime**: WebSocket (built-in)
+- **Database**: SQLite (`bun:sqlite`) — เก็บคลังคำถาม
 - **Frontend**: Vanilla HTML/CSS/JS (single file)
-- **Hosting**: Render.com (Free)
+- **Hosting**: Render.com (Docker)
 
 ---
 
-## 🚀 Deploy บน Render.com (ฟรี ไม่ต้องบัตร)
-
-### ขั้นตอนทั้งหมด ~5 นาที
-
----
+## 🚀 Deploy บน Render
 
 ### Step 1 — Push ขึ้น GitHub
 
 ```bash
-cd trivia-battle
-git init
 git add .
-git commit -m "init: trivia battle"
+git commit -m "deploy"
+git push
 ```
 
-สร้าง repo ใหม่บน GitHub แล้ว:
+### Step 2 — สร้าง / อัปเดต Service
 
-```bash
-git remote add origin https://github.com/YOUR_USERNAME/trivia-battle.git
-git branch -M main
-git push -u origin main
-```
+**ครั้งแรก:** https://render.com → **New +** → **Web Service** → เลือก repo นี้
+→ Runtime: **Docker**, Region: **Singapore**, Plan ตามต้องการ → Create
+(healthcheck `/health` อยู่ใน `render.yaml` แล้ว)
 
----
+**มี service อยู่แล้ว:** push แล้ว Render auto-deploy ให้เอง
 
-### Step 2 — Deploy บน Render
+แชร์ URL ให้ทีมแล้วเล่นได้เลย 🎉 (WebSocket ใช้ port เดียวกับ HTTP ไม่ต้องตั้งอะไรเพิ่ม)
 
-1. ไปที่ **https://render.com** → Sign up / Login (ใช้ GitHub ได้เลย)
-2. กด **"New +"** → เลือก **"Web Service"**
-3. กด **"Connect a repository"** → เลือก repo `trivia-battle`
-4. ตั้งค่าดังนี้:
+### ⚠️ เรื่องคลังคำถามบน Free plan
 
-| ฟิลด์ | ค่า |
-|-------|-----|
-| **Name** | trivia-battle |
-| **Region** | Singapore (ใกล้ไทยสุด) |
-| **Branch** | main |
-| **Runtime** | Docker |
-| **Plan** | Free |
+คลังคำถาม (ชุดคำถามที่กด "บันทึก") เก็บใน SQLite บน disk ของ service —
+**Free plan ไม่มี persistent disk** ดังนั้น:
 
-5. กด **"Create Web Service"**
-6. รอ build ~3-5 นาที
-7. ได้ URL เช่น `https://trivia-battle.onrender.com`
+| Plan | ผล |
+|------|-----|
+| **Free** | เกมเล่นได้ครบทุกอย่าง แต่คลังคำถามจะหายเมื่อ service หลับ (idle 15 นาที) หรือ redeploy |
+| **Starter ขึ้นไป** | เพิ่ม **Persistent Disk** mount ที่ `/data` (เปิดคอมเมนต์ส่วน `disk:` ใน `render.yaml`) → คลังคำถามอยู่ถาวร |
 
----
+ถ้าอยู่ Free plan: เตรียมคำถามเสร็จให้**บันทึกชุด + สร้างห้องเล่นต่อเนื่องในคราวเดียว** จะไม่มีปัญหา
+(ห้องเกมและคะแนนระหว่างเล่นอยู่ใน memory ไม่เกี่ยวกับ disk — spin down ตอนไม่มีคนใช้เท่านั้น ระหว่างเล่นมี traffic ตลอด service ไม่หลับ)
 
-### Step 3 — แชร์ให้ทีม
+### ⏰ Free plan หลับ 15 นาที
 
-แชร์ URL ใน Line/Slack → ทีมเปิดบราวเซอร์แล้วเล่นได้เลย! 🎉
-
----
-
-## ⚠️ Free Tier — สิ่งที่ต้องรู้
-
-| เรื่อง | รายละเอียด |
-|--------|-----------|
-| **Sleep** | Service หยุดหลังไม่มีคนใช้ 15 นาที |
-| **Wake up** | ครั้งแรกช้า ~30-60 วินาที |
-| **วิธีแก้** | เปิด URL ก่อนเล่น 1 นาที แล้วรีเฟรช |
-| **ระหว่างเล่น** | ไม่มีปัญหา เพราะมี traffic ตลอด |
+เปิด URL อุ่นเครื่องก่อนเริ่มงานจริง ~1 นาที (ตื่นครั้งแรกช้า 30-60 วิ) แล้วค่อยแชร์ให้ทีม
 
 ---
 
@@ -78,16 +55,16 @@ git push -u origin main
 
 ### Host (คนจัดเกม)
 1. เปิด URL → กด **"สร้างเกม"**
-2. ตั้งชื่อเกม + เวลาต่อข้อ
-3. เพิ่มคำถาม หรือกด **"โหลดตัวอย่าง"** (10 ข้อ)
-4. กด **"สร้างห้องเกม"** → ได้รหัส 4 ตัว เช่น `AB12`
-5. แชร์รหัสให้ทีมใน Line
-6. รอคนเข้า → กด **"เริ่มเกม"**
+2. เพิ่มคำถามเอง / โหลดตัวอย่าง / โหลดจาก **คลังคำถาม** (บันทึกชุดไว้ใช้ซ้ำได้)
+3. กด **"สร้างห้องเกม"** → ได้รหัส 4 ตัว + **QR code**
+4. ทีมสแกน QR หรือใส่รหัส → กด **"เริ่มเกม"**
+5. คุมจังหวะเอง: เฉลย → (ดูอันดับ หรือข้าม) → ข้อถัดไป
+6. จบเกมกด **"เล่นรอบใหม่ (คนเดิม)"** ได้เลย ไม่ต้องตั้งห้องใหม่
 
 ### ผู้เล่น
-1. เปิด URL เดียวกัน → กด **"เข้าร่วม"**
-2. ใส่รหัสห้อง + ชื่อ → กด **"เข้าร่วมเกม"**
-3. รอ Host เริ่ม → ตอบคำถามแข่งกัน!
+1. สแกน QR หรือเปิด URL → **"เข้าร่วม"** → ใส่รหัส + ชื่อ
+2. ตอบเร็ว = โบนัสเยอะ ตอบถูกติดกัน = ตัวคูณสตรีค 🔥
+3. เน็ตหลุด / จอดับ / เผลอ refresh — กลับเข้าห้องเดิมอัตโนมัติ คะแนนไม่หาย
 
 ---
 
@@ -95,22 +72,27 @@ git push -u origin main
 
 | สถานการณ์ | คะแนน |
 |-----------|-------|
-| ตอบถูก + เวลาเหลือ 20 วิ | 100 + 100 = **200** |
-| ตอบถูก + เวลาเหลือ 10 วิ | 100 + 50 = **150** |
-| ตอบถูก + เวลาเหลือ 5 วิ  | 100 + 25 = **125** |
-| ตอบผิด / ไม่ตอบ | **0** |
-
-> ตอบเร็วสุดในทีม + ถูก = คะแนนสูงสุด!
+| ตอบถูก | 100 + (เวลาที่เหลือ × 5) |
+| สตรีค 2 ข้อติด | × 1.2 |
+| สตรีค 3 ข้อติด | × 1.5 |
+| สตรีค 5 ข้อติด | × 2 |
+| ตอบผิด / ไม่ตอบ | 0 (สตรีคขาด) |
 
 ---
 
-## 🛠️ Run Local (ทดสอบก่อน deploy)
+## 🛠️ Run Local
 
 ```bash
 bun install
 bun run dev
-# เปิด http://localhost:3000
-# เปิด 2 tab: tab แรก Host, tab สอง Player
+# เปิด http://localhost:3000 สอง tab: Host + Player
+```
+
+ทดสอบแบบ Docker (เหมือน production):
+
+```bash
+docker build -t trivia-battle .
+docker run -p 3000:3000 -v $(pwd)/data:/data trivia-battle
 ```
 
 ---
@@ -120,11 +102,18 @@ bun run dev
 ```
 trivia-battle/
 ├── src/
-│   └── index.ts        # Elysia server + WebSocket + game logic
+│   ├── index.ts        # Elysia server + WebSocket + game logic
+│   └── db.ts           # SQLite — คลังคำถาม (question sets + search API)
 ├── public/
 │   └── index.html      # Frontend ทั้งหมด (single file)
-├── Dockerfile          # Render ใช้ตัวนี้ build
-├── render.yaml         # Render config
-├── package.json
-└── tsconfig.json
+├── Dockerfile          # Render build จากตัวนี้
+├── render.yaml         # Render config (healthcheck /health + disk ตัวเลือก)
+└── package.json
 ```
+
+## 🔧 Env
+
+| ตัวแปร | ค่าเริ่มต้น | หมายเหตุ |
+|--------|------------|----------|
+| `PORT` | 3000 | render.yaml ตั้งไว้แล้ว |
+| `DB_PATH` | `data/trivia.db` (local) / `/data/trivia.db` (Docker) | ชี้ไป Persistent Disk ถ้ามี |
