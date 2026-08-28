@@ -9,62 +9,83 @@
   <title>Quiz Rush 🚀</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Kanit:wght@400;600;700&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Anuphan:wght@400;500;600;700&family=Bungee&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     :root {
-      --bg: #07070f;
-      --surface: #0e0e1a;
-      --card: #11111e;
-      --gold: #ffd700;
-      --orange: #ff6b35;
-      --cyan: #00f5ff;
-      --green: #39ff14;
-      --red: #ff073a;
-      --purple: #bf5af2;
-      --pink: #ff2d78;
-      --text: #eeeeff;
-      --muted: #5a5a7a;
-      --accent: #7c3aed;
+      /* Sticker-pop game show palette */
+      --paper: #fff3e0;
+      --paper-2: #ffe9c7;
+      --ink: #241a4d;
+      --card: #fffdf7;
+      --gold: #ffb800;
+      --orange: #ff7a1a;
+      --cyan: #1789dc;
+      --green: #21b26b;
+      --red: #f5455c;
+      --purple: #8a3ffc;
+      --pink: #ff2e88;
+      --text: #241a4d;
+      --muted: #6e6389;
+      --accent: #ff2e88;
+      /* legacy aliases used by inline styles */
+      --bg: #fff3e0;
+      --surface: #fffdf7;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: 'Kanit', sans-serif;
-      background: var(--bg);
+      font-family: 'Anuphan', 'Mitr', sans-serif;
+      font-size: 17px;
+      background: var(--paper);
       color: var(--text);
       min-height: 100vh;
       overflow-x: hidden;
     }
 
-    /* Drifting grid */
+    /* Halftone dot paper */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
-      background-image:
-        linear-gradient(rgba(124, 58, 237, .05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(124, 58, 237, .05) 1px, transparent 1px);
-      background-size: 48px 48px;
+      background-image: radial-gradient(rgba(36, 26, 77, .08) 1.6px, transparent 1.6px);
+      background-size: 26px 26px;
       pointer-events: none;
       z-index: 0;
-      animation: gridDrift 24s linear infinite;
-    }
-    @keyframes gridDrift {
-      0%   { background-position: 0 0; }
-      100% { background-position: 48px 48px; }
     }
 
-    /* Corner glow */
+    /* Warm corner washes */
     body::after {
       content: '';
       position: fixed;
       inset: 0;
       background:
-        radial-gradient(ellipse at 15% 10%, rgba(124, 58, 237, .2) 0%, transparent 45%),
-        radial-gradient(ellipse at 85% 90%, rgba(255, 45, 120, .15) 0%, transparent 45%);
+        radial-gradient(ellipse at 12% 4%, rgba(255, 184, 0, .28) 0%, transparent 42%),
+        radial-gradient(ellipse at 92% 96%, rgba(255, 46, 136, .16) 0%, transparent 45%),
+        radial-gradient(ellipse at 90% 6%, rgba(23, 137, 220, .12) 0%, transparent 38%);
       pointer-events: none;
       z-index: 0;
+    }
+
+    /* ── FLOATING DOODLES ── */
+    .bg-doodles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .bg-doodles span {
+      position: absolute;
+      font-size: 34px;
+      opacity: .14;
+      filter: saturate(1.4);
+      animation: doodleBob 6s ease-in-out infinite;
+    }
+    .bg-doodles span:nth-child(1) { top: 8%;  left: 6%;  animation-delay: 0s;    transform: rotate(-14deg); }
+    .bg-doodles span:nth-child(2) { top: 18%; right: 8%; animation-delay: 1.2s;  font-size: 44px; transform: rotate(12deg); }
+    .bg-doodles span:nth-child(3) { bottom: 22%; left: 9%;  animation-delay: 2.4s; font-size: 40px; transform: rotate(8deg); }
+    .bg-doodles span:nth-child(4) { bottom: 10%; right: 12%; animation-delay: .8s;  transform: rotate(-10deg); }
+    .bg-doodles span:nth-child(5) { top: 46%; left: 2%;  animation-delay: 1.8s;  font-size: 28px; }
+    .bg-doodles span:nth-child(6) { top: 60%; right: 3%; animation-delay: 3s;    font-size: 30px; transform: rotate(18deg); }
+    @keyframes doodleBob {
+      0%, 100% { translate: 0 0; }
+      50%      { translate: 0 -16px; }
     }
 
     /* ── URGENCY OVERLAY ── */
@@ -75,30 +96,24 @@
       z-index: 5;
       opacity: 0;
       transition: opacity .4s;
-      border-radius: 0;
+      border: 0 solid transparent;
     }
-
-    body.warning  #urgency-overlay { opacity: 1; box-shadow: inset 0 0 80px rgba(255, 140, 0, .18); }
-    body.urgent   #urgency-overlay { opacity: 1; animation: urgVignette .5s ease-in-out infinite alternate; }
-    body.critical #urgency-overlay { opacity: 1; animation: critVignette .18s ease-in-out infinite alternate; }
-
-    @keyframes urgVignette {
-      from { box-shadow: inset 0 0 80px  rgba(255,7,58,.2); }
-      to   { box-shadow: inset 0 0 140px rgba(255,7,58,.5); }
+    body.warning  #urgency-overlay { opacity: 1; box-shadow: inset 0 0 0 8px rgba(255, 122, 26, .5); }
+    body.urgent   #urgency-overlay { opacity: 1; animation: urgFrame .5s ease-in-out infinite alternate; }
+    body.critical #urgency-overlay { opacity: 1; animation: critFrame .18s ease-in-out infinite alternate; }
+    @keyframes urgFrame {
+      from { box-shadow: inset 0 0 0 8px  rgba(245, 69, 92, .55); }
+      to   { box-shadow: inset 0 0 0 16px rgba(245, 69, 92, .9); }
     }
-    @keyframes critVignette {
-      from { box-shadow: inset 0 0 120px rgba(255,7,58,.45); background: rgba(255,7,58,.04); }
-      to   { box-shadow: inset 0 0 180px rgba(255,7,58,.75); background: rgba(255,7,58,.09); }
+    @keyframes critFrame {
+      from { box-shadow: inset 0 0 0 14px rgba(245, 69, 92, .85); background: rgba(245, 69, 92, .04); }
+      to   { box-shadow: inset 0 0 0 26px rgba(245, 69, 92, 1);   background: rgba(245, 69, 92, .1); }
     }
-
-    /* Screen shake on critical */
-    body.critical #screen-question {
-      animation: screenShake .14s ease-in-out infinite;
-    }
+    body.critical #screen-question { animation: screenShake .14s ease-in-out infinite; }
     @keyframes screenShake {
-      0%,100% { transform: translateX(0); }
-      25%  { transform: translateX(-4px) rotate(-.15deg); }
-      75%  { transform: translateX( 4px) rotate( .15deg); }
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px) rotate(-.15deg); }
+      75% { transform: translateX(4px)  rotate(.15deg); }
     }
 
     /* ── SCREENS ── */
@@ -106,707 +121,963 @@
     .screen.active {
       display: flex;
       flex-direction: column;
-      animation: screenIn .45s cubic-bezier(.16,1,.3,1) both;
+      animation: screenIn .5s cubic-bezier(.34, 1.4, .64, 1) both;
     }
     @keyframes screenIn {
-      from { opacity: 0; transform: scale(.97) translateY(14px); }
+      from { opacity: 0; transform: scale(.95) translateY(18px); }
       to   { opacity: 1; transform: scale(1)   translateY(0); }
     }
 
     /* ── TITLE ── */
     .title {
-      font-family: 'Bangers', cursive;
-      font-size: clamp(52px, 12vw, 96px);
-      letter-spacing: 6px;
-      line-height: 1;
-      background: linear-gradient(135deg, var(--gold) 0%, var(--orange) 45%, var(--cyan) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 0 24px rgba(255,215,0,.5));
-      animation: titleGlow 3s ease-in-out infinite;
+      font-family: 'Bungee', 'Mitr', sans-serif;
+      font-weight: 700;
+      font-size: clamp(46px, 11vw, 92px);
+      line-height: 1.05;
+      color: var(--pink);
+      text-shadow:
+        3px 3px 0 var(--ink),
+        6px 6px 0 var(--gold);
+      transform: rotate(-2deg);
+      animation: titleBounce 3.2s ease-in-out infinite;
     }
-    @keyframes titleGlow {
-      0%,100% { filter: drop-shadow(0 0 20px rgba(255,215,0,.5)); }
-      50%      { filter: drop-shadow(0 0 52px rgba(255,107,53,.85)); }
+    @keyframes titleBounce {
+      0%, 100% { transform: rotate(-2deg) scale(1); }
+      50%      { transform: rotate(-1deg) scale(1.025); }
     }
 
-    .subtitle { font-size: 12px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; margin-top: 6px; }
-    h2 { font-size: 20px; font-weight: 700; }
-    h3 { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+    .subtitle { font-family: 'Mitr', sans-serif; font-size: 15px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; }
+    h2 { font-family: 'Mitr', sans-serif; font-size: 26px; font-weight: 700; line-height: 1.2; }
+    h3 { font-family: 'Mitr', sans-serif; font-size: 15px; font-weight: 600; color: var(--ink); letter-spacing: 1px; }
 
-    /* ── CARD ── */
+    /* ── CARD (sticker) ── */
     .card {
-      background: rgba(17,17,30,.9);
-      border: 1px solid rgba(124,58,237,.2);
+      background: var(--card);
+      border: 3px solid var(--ink);
       border-radius: 20px;
       padding: 24px;
-      backdrop-filter: blur(12px);
-      transition: border-color .25s;
+      box-shadow: 6px 7px 0 rgba(36, 26, 77, .9);
     }
-    .card:hover { border-color: rgba(124,58,237,.38); }
 
-    /* ── BUTTONS ── */
+    /* ── BUTTONS (pressable toys) ── */
     .btn {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
-      font-family: 'Kanit', sans-serif;
-      font-size: 15px;
-      font-weight: 700;
-      padding: 13px 28px;
-      border: none;
-      border-radius: 12px;
+      font-family: 'Mitr', sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      padding: 14px 28px;
+      border: 3px solid var(--ink);
+      border-radius: 16px;
       cursor: pointer;
-      transition: all .2s cubic-bezier(.16,1,.3,1);
-      letter-spacing: .5px;
+      color: var(--ink);
+      background: var(--card);
+      box-shadow: 0 5px 0 var(--ink);
+      transition: transform .12s ease, box-shadow .12s ease, background .2s;
+      letter-spacing: .3px;
       position: relative;
-      overflow: hidden;
     }
-    .btn::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(rgba(255,255,255,.14), transparent);
-      opacity: 0;
-      transition: opacity .2s;
-    }
-    .btn:hover::after { opacity: 1; }
-    .btn:active { transform: scale(.94) !important; }
+    .btn:hover  { transform: translateY(-2px); box-shadow: 0 7px 0 var(--ink); }
+    .btn:active { transform: translateY(4px) !important; box-shadow: 0 1px 0 var(--ink) !important; }
 
-    .btn-gold  { background: linear-gradient(135deg,var(--gold),var(--orange)); color:#1a0a00; box-shadow:0 4px 20px rgba(255,215,0,.35); }
-    .btn-gold:hover  { box-shadow:0 8px 36px rgba(255,215,0,.65); transform:translateY(-3px); }
-    .btn-cyan  { background: linear-gradient(135deg,var(--cyan),#0080ff); color:#001a2e; box-shadow:0 4px 20px rgba(0,245,255,.35); }
-    .btn-cyan:hover  { box-shadow:0 8px 36px rgba(0,245,255,.6); transform:translateY(-3px); }
-    .btn-pink  { background: linear-gradient(135deg,var(--pink),var(--purple)); color:#fff; box-shadow:0 4px 20px rgba(255,45,120,.4); }
-    .btn-pink:hover  { box-shadow:0 8px 36px rgba(255,45,120,.7); transform:translateY(-3px); }
-    .btn-outline { background:transparent; color:var(--muted); border:1px solid rgba(255,255,255,.12); }
-    .btn-outline:hover { border-color:rgba(191,90,242,.6); color:var(--purple); background:rgba(124,58,237,.06); }
-    .btn-danger { background:rgba(255,7,58,.12); color:var(--red); border:1px solid rgba(255,7,58,.3); }
-    .btn-danger:hover { background:rgba(255,7,58,.2); box-shadow:0 4px 20px rgba(255,7,58,.3); }
-    .btn-sm { padding:8px 16px; font-size:12px; border-radius:8px; }
-    .w-full { width:100%; }
+    .btn-gold  { background: var(--gold);  color: var(--ink); }
+    .btn-gold:hover { background: #ffc63d; }
+    .btn-cyan  { background: var(--cyan);  color: #fff; }
+    .btn-cyan:hover { background: #2f9ae8; }
+    .btn-pink  { background: var(--pink);  color: #fff; }
+    .btn-pink:hover { background: #ff4d9b; }
+    .btn-outline { background: var(--card); color: var(--ink); box-shadow: 0 4px 0 var(--ink); }
+    .btn-outline:hover { background: var(--paper-2); }
+    .btn-danger { background: var(--red); color: #fff; }
+    .btn-danger:hover { background: #ff5f74; }
+    .btn-sm { padding: 9px 16px; font-size: 14px; border-radius: 12px; border-width: 2.5px; box-shadow: 0 3.5px 0 var(--ink); }
+    .btn-sm:hover { box-shadow: 0 5px 0 var(--ink); }
+    .w-full { width: 100%; }
 
     /* ── INPUT ── */
     input[type=text], textarea, select {
       width: 100%;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(124,58,237,.25);
-      border-radius: 12px;
+      background: #fff;
+      border: 3px solid var(--ink);
+      border-radius: 14px;
       padding: 13px 16px;
-      color: var(--text);
-      font-family: 'Kanit', sans-serif;
-      font-size: 15px;
-      transition: all .2s;
+      color: var(--ink);
+      font-family: 'Anuphan', sans-serif;
+      font-size: 17px;
+      font-weight: 500;
+      transition: box-shadow .15s, translate .15s;
       outline: none;
+      box-shadow: inset 0 2px 0 rgba(36, 26, 77, .08);
     }
     input:focus, textarea:focus, select:focus {
-      border-color: var(--purple);
-      box-shadow: 0 0 0 3px rgba(124,58,237,.2), 0 0 20px rgba(124,58,237,.1);
-      background: rgba(124,58,237,.05);
+      box-shadow: 4px 4px 0 var(--gold), inset 0 2px 0 rgba(36, 26, 77, .08);
+      translate: -2px -2px;
     }
-    textarea { resize: vertical; min-height: 72px; }
-    label { display:block; font-size:11px; color:var(--muted); margin-bottom:5px; letter-spacing:1px; text-transform:uppercase; }
+    input::placeholder, textarea::placeholder { color: #a99fc2; }
+    textarea { resize: vertical; min-height: 76px; }
+    label {
+      display: block;
+      font-family: 'Mitr', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 6px;
+      letter-spacing: .4px;
+    }
 
-    /* ── BADGE ── */
-    .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
-    .badge-gold   { background:rgba(255,215,0,.12);  color:var(--gold);   border:1px solid rgba(255,215,0,.3); }
-    .badge-cyan   { background:rgba(0,245,255,.08);  color:var(--cyan);   border:1px solid rgba(0,245,255,.25); }
-    .badge-green  { background:rgba(57,255,20,.08);  color:var(--green);  border:1px solid rgba(57,255,20,.25); }
-    .badge-red    { background:rgba(255,7,58,.08);   color:var(--red);    border:1px solid rgba(255,7,58,.25); }
-    .badge-host   { background:rgba(255,215,0,.12);  color:var(--gold);   border:1px solid rgba(255,215,0,.35); }
+    /* ── BADGE (sticker tags) ── */
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-family: 'Mitr', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: .5px;
+      border: 2.5px solid var(--ink);
+      box-shadow: 2px 2.5px 0 rgba(36, 26, 77, .85);
+      background: var(--card);
+      color: var(--ink);
+    }
+    .badge-gold  { background: var(--gold); }
+    .badge-cyan  { background: #bfe6ff; }
+    .badge-green { background: #baf1d4; }
+    .badge-red   { background: #ffd2d9; }
+    .badge-host  { background: var(--gold); transform: rotate(2deg); }
 
     /* ── HOME ── */
-    #screen-home { align-items:center; justify-content:center; padding:24px; gap:28px; text-align:center; }
+    #screen-home { align-items: center; justify-content: center; padding: 24px; gap: 28px; text-align: center; }
 
-    .home-logo-wrap { position:relative; display:inline-block; }
+    .home-logo-wrap { position: relative; display: inline-block; padding: 10px 6px; }
     .home-logo-wrap::before {
-      content: '';
+      content: '⭐';
       position: absolute;
-      inset: -30px;
-      background: radial-gradient(circle, rgba(255,215,0,.2) 0%, rgba(124,58,237,.15) 40%, transparent 70%);
-      border-radius: 50%;
-      animation: logoPulse 2.5s ease-in-out infinite;
+      top: -26px; right: -34px;
+      font-size: 40px;
+      animation: starSpin 4s linear infinite;
     }
-    @keyframes logoPulse {
-      0%,100% { transform:scale(1);    opacity:.7; }
-      50%      { transform:scale(1.18); opacity:1; }
+    .home-logo-wrap::after {
+      content: '⚡';
+      position: absolute;
+      bottom: -18px; left: -38px;
+      font-size: 36px;
+      transform: rotate(-12deg);
+      animation: doodleBob 3s ease-in-out infinite;
+    }
+    @keyframes starSpin {
+      from { transform: rotate(0deg)   scale(1); }
+      50%  { transform: rotate(180deg) scale(1.25); }
+      to   { transform: rotate(360deg) scale(1); }
     }
 
-    .home-modes { display:grid; grid-template-columns:1fr 1fr; gap:14px; width:100%; max-width:480px; }
+    .home-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; width: 100%; max-width: 520px; }
 
     .mode-card {
-      background: rgba(17,17,30,.95);
-      border: 1.5px solid rgba(124,58,237,.2);
-      border-radius: 20px;
-      padding: 32px 16px;
+      background: var(--card);
+      border: 3px solid var(--ink);
+      border-radius: 22px;
+      padding: 34px 18px 28px;
       cursor: pointer;
-      transition: all .3s cubic-bezier(.16,1,.3,1);
+      transition: transform .18s cubic-bezier(.34, 1.56, .64, 1), box-shadow .18s;
       text-align: center;
       position: relative;
-      overflow: hidden;
+      box-shadow: 6px 7px 0 rgba(36, 26, 77, .9);
     }
-    .mode-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg,rgba(124,58,237,.1),rgba(255,45,120,.06));
-      opacity: 0;
-      transition: opacity .3s;
-    }
-    /* Shimmer sweep */
-    .mode-card::after {
-      content: '';
-      position: absolute;
-      top:-50%; left:-60%;
-      width: 40%; height: 200%;
-      background: linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);
-      transform: skewX(-15deg);
-      transition: left .55s ease;
-    }
-    .mode-card:hover::before { opacity:1; }
-    .mode-card:hover::after  { left:120%; }
-    .mode-card:hover {
-      border-color: rgba(255,215,0,.55);
-      transform: translateY(-7px);
-      box-shadow: 0 20px 60px rgba(124,58,237,.28), 0 0 0 1px rgba(255,215,0,.15);
-    }
-    .mode-card:active { transform:scale(.96); }
+    .mode-card:nth-child(1) { transform: rotate(-1.5deg); background: linear-gradient(180deg, #fff8ea, #ffefcd); }
+    .mode-card:nth-child(2) { transform: rotate(1.5deg);  background: linear-gradient(180deg, #f3fbff, #dff2ff); }
+    .mode-card:hover { transform: rotate(0deg) translateY(-6px) scale(1.03); box-shadow: 8px 11px 0 rgba(36, 26, 77, .9); }
+    .mode-card:active { transform: scale(.96); box-shadow: 3px 4px 0 rgba(36, 26, 77, .9); }
 
     .mode-icon {
-      font-size: 48px;
+      font-size: 54px;
       margin-bottom: 12px;
       display: block;
-      filter: drop-shadow(0 0 10px rgba(255,215,0,.25));
-      transition: filter .3s, transform .3s;
+      transition: transform .25s cubic-bezier(.34, 1.56, .64, 1);
     }
-    .mode-card:hover .mode-icon {
-      filter: drop-shadow(0 0 22px rgba(255,215,0,.65));
-      transform: scale(1.18);
-    }
-    .mode-title { font-size:16px; font-weight:700; margin-bottom:4px; }
-    .mode-desc  { font-size:12px; color:var(--muted); }
+    .mode-card:hover .mode-icon { transform: scale(1.25) rotate(-8deg); }
+    .mode-title { font-family: 'Mitr', sans-serif; font-size: 21px; font-weight: 700; margin-bottom: 4px; color: var(--ink); }
+    .mode-desc  { font-size: 14px; color: var(--muted); font-weight: 500; }
 
-    .home-stats { display:flex; gap:20px; justify-content:center; font-size:12px; color:var(--muted); }
-    .home-stat  { display:flex; align-items:center; gap:5px; }
+    .home-stats { display: flex; gap: 12px; justify-content: center; font-size: 14px; color: var(--ink); flex-wrap: wrap; }
+    .home-stat {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--card);
+      border: 2.5px solid var(--ink);
+      border-radius: 999px;
+      padding: 7px 16px;
+      font-family: 'Mitr', sans-serif;
+      font-weight: 500;
+      box-shadow: 2px 3px 0 rgba(36, 26, 77, .85);
+    }
+    .home-stat:nth-child(1) { transform: rotate(-1deg); }
+    .home-stat:nth-child(2) { transform: rotate(1.2deg); }
     .home-stat-dot {
-      width: 7px; height: 7px;
+      width: 9px; height: 9px;
       border-radius: 50%;
-      background: var(--purple);
-      box-shadow: 0 0 8px var(--purple);
+      background: var(--pink);
       animation: dotPulse 2s ease-in-out infinite;
     }
     @keyframes dotPulse {
-      0%,100% { transform:scale(1); }
-      50%      { transform:scale(1.5); }
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.5); }
     }
 
     /* ── SETUP ── */
     #screen-setup > div {
-      padding: 24px; max-width: 700px; margin: 0 auto;
-      gap: 16px; display: flex; flex-direction: column; width: 100%; overflow-y: auto;
+      padding: 24px; max-width: 720px; margin: 0 auto;
+      gap: 18px; display: flex; flex-direction: column; width: 100%; overflow-y: auto;
     }
     .q-item {
-      background: rgba(124,58,237,.04);
-      border: 1px solid rgba(124,58,237,.15);
-      border-radius: 10px;
-      padding: 12px 16px;
-      display: flex; align-items: center; gap: 10px;
-      transition: all .2s;
-      animation: qItemIn .3s cubic-bezier(.34,1.56,.64,1) both;
+      background: #fff;
+      border: 2.5px solid var(--ink);
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: 3px 3px 0 rgba(36, 26, 77, .25);
+      transition: box-shadow .15s, translate .15s;
+      animation: qItemIn .3s cubic-bezier(.34, 1.56, .64, 1) both;
     }
     @keyframes qItemIn {
-      from { opacity:0; transform:translateX(-12px) scale(.96); }
-      to   { opacity:1; transform:translateX(0)     scale(1); }
+      from { opacity: 0; transform: translateX(-14px) scale(.96); }
+      to   { opacity: 1; transform: translateX(0)     scale(1); }
     }
-    .q-item:hover { border-color:rgba(124,58,237,.4); background:rgba(124,58,237,.07); }
+    .q-item:hover { translate: -1px -1px; box-shadow: 4px 4px 0 rgba(36, 26, 77, .4); }
     .q-num {
-      width:26px; height:26px; border-radius:8px;
-      background:linear-gradient(135deg,var(--purple),var(--pink));
-      color:#fff; font-weight:700; font-size:12px;
-      display:flex; align-items:center; justify-content:center; flex-shrink:0;
+      width: 30px; height: 30px; border-radius: 10px;
+      background: var(--gold);
+      border: 2.5px solid var(--ink);
+      color: var(--ink); font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 14px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .q-text   { flex:1; font-size:13px; color:var(--muted); }
-    .q-remove { background:none; border:none; color:var(--red); cursor:pointer; font-size:16px; opacity:.4; transition:opacity .2s; }
-    .q-remove:hover { opacity:1; }
-    .options-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-    .opt-row { display:flex; align-items:center; gap:8px; }
-    .opt-lbl { width:26px; height:26px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; flex-shrink:0; }
+    .q-text   { flex: 1; font-size: 15px; color: var(--ink); font-weight: 500; }
+    .q-remove { background: none; border: none; color: var(--red); cursor: pointer; font-size: 18px; opacity: .55; transition: opacity .2s, transform .15s; }
+    .q-remove:hover { opacity: 1; transform: scale(1.25); }
+    .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .opt-row { display: flex; align-items: center; gap: 8px; }
+    .opt-lbl {
+      width: 32px; height: 32px; border-radius: 10px;
+      border: 2.5px solid var(--ink);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 14px; flex-shrink: 0;
+      color: var(--ink);
+    }
 
     /* ── LOBBY ── */
     #screen-lobby > div {
-      padding:24px; max-width:700px; margin:0 auto;
-      gap:16px; display:flex; flex-direction:column; width:100%; overflow-y:auto;
+      padding: 24px; max-width: 720px; margin: 0 auto;
+      gap: 18px; display: flex; flex-direction: column; width: 100%; overflow-y: auto;
     }
     .room-code-box {
-      background: rgba(17,17,30,.9);
-      border: 2px solid rgba(255,215,0,.3);
-      border-radius: 22px;
+      background: var(--card);
+      border: 3px dashed var(--ink);
+      outline: 3px solid var(--ink);
+      outline-offset: 5px;
+      border-radius: 20px;
       padding: 28px 24px;
+      margin: 6px;
       text-align: center;
       position: relative;
-      overflow: hidden;
-      animation: codeBoxIn .6s cubic-bezier(.34,1.56,.64,1);
+      background-image: radial-gradient(rgba(255, 184, 0, .18) 2px, transparent 2px);
+      background-size: 20px 20px;
+      animation: codeBoxIn .6s cubic-bezier(.34, 1.56, .64, 1);
     }
     @keyframes codeBoxIn {
-      from { transform:scale(.82); opacity:0; }
-      to   { transform:scale(1);   opacity:1; }
-    }
-    .room-code-box::before {
-      content:'';
-      position:absolute; inset:0;
-      background:radial-gradient(ellipse at 50% 0%, rgba(255,215,0,.08), transparent 60%);
+      from { transform: scale(.82) rotate(-2deg); opacity: 0; }
+      to   { transform: scale(1)   rotate(0);     opacity: 1; }
     }
     .room-code {
-      font-family: 'Space Mono', monospace;
-      font-size: clamp(40px,10vw,68px);
-      font-weight: 700;
-      letter-spacing: 12px;
-      background: linear-gradient(135deg,var(--gold),var(--orange));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 0 14px rgba(255,215,0,.5));
-      animation: codeGlow 2s ease-in-out infinite;
-      position: relative;
+      font-family: 'Bungee', monospace;
+      font-size: clamp(52px, 14vw, 92px);
+      letter-spacing: 10px;
+      line-height: 1.1;
+      color: var(--ink);
+      text-shadow: 4px 4px 0 var(--gold);
+      animation: codeWiggle 2.4s ease-in-out infinite;
     }
-    @keyframes codeGlow {
-      0%,100% { filter:drop-shadow(0 0 12px rgba(255,215,0,.5)); }
-      50%      { filter:drop-shadow(0 0 30px rgba(255,107,53,.85)); }
+    @keyframes codeWiggle {
+      0%, 100% { transform: rotate(0deg)  scale(1); }
+      30%      { transform: rotate(-1deg) scale(1.02); }
+      70%      { transform: rotate(1deg)  scale(1.02); }
     }
-    .players-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:8px; }
+    .players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
     .p-chip {
-      background:rgba(124,58,237,.06); border:1px solid rgba(124,58,237,.2);
-      border-radius:10px; padding:9px 13px;
-      display:flex; align-items:center; gap:8px;
-      animation:chipIn .4s cubic-bezier(.34,1.56,.64,1);
+      background: #fff;
+      border: 2.5px solid var(--ink);
+      border-radius: 999px;
+      padding: 8px 14px 8px 8px;
+      display: flex; align-items: center; gap: 9px;
+      box-shadow: 2.5px 3px 0 rgba(36, 26, 77, .7);
+      animation: chipIn .45s cubic-bezier(.34, 1.56, .64, 1);
     }
     @keyframes chipIn {
-      from { transform:scale(.5) rotate(-6deg); opacity:0; }
-      to   { transform:scale(1)  rotate(0deg);  opacity:1; }
+      from { transform: scale(.4) rotate(-10deg); opacity: 0; }
+      to   { transform: scale(1)  rotate(0deg);   opacity: 1; }
     }
-    .p-avatar { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
-    .p-name   { font-size:12px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .p-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--paper-2);
+      border: 2px solid var(--ink);
+      display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+    }
+    .p-name { min-width: 0; font-family: 'Mitr', sans-serif; font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink); }
 
     /* ── JOIN ── */
-    #screen-join { align-items:center; justify-content:center; padding:24px; gap:20px; }
-    #screen-join .card { width:100%; max-width:400px; }
+    #screen-join { align-items: center; justify-content: center; padding: 24px; gap: 20px; }
+    #screen-join .card { width: 100%; max-width: 420px; }
 
     /* ── WAITING ── */
-    #screen-waiting { align-items:center; justify-content:center; padding:24px; text-align:center; gap:20px; }
+    #screen-waiting { align-items: center; justify-content: center; padding: 24px; text-align: center; gap: 22px; }
     .dots span {
-      display:inline-block; width:10px; height:10px; border-radius:50%;
-      margin:0 4px; animation:dot 1.4s ease-in-out infinite;
+      display: inline-block; width: 13px; height: 13px; border-radius: 50%;
+      border: 2px solid var(--ink);
+      margin: 0 5px; animation: dot 1.4s ease-in-out infinite;
     }
-    .dots span:nth-child(1) { background:var(--purple); }
-    .dots span:nth-child(2) { background:var(--pink);   animation-delay:.2s; }
-    .dots span:nth-child(3) { background:var(--cyan);   animation-delay:.4s; }
+    .dots span:nth-child(1) { background: var(--pink); }
+    .dots span:nth-child(2) { background: var(--gold); animation-delay: .2s; }
+    .dots span:nth-child(3) { background: var(--cyan); animation-delay: .4s; }
     @keyframes dot {
-      0%,80%,100% { transform:scale(.4); opacity:.3; }
-      40%          { transform:scale(1.3); opacity:1; }
+      0%, 80%, 100% { transform: scale(.5); opacity: .35; }
+      40%           { transform: scale(1.3); opacity: 1; }
+    }
+    .wait-avatar-big {
+      font-size: 56px;
+      display: inline-block;
+      animation: waitBounce 1.6s cubic-bezier(.34, 1.56, .64, 1) infinite;
+    }
+    @keyframes waitBounce {
+      0%, 100% { transform: translateY(0)    rotate(-4deg); }
+      50%      { transform: translateY(-14px) rotate(4deg); }
     }
 
     /* ── QUESTION ── */
-    #screen-question { padding:20px; max-width:700px; margin:0 auto; gap:14px; width:100%; }
-    .q-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+    #screen-question { padding: 20px; max-width: 780px; margin: 0 auto; gap: 14px; width: 100%; }
+    .q-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .q-counter {
+      font-family: 'Mitr', sans-serif;
+      font-size: 16px; font-weight: 600; color: var(--ink);
+      background: var(--card);
+      border: 2.5px solid var(--ink);
+      border-radius: 999px;
+      padding: 5px 15px;
+      box-shadow: 2px 2.5px 0 rgba(36, 26, 77, .85);
+    }
 
     .timer-wrap {
-      height: 8px;
-      background: rgba(255,255,255,.07);
-      border-radius: 4px;
+      height: 18px;
+      background: #fff;
+      border: 3px solid var(--ink);
+      border-radius: 999px;
       overflow: hidden;
       position: relative;
+      box-shadow: inset 0 2px 0 rgba(36, 26, 77, .1);
     }
     .timer-bar {
       height: 100%;
-      border-radius: 4px;
-      background: linear-gradient(90deg, var(--green), var(--cyan));
+      border-radius: 999px;
+      background: repeating-linear-gradient(-45deg, var(--green) 0 14px, #35c77e 14px 28px);
+      background-size: 40px 40px;
       transition: width 1s linear, background .5s;
-      position: relative;
+      animation: barSlide 1s linear infinite;
     }
-    /* Glowing tip on timer bar */
-    .timer-bar::after {
-      content: '';
-      position: absolute;
-      right: 0; top: 0; bottom: 0;
-      width: 6px;
-      background: rgba(255,255,255,.7);
-      border-radius: 3px;
-      box-shadow: 0 0 10px rgba(255,255,255,.6);
+    @keyframes barSlide {
+      from { background-position: 0 0; }
+      to   { background-position: 40px 0; }
     }
 
     /* Timer number — 4 urgency levels */
     .timer-num {
-      font-family: 'Bangers', cursive;
-      font-size: clamp(40px,8vw,54px);
-      letter-spacing: 2px;
-      background: linear-gradient(135deg,var(--cyan),var(--purple));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      font-family: 'Bungee', monospace;
+      font-size: clamp(44px, 9vw, 64px);
+      color: var(--ink);
+      text-shadow: 3px 3px 0 var(--gold);
       text-align: center;
       line-height: 1;
-      transition: font-size .25s cubic-bezier(.34,1.56,.64,1);
+      transition: font-size .25s cubic-bezier(.34, 1.56, .64, 1);
     }
     .timer-num.warning {
-      background: linear-gradient(135deg,var(--gold),var(--orange));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-size: clamp(44px,9vw,58px);
+      color: var(--orange);
+      text-shadow: 3px 3px 0 var(--ink);
+      font-size: clamp(50px, 10vw, 70px);
     }
     .timer-num.urgent {
-      background: linear-gradient(135deg,var(--red),var(--pink));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-size: clamp(52px,11vw,68px);
-      animation: urgentBounce .3s cubic-bezier(.34,1.56,.64,1) infinite;
+      color: var(--red);
+      text-shadow: 3px 3px 0 var(--ink);
+      font-size: clamp(58px, 12vw, 80px);
+      animation: urgentBounce .3s cubic-bezier(.34, 1.56, .64, 1) infinite;
     }
     .timer-num.critical {
-      background: linear-gradient(135deg,#fff,var(--red));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-size: clamp(62px,13vw,82px);
+      color: #fff;
+      -webkit-text-stroke: 2px var(--red);
+      text-shadow: 4px 4px 0 var(--red);
+      font-size: clamp(68px, 14vw, 96px);
       animation: criticalFlash .15s ease-in-out infinite;
     }
     @keyframes urgentBounce {
-      0%,100% { transform:scale(1); }
-      50%      { transform:scale(1.22); }
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.22); }
     }
     @keyframes criticalFlash {
-      0%,100% { transform:scale(1.15); opacity:1;  }
-      50%      { transform:scale(1.35); opacity:.75; }
+      0%, 100% { transform: scale(1.15); opacity: 1; }
+      50%      { transform: scale(1.35); opacity: .8; }
     }
 
     .q-text-big {
-      font-family: 'Google Sans', 'Kanit', sans-serif;
-      font-size: clamp(17px,3.5vw,22px);
-      font-weight: 700;
-      line-height: 1.6;
+      font-family: 'Mitr', sans-serif;
+      font-size: clamp(24px, 5.5vw, 42px);
+      font-weight: 600;
+      line-height: 1.45;
       text-align: center;
+      color: var(--ink);
       padding: 4px;
-      animation: questionIn .4s cubic-bezier(.16,1,.3,1) both;
+      animation: questionIn .4s cubic-bezier(.16, 1, .3, 1) both;
     }
     @keyframes questionIn {
-      from { opacity:0; transform:translateY(-10px); }
-      to   { opacity:1; transform:translateY(0); }
+      from { opacity: 0; transform: translateY(-12px) scale(.97); }
+      to   { opacity: 1; transform: translateY(0)     scale(1); }
     }
 
-    /* ── ANSWER BUTTONS ── */
-    .ans-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    /* ── ANSWER BUTTONS: 4 loud color blocks ── */
+    .ans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
     .ans-btn {
-      padding: 18px 14px;
-      border-radius: 16px;
-      border: 2px solid rgba(124,58,237,.2);
-      background: rgba(124,58,237,.04);
+      min-height: 84px;
+      padding: 18px 16px;
+      border-radius: 18px;
+      border: 3px solid var(--ink);
       cursor: pointer;
-      font-family: 'Google Sans', 'Kanit', sans-serif;
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text);
+      font-family: 'Mitr', sans-serif;
+      font-size: clamp(17px, 2.6vw, 23px);
+      font-weight: 600;
+      line-height: 1.35;
+      color: #fff;
       text-align: left;
       display: flex;
       align-items: center;
-      gap: 10px;
-      transition: all .22s cubic-bezier(.16,1,.3,1);
+      gap: 14px;
+      transition: transform .12s ease, box-shadow .12s ease, filter .2s;
       position: relative;
-      overflow: hidden;
-      animation: ansIn .35s cubic-bezier(.34,1.56,.64,1) both;
+      box-shadow: 0 6px 0 var(--ink);
+      animation: ansIn .4s cubic-bezier(.34, 1.56, .64, 1) both;
     }
-    .ans-btn:nth-child(1) { animation-delay:.04s; }
-    .ans-btn:nth-child(2) { animation-delay:.10s; }
-    .ans-btn:nth-child(3) { animation-delay:.16s; }
-    .ans-btn:nth-child(4) { animation-delay:.22s; }
+    .ans-btn:nth-child(1) { background: var(--red);    animation-delay: .04s; }
+    .ans-btn:nth-child(2) { background: var(--cyan);   animation-delay: .10s; }
+    .ans-btn:nth-child(3) { background: var(--gold);   animation-delay: .16s; color: var(--ink); }
+    .ans-btn:nth-child(4) { background: var(--purple); animation-delay: .22s; }
     @keyframes ansIn {
-      from { opacity:0; transform:scale(.78) translateY(12px); }
-      to   { opacity:1; transform:scale(1)   translateY(0); }
+      from { opacity: 0; transform: scale(.7) translateY(16px) rotate(-2deg); }
+      to   { opacity: 1; transform: scale(1)  translateY(0)    rotate(0); }
     }
 
-    /* Shimmer sweep */
-    .ans-btn::after {
-      content:'';
-      position:absolute;
-      top:-50%; left:-60%;
-      width:40%; height:200%;
-      background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);
-      transform:skewX(-15deg);
-      transition:left .5s ease;
-    }
-    .ans-btn:hover:not(:disabled)::after { left:130%; }
-
-    .ans-btn:hover:not(:disabled) {
-      border-color: rgba(191,90,242,.75);
-      transform: translateY(-5px) scale(1.018);
-      box-shadow:
-        0 10px 36px rgba(124,58,237,.35),
-        0 0 0 1px rgba(124,58,237,.22),
-        inset 0 1px 0 rgba(255,255,255,.08);
-      background: rgba(124,58,237,.09);
-    }
-    .ans-btn:active:not(:disabled) { transform:scale(.96); }
-    .ans-btn:disabled { cursor:not-allowed; }
+    .ans-btn:hover:not(:disabled)  { transform: translateY(-3px) scale(1.015); box-shadow: 0 9px 0 var(--ink); }
+    .ans-btn:active:not(:disabled) { transform: translateY(5px); box-shadow: 0 1px 0 var(--ink); }
+    .ans-btn:disabled { cursor: not-allowed; }
+    /* คนอื่นตอบ/หมดสิทธิ์ — หรี่ปุ่มที่ไม่ได้เลือก */
+    .ans-btn:disabled:not(.selected):not(.correct):not(.wrong) { filter: saturate(.35) brightness(1.06); opacity: .75; }
 
     .ans-btn.selected {
-      border-color: var(--cyan);
-      background: rgba(0,245,255,.1);
-      box-shadow: 0 0 24px rgba(0,245,255,.22);
-      animation: selectedPulse .3s cubic-bezier(.34,1.56,.64,1);
+      outline: 4px solid var(--ink);
+      outline-offset: 3px;
+      animation: selectedPulse .35s cubic-bezier(.34, 1.56, .64, 1);
+    }
+    .ans-btn.selected::after {
+      content: 'ตอบแล้ว!';
+      position: absolute;
+      top: -14px; right: 10px;
+      font-family: 'Mitr', sans-serif;
+      font-size: 13px; font-weight: 700;
+      background: var(--ink); color: #fff;
+      padding: 3px 12px;
+      border-radius: 999px;
+      transform: rotate(3deg);
     }
     @keyframes selectedPulse {
-      0%  { transform:scale(1); }
-      45% { transform:scale(1.05); box-shadow:0 0 40px rgba(0,245,255,.5); }
-      100%{ transform:scale(1); }
+      0%   { transform: scale(1); }
+      45%  { transform: scale(1.06) rotate(1deg); }
+      100% { transform: scale(1); }
     }
 
     .ans-btn.correct {
-      border-color: var(--green);
-      background: rgba(57,255,20,.1);
-      color: var(--green);
-      animation: correctReveal .55s cubic-bezier(.34,1.56,.64,1);
-      box-shadow: 0 0 44px rgba(57,255,20,.35);
+      animation: correctReveal .6s cubic-bezier(.34, 1.56, .64, 1);
+      outline: 4px solid var(--green);
+      outline-offset: 3px;
+      z-index: 2;
+    }
+    .ans-btn.correct::before {
+      content: '✓';
+      position: absolute;
+      top: -18px; right: -10px;
+      width: 44px; height: 44px;
+      background: var(--green);
+      border: 3px solid var(--ink);
+      border-radius: 50%;
+      color: #fff;
+      font-size: 24px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 2px 3px 0 rgba(36, 26, 77, .8);
+      animation: stampIn .4s cubic-bezier(.34, 1.56, .64, 1) both;
+    }
+    @keyframes stampIn {
+      from { transform: scale(0) rotate(-140deg); }
+      to   { transform: scale(1) rotate(8deg); }
     }
     @keyframes correctReveal {
-      0%   { transform:scale(1);    box-shadow:0 0 0 rgba(57,255,20,0); }
-      40%  { transform:scale(1.08); box-shadow:0 0 70px rgba(57,255,20,.65); }
-      100% { transform:scale(1);    box-shadow:0 0 44px rgba(57,255,20,.35); }
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.09) rotate(-1.5deg); }
+      70%  { transform: scale(.98)  rotate(1deg); }
+      100% { transform: scale(1); }
     }
 
     .ans-btn.wrong {
-      border-color: var(--red);
-      background: rgba(255,7,58,.08);
-      color: var(--red);
-      opacity: .7;
+      filter: saturate(.25) brightness(1.05);
+      opacity: .8;
       animation: wrongShake .5s ease;
     }
+    .ans-btn.wrong::before {
+      content: '✕';
+      position: absolute;
+      top: -16px; right: -8px;
+      width: 38px; height: 38px;
+      background: var(--red);
+      border: 3px solid var(--ink);
+      border-radius: 50%;
+      color: #fff;
+      font-size: 19px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      transform: rotate(-8deg);
+    }
     @keyframes wrongShake {
-      0%,100% { transform:translateX(0)    scale(1); }
-      15%  { transform:translateX(-9px) scale(.98); }
-      30%  { transform:translateX( 9px) scale(.98); }
-      45%  { transform:translateX(-5px); }
-      60%  { transform:translateX( 5px); }
-      75%  { transform:translateX(-2px); }
+      0%, 100% { transform: translateX(0)    scale(1); }
+      15% { transform: translateX(-10px) scale(.98); }
+      30% { transform: translateX(10px)  scale(.98); }
+      45% { transform: translateX(-6px); }
+      60% { transform: translateX(6px); }
+      75% { transform: translateX(-2px); }
     }
 
     .ans-letter {
-      width:32px; height:32px; border-radius:8px; flex-shrink:0;
-      display:flex; align-items:center; justify-content:center;
-      font-weight:700; font-size:13px;
-      background:rgba(124,58,237,.15); color:var(--purple);
-      transition:all .2s;
+      width: 46px; height: 46px; border-radius: 14px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Bungee', monospace;
+      font-size: 19px;
+      background: rgba(255, 255, 255, .92);
+      color: var(--ink);
+      border: 2.5px solid var(--ink);
+      transition: transform .2s;
     }
-    .ans-btn.selected .ans-letter { background:var(--cyan);  color:#001a2e; }
-    .ans-btn.correct  .ans-letter { background:var(--green); color:#001a00; }
-    .ans-btn.wrong    .ans-letter { background:var(--red);   color:#fff; }
+    .ans-btn:hover:not(:disabled) .ans-letter { transform: rotate(-6deg) scale(1.1); }
 
     /* ── SCORE POP ── */
     .score-pop {
       position: fixed;
       top: 50%; left: 50%;
-      transform: translate(-50%,-50%) scale(0);
-      font-family: 'Bangers', cursive;
-      font-size: 92px;
-      letter-spacing: 4px;
+      transform: translate(-50%, -50%) scale(0);
+      font-family: 'Bungee', monospace;
+      font-size: 88px;
       pointer-events: none;
       z-index: 100;
-      background: linear-gradient(135deg,var(--gold),var(--orange),var(--pink));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 0 28px rgba(255,215,0,.85));
-      animation: scorePop 1.7s cubic-bezier(.16,1,.3,1) forwards;
+      color: var(--gold);
+      -webkit-text-stroke: 3px var(--ink);
+      text-shadow: 6px 6px 0 var(--ink);
+      animation: scorePop 1.7s cubic-bezier(.16, 1, .3, 1) forwards;
     }
     @keyframes scorePop {
-      0%   { transform:translate(-50%,-50%) scale(0)   rotate(-12deg); opacity:0; }
-      22%  { transform:translate(-50%,-60%) scale(1.5) rotate( 5deg);  opacity:1; }
-      42%  { transform:translate(-50%,-62%) scale(1.2) rotate(-2deg);  opacity:1; }
-      100% { transform:translate(-50%,-135%) scale(.7) rotate( 3deg);  opacity:0; }
+      0%   { transform: translate(-50%, -50%)  scale(0)   rotate(-14deg); opacity: 0; }
+      22%  { transform: translate(-50%, -60%)  scale(1.5) rotate(5deg);   opacity: 1; }
+      42%  { transform: translate(-50%, -62%)  scale(1.2) rotate(-2deg);  opacity: 1; }
+      100% { transform: translate(-50%, -135%) scale(.7)  rotate(3deg);   opacity: 0; }
     }
 
     /* ── LEADERBOARD ── */
     #screen-leaderboard > div {
-      padding:24px; max-width:600px; margin:0 auto;
-      gap:16px; display:flex; flex-direction:column; width:100%; overflow-y:auto;
+      padding: 24px; max-width: 640px; margin: 0 auto;
+      gap: 18px; display: flex; flex-direction: column; width: 100%; overflow-y: auto;
     }
-    .lb-list { display:flex; flex-direction:column; gap:8px; }
+    .lb-list { display: flex; flex-direction: column; gap: 12px; }
     .lb-row {
-      display:flex; align-items:center; gap:14px;
-      background:rgba(17,17,30,.9);
-      border:1px solid rgba(124,58,237,.15);
-      border-radius:14px; padding:14px 18px;
-      animation:lbRowIn .45s cubic-bezier(.34,1.56,.64,1) both;
-      transition:transform .2s, box-shadow .2s;
+      display: flex; align-items: center; gap: 14px;
+      background: var(--card);
+      border: 3px solid var(--ink);
+      border-radius: 18px;
+      padding: 15px 18px;
+      box-shadow: 4px 5px 0 rgba(36, 26, 77, .8);
+      animation: lbRowIn .5s cubic-bezier(.34, 1.56, .64, 1) both;
+      transition: translate .15s;
     }
-    .lb-row:hover { transform:translateX(5px); box-shadow:0 4px 20px rgba(124,58,237,.15); }
-    .lb-row:nth-child(1) { border-color:rgba(255,215,0,.45); background:rgba(255,215,0,.05); animation-delay:.05s; }
-    .lb-row:nth-child(2) { border-color:rgba(192,192,192,.3); animation-delay:.10s; }
-    .lb-row:nth-child(3) { border-color:rgba(205,127,50,.3);  animation-delay:.15s; }
-    .lb-row:nth-child(4) { animation-delay:.20s; }
-    .lb-row:nth-child(5) { animation-delay:.25s; }
-    .lb-row:nth-child(n+6) { animation-delay:.28s; }
+    .lb-row:hover { translate: 4px 0; }
+    .lb-row:nth-child(1) {
+      background: linear-gradient(120deg, #ffe9b3, #ffd75e);
+      transform: rotate(-.6deg);
+      animation-delay: .05s;
+      box-shadow: 5px 6px 0 rgba(36, 26, 77, .9);
+    }
+    .lb-row:nth-child(2) { background: linear-gradient(120deg, #f4f4f8, #e4e4ee); animation-delay: .12s; }
+    .lb-row:nth-child(3) { background: linear-gradient(120deg, #ffe3cd, #ffcda6); animation-delay: .19s; }
+    .lb-row:nth-child(4) { animation-delay: .26s; }
+    .lb-row:nth-child(5) { animation-delay: .32s; }
+    .lb-row:nth-child(n+6) { animation-delay: .36s; }
     @keyframes lbRowIn {
-      from { transform:translateX(-32px) scale(.94); opacity:0; }
-      to   { transform:translateX(0)     scale(1);   opacity:1; }
+      from { transform: translateX(-40px) scale(.92); opacity: 0; }
+      to   { transform: translateX(0)     scale(1);   opacity: 1; }
     }
-    .lb-rank  { font-family:'Bangers',cursive; font-size:28px; width:34px; text-align:center; flex-shrink:0; }
-    .lb-av    { font-size:26px; flex-shrink:0; }
-    .lb-name  { flex:1; font-weight:700; font-size:15px; }
+    .lb-rank  { font-family: 'Bungee', monospace; font-size: 26px; width: 40px; text-align: center; flex-shrink: 0; color: var(--ink); }
+    .lb-av    { font-size: 30px; flex-shrink: 0; }
+    .lb-name  { flex: 1; min-width: 0; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 18px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
     .lb-score {
-      font-family:'Space Mono',monospace; font-weight:700; font-size:17px; color:var(--gold);
-      animation:scoreFlash .4s ease;
+      font-family: 'Bungee', monospace;
+      font-size: 20px;
+      color: var(--ink);
+      animation: scoreFlash .4s ease;
     }
     @keyframes scoreFlash {
-      from { transform:scale(1.35); color:var(--cyan); }
-      to   { transform:scale(1);    color:var(--gold); }
+      from { transform: scale(1.35); color: var(--pink); }
+      to   { transform: scale(1);    color: var(--ink); }
     }
 
     /* ── FINAL ── */
-    #screen-final { align-items:center; justify-content:center; padding:24px; text-align:center; gap:20px; }
+    /* justify flex-start เพราะมีตารางคะแนนทุกคน — content ยาวกว่าจอต้อง scroll ได้ ไม่โดน clip */
+    #screen-final { align-items: center; justify-content: flex-start; padding: 40px 24px; text-align: center; gap: 20px; }
     .trophy {
-      font-size: 90px;
-      animation: trophySpin 1.1s cubic-bezier(.34,1.56,.64,1) both, trophyFloat 2s ease-in-out 1.1s infinite alternate;
-      filter: drop-shadow(0 0 30px rgba(255,215,0,.65));
+      font-size: 96px;
+      animation: trophySpin 1.1s cubic-bezier(.34, 1.56, .64, 1) both, trophyFloat 2s ease-in-out 1.1s infinite alternate;
+      filter: drop-shadow(5px 7px 0 rgba(36, 26, 77, .35));
     }
     @keyframes trophySpin {
-      from { transform:scale(0) rotate(-200deg); opacity:0; }
-      to   { transform:scale(1) rotate(0deg);    opacity:1; }
+      from { transform: scale(0) rotate(-200deg); opacity: 0; }
+      to   { transform: scale(1) rotate(0deg);    opacity: 1; }
     }
     @keyframes trophyFloat {
-      from { transform:translateY(0)   rotate(-4deg) scale(1);    filter:drop-shadow(0 0 20px rgba(255,215,0,.5)); }
-      to   { transform:translateY(-16px) rotate(4deg) scale(1.06); filter:drop-shadow(0 0 54px rgba(255,215,0,.9)); }
+      from { transform: translateY(0)     rotate(-4deg) scale(1); }
+      to   { transform: translateY(-16px) rotate(4deg)  scale(1.06); }
     }
     .win-name {
-      font-family:'Bangers',cursive;
-      font-size:clamp(36px,10vw,64px);
-      letter-spacing:4px;
-      background:linear-gradient(135deg,var(--gold),var(--orange),var(--pink));
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
-      animation:winReveal .65s cubic-bezier(.34,1.56,.64,1) .35s both;
+      font-family: 'Bungee', 'Mitr', sans-serif;
+      font-size: clamp(36px, 10vw, 68px);
+      line-height: 1.15;
+      max-width: 92vw;
+      overflow-wrap: break-word;
+      color: var(--pink);
+      text-shadow: 3px 3px 0 var(--ink), 6px 6px 0 var(--gold);
+      animation: winReveal .65s cubic-bezier(.34, 1.56, .64, 1) .35s both;
     }
     @keyframes winReveal {
-      from { transform:scale(.4); opacity:0; letter-spacing:24px; }
-      to   { transform:scale(1);  opacity:1; letter-spacing:4px; }
+      from { transform: scale(.4) rotate(-5deg); opacity: 0; }
+      to   { transform: scale(1)  rotate(-1deg); opacity: 1; }
     }
-    .win-score { font-family:'Space Mono',monospace; font-size:18px; color:var(--cyan); animation:fadeUp .5s ease .65s both; }
+    .win-score { font-family: 'Bungee', monospace; font-size: 20px; color: var(--ink); animation: fadeUp .5s ease .65s both; }
     @keyframes fadeUp {
-      from { opacity:0; transform:translateY(10px); }
-      to   { opacity:1; transform:translateY(0); }
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
-    .podium { display:flex; align-items:flex-end; justify-content:center; gap:8px; }
+    .podium { display: flex; align-items: flex-end; justify-content: center; gap: 10px; }
     .pod {
-      display:flex; flex-direction:column; align-items:center;
-      background:rgba(17,17,30,.9);
-      border:1px solid rgba(124,58,237,.15);
-      border-radius:14px 14px 0 0;
-      padding:14px 10px; min-width:100px;
-      animation:podRise .7s cubic-bezier(.34,1.56,.64,1) both;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+      border: 3px solid var(--ink);
+      border-radius: 16px 16px 0 0;
+      padding: 16px 10px;
+      min-width: 104px;
+      box-shadow: 4px 0 0 rgba(36, 26, 77, .5);
+      animation: podRise .7s cubic-bezier(.34, 1.56, .64, 1) both;
     }
-    .pod:nth-child(1) { height:150px; border-color:rgba(192,192,192,.3); animation-delay:.35s; }
-    .pod:nth-child(2) { height:192px; background:rgba(255,215,0,.06); border-color:rgba(255,215,0,.5); animation-delay:.1s; box-shadow:0 -10px 44px rgba(255,215,0,.15); }
-    .pod:nth-child(3) { height:120px; border-color:rgba(205,127,50,.3); animation-delay:.55s; }
+    /* สีตามอันดับจริง (แท่นถูกเติมทีละอันตามจังหวะประกาศผล เรียงด้วย flex order) */
+    .pod-p1 { background: linear-gradient(180deg, #ffe9b3, #ffcf45); }
+    .pod-p2 { background: linear-gradient(180deg, #f2f2f7, #d9d9e6); }
+    .pod-p3 { background: linear-gradient(180deg, #ffe3cd, #ffc296); }
     @keyframes podRise {
-      from { transform:translateY(110%); opacity:0; }
-      to   { transform:translateY(0);    opacity:1; }
+      from { transform: translateY(110%); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
     }
-    .pod-emoji { font-size:28px; }
-    .pod-name  { font-size:12px; font-weight:700; margin:4px 0; text-align:center; }
-    .pod-pts   { font-family:'Space Mono',monospace; font-size:12px; color:var(--gold); }
+    .pod-emoji { font-size: 32px; }
+    .pod-name  { flex-shrink: 0; font-family: 'Mitr', sans-serif; font-size: 14px; font-weight: 600; margin: 4px 0; text-align: center; color: var(--ink); max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pod-pts   { font-family: 'Bungee', monospace; font-size: 13px; color: var(--ink); }
 
     /* ── CONFETTI ── */
-    .confetti-wrap { position:fixed; inset:0; pointer-events:none; z-index:50; overflow:hidden; }
-    .cp { position:absolute; animation:cf linear forwards; }
+    .confetti-wrap { position: fixed; inset: 0; pointer-events: none; z-index: 50; overflow: hidden; }
+    .cp { position: absolute; animation: cf linear forwards; border: 1.5px solid rgba(36, 26, 77, .55); }
     @keyframes cf {
-      0%   { opacity:1; }
-      80%  { opacity:1; }
-      100% { transform:translateY(108vh) rotate(720deg) scale(.5); opacity:0; }
+      0%   { opacity: 1; }
+      80%  { opacity: 1; }
+      100% { transform: translateY(108vh) rotate(720deg) scale(.5); opacity: 0; }
+    }
+
+    /* ── ANIMATED EMOJI IMG ── */
+    .emo { display: inline-block; vertical-align: -0.18em; object-fit: contain; }
+
+    /* ── MUTE BUTTON ── */
+    .mute-btn {
+      position: fixed;
+      top: 14px; right: 14px;
+      z-index: 150;
+      width: 46px; height: 46px;
+      border-radius: 50%;
+      border: 3px solid var(--ink);
+      background: var(--card);
+      box-shadow: 0 4px 0 var(--ink);
+      font-size: 20px;
+      cursor: pointer;
+      transition: transform .12s, box-shadow .12s;
+    }
+    .mute-btn:hover  { transform: translateY(-2px); box-shadow: 0 6px 0 var(--ink); }
+    .mute-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+    .mute-btn.muted  { background: var(--paper-2); opacity: .75; }
+
+    /* ── QR CODE (lobby) ── */
+    .qr-wrap {
+      display: inline-block;
+      background: #fff;
+      border: 3px solid var(--ink);
+      border-radius: 16px;
+      padding: 12px;
+      margin-top: 14px;
+      box-shadow: 4px 5px 0 rgba(36, 26, 77, .85);
+      transform: rotate(1deg);
+    }
+    .qr-wrap img, .qr-wrap canvas, .qr-wrap table { display: block; }
+
+    /* ── ANSWER DISTRIBUTION BADGE ── */
+    .ans-count {
+      position: absolute;
+      bottom: -14px; left: 14px;
+      font-family: 'Mitr', sans-serif;
+      font-size: 13px; font-weight: 700;
+      background: var(--ink); color: #fff;
+      border: 2.5px solid var(--ink);
+      padding: 2px 12px;
+      border-radius: 999px;
+      animation: stampIn .35s cubic-bezier(.34, 1.56, .64, 1) both;
+    }
+    .ans-btn.correct .ans-count { background: var(--green); }
+
+    /* ── SUSPENSE (drumroll ก่อนเฉลย) ── */
+    .ans-grid.suspense .ans-btn {
+      animation: suspensePulse .3s ease-in-out infinite alternate;
+    }
+    .ans-grid.suspense .ans-btn:nth-child(2) { animation-delay: .08s; }
+    .ans-grid.suspense .ans-btn:nth-child(3) { animation-delay: .16s; }
+    .ans-grid.suspense .ans-btn:nth-child(4) { animation-delay: .24s; }
+    @keyframes suspensePulse {
+      from { transform: scale(1)     rotate(0deg); }
+      to   { transform: scale(.975) rotate(-.4deg); }
+    }
+
+    /* ── WHO ANSWERED (หน้าเฉลย) ── */
+    .who-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 18px;
+      padding: 14px;
+      background: var(--card);
+      border: 3px solid var(--ink);
+      border-radius: 18px;
+      box-shadow: 4px 5px 0 rgba(36, 26, 77, .8);
+    }
+    .who-title {
+      width: 100%;
+      text-align: center;
+      font-family: 'Mitr', sans-serif;
+      font-size: 15px; font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 2px;
+    }
+    .who-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Mitr', sans-serif;
+      font-size: 14px; font-weight: 600;
+      border: 2.5px solid var(--ink);
+      border-radius: 999px;
+      padding: 5px 13px;
+      color: var(--ink);
+      animation: chipIn .4s cubic-bezier(.34, 1.56, .64, 1) both;
+      max-width: 100%;
+    }
+    .who-chip.ok   { background: #baf1d4; }
+    .who-chip.bad  { background: #ffd2d9; }
+    .who-chip.none { background: #eceaf2; opacity: .8; }
+    .who-chip .who-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 130px; }
+    .who-pts { font-family: 'Bungee', monospace; font-size: 12px; }
+
+    /* ── RANK DELTA (ขยับขึ้น/ลง) ── */
+    .lb-delta {
+      font-family: 'Mitr', sans-serif;
+      font-size: 13px; font-weight: 700;
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      padding: 2px 9px;
+      flex-shrink: 0;
+      animation: stampIn .4s cubic-bezier(.34, 1.56, .64, 1) both;
+      animation-delay: .6s;
+    }
+    .lb-delta.up   { background: #baf1d4; color: #0b6b3a; }
+    .lb-delta.down { background: #ffd2d9; color: #a01530; }
+
+    /* ── FASTEST BANNER ── */
+    .fastest-banner {
+      display: inline-block;
+      margin-top: 12px;
+      background: var(--card);
+      border: 2.5px solid var(--ink);
+      border-radius: 999px;
+      padding: 7px 18px;
+      font-family: 'Mitr', sans-serif;
+      font-size: 15px; font-weight: 600;
+      color: var(--ink);
+      box-shadow: 2.5px 3px 0 rgba(36, 26, 77, .85);
+      transform: rotate(-1deg);
+      animation: chipIn .45s cubic-bezier(.34, 1.56, .64, 1) both;
+    }
+
+    /* ── FINAL SUSPENSE ── */
+    .final-suspense {
+      font-family: 'Mitr', sans-serif;
+      font-size: 26px; font-weight: 700;
+      color: var(--ink);
+      margin-top: 10vh;
+      animation: announcePulse .8s ease-in-out infinite alternate;
+    }
+    @keyframes announcePulse {
+      from { transform: scale(1)    rotate(-1deg); opacity: .75; }
+      to   { transform: scale(1.08) rotate(1deg);  opacity: 1; }
+    }
+
+    /* ── STREAK CHIP (leaderboard) ── */
+    .lb-streak {
+      font-family: 'Mitr', sans-serif;
+      font-size: 13px; font-weight: 700;
+      background: var(--card);
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      padding: 2px 9px;
+      margin-left: 8px;
+      white-space: nowrap;
+      color: var(--orange);
     }
 
     /* ── UTILS ── */
-    .flex         { display:flex; align-items:center; }
-    .flex-between { display:flex; align-items:center; justify-content:space-between; }
-    .flex-center  { display:flex; align-items:center; justify-content:center; }
-    .gap-8  { gap:8px; }
-    .gap-12 { gap:12px; }
-    .mt-4   { margin-top:4px; }
-    .mt-8   { margin-top:8px; }
-    .text-center { text-align:center; }
-    .text-muted  { color:var(--muted); font-size:13px; }
-    .divider     { height:1px; background:rgba(124,58,237,.12); }
+    .flex         { display: flex; align-items: center; }
+    .flex-between { display: flex; align-items: center; justify-content: space-between; }
+    .flex-center  { display: flex; align-items: center; justify-content: center; }
+    .gap-8  { gap: 8px; }
+    .gap-12 { gap: 12px; }
+    .mt-4   { margin-top: 4px; }
+    .mt-8   { margin-top: 8px; }
+    .text-center { text-align: center; }
+    .text-muted  { color: var(--muted); font-size: 15px; }
+    .divider     { height: 2px; background: rgba(36, 26, 77, .12); border-radius: 2px; }
 
     /* ── TOAST ── */
     .toast {
-      position:fixed; bottom:24px; left:50%;
-      transform:translateX(-50%) translateY(80px);
-      background:rgba(17,17,30,.97);
-      border:1px solid rgba(124,58,237,.5);
-      border-radius:14px; padding:12px 24px;
-      font-size:13px; font-weight:700; color:var(--text);
-      transition:transform .4s cubic-bezier(.34,1.56,.64,1);
-      z-index:200; white-space:nowrap;
-      box-shadow:0 8px 32px rgba(124,58,237,.3), 0 0 0 1px rgba(124,58,237,.1);
-      backdrop-filter:blur(16px);
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(100px) rotate(0deg);
+      background: var(--ink);
+      color: #fff;
+      border: 3px solid var(--ink);
+      border-radius: 999px;
+      padding: 13px 26px;
+      font-family: 'Mitr', sans-serif;
+      font-size: 15px; font-weight: 600;
+      transition: transform .4s cubic-bezier(.34, 1.56, .64, 1);
+      z-index: 200; white-space: nowrap;
+      box-shadow: 3px 5px 0 rgba(36, 26, 77, .35);
     }
-    .toast.show { transform:translateX(-50%) translateY(0); }
+    .toast.show { transform: translateX(-50%) translateY(0) rotate(-1deg); }
 
     /* ── CONNECTION DOT ── */
-    .conn-dot { width:8px; height:8px; border-radius:50%; background:var(--muted); display:inline-block; margin-right:6px; transition:all .3s; }
-    .conn-dot.connected  { background:var(--green); box-shadow:0 0 8px var(--green); animation:connPulse 2s ease-in-out infinite; }
-    .conn-dot.disconnected { background:var(--red); }
+    .conn-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); border: 2px solid var(--ink); display: inline-block; margin-right: 6px; transition: background .3s; }
+    .conn-dot.connected    { background: var(--green); animation: connPulse 2s ease-in-out infinite; }
+    .conn-dot.disconnected { background: var(--red); }
     @keyframes connPulse {
-      0%,100% { box-shadow:0 0 6px var(--green); }
-      50%      { box-shadow:0 0 16px var(--green), 0 0 24px rgba(57,255,20,.3); }
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.25); }
     }
 
     /* ── RESPONSIVE ── */
-    @media (max-width:600px) {
-      #screen-setup > div, #screen-lobby > div, #screen-leaderboard > div { padding:16px; gap:12px; }
-      .settings-grid { grid-template-columns:1fr !important; }
-      .home-modes { max-width:360px; }
-      .mode-card  { padding:22px 12px; }
-      .mode-icon  { font-size:38px; }
-      .room-code-box { padding:20px 16px; }
-      .room-code     { letter-spacing:8px; }
-      #screen-question { padding:14px; gap:10px; }
-      .q-text-big   { font-size:clamp(15px,4vw,19px); }
-      .ans-btn      { padding:14px 12px; font-size:13px; }
-      .lb-row       { padding:11px 14px; gap:10px; }
-      .lb-rank      { font-size:22px; width:26px; }
-      .lb-av        { font-size:20px; }
-      .lb-name      { font-size:13px; }
-      .lb-score     { font-size:14px; }
-      .pod          { min-width:80px; padding:10px 6px; }
-      .pod-emoji    { font-size:22px; }
-      .pod-name     { font-size:10px; }
-      .pod-pts      { font-size:10px; }
-      .win-name     { font-size:clamp(28px,8vw,52px); }
-      .btn          { font-size:14px; padding:12px 22px; }
+    @media (max-width: 600px) {
+      #screen-setup > div, #screen-lobby > div, #screen-leaderboard > div { padding: 16px; gap: 14px; }
+      .settings-grid { grid-template-columns: 1fr !important; }
+      .home-modes { max-width: 380px; gap: 12px; }
+      .mode-card  { padding: 24px 12px 20px; }
+      .mode-icon  { font-size: 44px; }
+      .mode-title { font-size: 18px; }
+      .card { padding: 18px; box-shadow: 4px 5px 0 rgba(36, 26, 77, .9); }
+      .room-code-box { padding: 20px 14px; }
+      .room-code     { letter-spacing: 6px; }
+      #screen-question { padding: 14px; gap: 12px; }
+      .q-text-big { font-size: clamp(20px, 6vw, 30px); }
+      .ans-grid   { gap: 10px; }
+      .ans-btn    { min-height: 72px; padding: 14px 12px; font-size: 17px; gap: 10px; box-shadow: 0 5px 0 var(--ink); }
+      .ans-letter { width: 38px; height: 38px; font-size: 16px; border-radius: 11px; }
+      .lb-row   { padding: 12px 14px; gap: 10px; }
+      .lb-rank  { font-size: 21px; width: 32px; }
+      .lb-av    { font-size: 24px; }
+      .lb-name  { font-size: 15px; }
+      .lb-score { font-size: 16px; }
+      .pod      { min-width: 84px; padding: 12px 6px; }
+      .pod-emoji { font-size: 26px; }
+      .pod-name  { font-size: 12px; }
+      .pod-pts   { font-size: 11px; }
+      .win-name  { font-size: clamp(30px, 9vw, 52px); }
+      .btn       { font-size: 16px; padding: 12px 22px; }
+      .score-pop { font-size: 64px; }
+      .bg-doodles span { font-size: 26px; }
     }
-    @media (max-width:400px) {
-      .options-grid { grid-template-columns:1fr; }
-      .home-modes   { grid-template-columns:1fr 1fr; gap:10px; }
-      .ans-grid     { grid-template-columns:1fr; }
+    @media (max-width: 400px) {
+      .options-grid { grid-template-columns: 1fr; }
+      .home-modes   { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .ans-grid     { grid-template-columns: 1fr; }
     }
-    </style>
+
+    /* จอใหญ่/โปรเจกเตอร์: จัดหน้าคำถามและ leaderboard ให้อยู่กลางจอ */
+    @media (min-width: 700px) {
+      #screen-question { justify-content: center; padding-bottom: 8vh; }
+      #screen-leaderboard > div { justify-content: center; padding-bottom: 6vh; }
+      .q-text-big { padding: 14px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
 </head>
 
 <body>
 
   <div id="urgency-overlay"></div>
   <div class="toast" id="toast"></div>
+  <button class="mute-btn" id="muteBtn" onclick="toggleMute()" title="เปิด/ปิดเสียง">🔊</button>
+  <div class="bg-doodles" aria-hidden="true">
+    <span><img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/2753/512.webp" width="40" height="40" alt="❓" onerror="this.replaceWith(this.alt)"></span>
+    <span><img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f389/512.webp" width="48" height="48" alt="🎉" onerror="this.replaceWith(this.alt)"></span>
+    <span><img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/26a1/512.webp" width="44" height="44" alt="⚡" onerror="this.replaceWith(this.alt)"></span>
+    <span><img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3c6/512.webp" width="40" height="40" alt="🏆" onerror="this.replaceWith(this.alt)"></span>
+    <span><img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4a1/512.webp" width="34" height="34" alt="💡" onerror="this.replaceWith(this.alt)"></span>
+    <span><img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3af/512.webp" width="36" height="36" alt="🎯" onerror="this.replaceWith(this.alt)"></span>
+  </div>
 
   <!-- ══ HOME ══ -->
   <div id="screen-home" class="screen active">
-    <div style="text-align:center;padding:52px 24px 20px;">
+    <div style="text-align:center;padding:56px 24px 12px;">
       <div class="home-logo-wrap">
         <div class="title">QUIZ RUSH</div>
       </div>
+      <div class="subtitle">ควิซปาร์ตี้ · ตอบไว ได้แต้มเยอะ</div>
     </div>
     <div
       style="display:flex;align-items:center;justify-content:center;padding:0 24px 28px;flex-direction:column;gap:24px;">
       <div class="home-modes">
         <div class="mode-card" onclick="goSetup()">
-          <div class="mode-icon">👑</div>
+          <div class="mode-icon"><img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f451/512.webp"
+              width="60" height="60" alt="👑" onerror="this.replaceWith(this.alt)"></div>
           <div class="mode-title">สร้างเกม</div>
           <div class="mode-desc">Host / ผู้จัดเกม</div>
         </div>
         <div class="mode-card" onclick="goScreen('screen-join')">
-          <div class="mode-icon">🎮</div>
+          <div class="mode-icon"><img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3af/512.webp"
+              width="60" height="60" alt="🎯" onerror="this.replaceWith(this.alt)"></div>
           <div class="mode-title">เข้าร่วม</div>
           <div class="mode-desc">ใส่รหัสห้อง</div>
         </div>
@@ -839,7 +1110,7 @@
       <div class="card" style="display:flex;flex-direction:column;gap:14px;">
         <h3>ตั้งค่าเกม</h3>
         <div class="settings-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-          <div><label>ชื่อเกม</label><input type="text" id="gameName" value="Quiz Rush 🚀"></div>
+          <div><label>ชื่อเกม</label><input type="text" id="gameName" value="Quiz Rush 🚀" maxlength="40"></div>
           <div><label>เวลาต่อข้อ</label>
             <select id="timePerQ">
               <option value="10">10 วิ (เร็ว)</option>
@@ -856,18 +1127,14 @@
         <div><label>คำถาม</label><textarea id="qText" placeholder="พิมพ์คำถาม..."></textarea></div>
         <div><label>ตัวเลือก</label>
           <div class="options-grid">
-            <div class="opt-row"><span class="opt-lbl"
-                style="background:rgba(57,255,20,.15);color:var(--green);">A</span><input type="text" id="opt0"
-                placeholder="ตัวเลือก A"></div>
-            <div class="opt-row"><span class="opt-lbl"
-                style="background:rgba(0,245,255,.15);color:var(--cyan);">B</span><input type="text" id="opt1"
-                placeholder="ตัวเลือก B"></div>
-            <div class="opt-row"><span class="opt-lbl"
-                style="background:rgba(255,215,0,.15);color:var(--gold);">C</span><input type="text" id="opt2"
-                placeholder="ตัวเลือก C"></div>
-            <div class="opt-row"><span class="opt-lbl"
-                style="background:rgba(191,90,242,.15);color:var(--purple);">D</span><input type="text" id="opt3"
-                placeholder="ตัวเลือก D"></div>
+            <div class="opt-row"><span class="opt-lbl" style="background:var(--red);color:#fff;">A</span><input
+                type="text" id="opt0" placeholder="ตัวเลือก A"></div>
+            <div class="opt-row"><span class="opt-lbl" style="background:var(--cyan);color:#fff;">B</span><input
+                type="text" id="opt1" placeholder="ตัวเลือก B"></div>
+            <div class="opt-row"><span class="opt-lbl" style="background:var(--gold);">C</span><input type="text"
+                id="opt2" placeholder="ตัวเลือก C"></div>
+            <div class="opt-row"><span class="opt-lbl" style="background:var(--purple);color:#fff;">D</span><input
+                type="text" id="opt3" placeholder="ตัวเลือก D"></div>
           </div>
         </div>
         <div><label>คำตอบที่ถูก</label>
@@ -885,8 +1152,7 @@
         <div class="flex-between">
           <h3>คำถามทั้งหมด (<span id="qCountBadge">0</span>)</h3>
           <div style="display:flex;gap:8px;align-items:center;">
-            <select id="sampleCat"
-              style="padding:6px 10px;font-size:12px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--text);font-family:'Kanit',sans-serif;">
+            <select id="sampleCat" style="width:auto;padding:8px 12px;font-size:14px;">
               <option value="dev">💻 Dev</option>
               <option value="qa">🧪 QA</option>
               <option value="po">📋 PO</option>
@@ -898,13 +1164,33 @@
             <button class="btn btn-outline btn-sm" onclick="loadSample()">📋 โหลดตัวอย่าง</button>
           </div>
         </div>
+        <input type="text" id="qFilter" placeholder="🔍 กรองคำถามในรายการ..." oninput="renderQList()">
         <div id="qList">
           <p class="text-muted text-center" style="padding:16px;">ยังไม่มีคำถาม</p>
         </div>
       </div>
 
+      <div class="card" style="display:flex;flex-direction:column;gap:12px;">
+        <div class="flex-between">
+          <h3>☁️ คลังคำถาม</h3>
+          <span class="text-muted" style="font-size:11px;">บันทึกไว้ใช้ซ้ำได้ทุกเครื่อง</span>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="setName" placeholder="ชื่อชุดคำถาม เช่น Town Hall Q3" style="flex:1;">
+          <button class="btn btn-gold btn-sm" onclick="saveCurrentSet()" style="white-space:nowrap;">💾 บันทึกชุดนี้</button>
+        </div>
+        <div id="setList">
+          <p class="text-muted text-center" style="padding:10px;">ยังไม่มีชุดที่บันทึกไว้</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <input type="text" id="bankSearch" placeholder="🔍 ค้นหาคำถามในคลัง..." oninput="debouncedBankSearch()">
+          <div id="bankResults"></div>
+        </div>
+      </div>
+
       <button class="btn btn-pink w-full" style="font-size:16px;padding:17px;border-radius:14px;"
-        onclick="createRoom()">🚀 สร้างห้องเกม</button>
+        onclick="createRoom()"><img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f680/512.webp"
+          width="22" height="22" alt="🚀" onerror="this.replaceWith(this.alt)"> สร้างห้องเกม</button>
     </div>
   </div>
 
@@ -918,11 +1204,13 @@
         <div>
           <label>รหัสห้อง</label>
           <input type="text" id="joinCode" placeholder="AB12" maxlength="4"
-            style="text-transform:uppercase;text-align:center;font-size:28px;font-family:'Space Mono';letter-spacing:8px;">
+            style="text-transform:uppercase;text-align:center;font-size:34px;font-family:'Bungee',monospace;letter-spacing:8px;">
         </div>
-        <div><label>ชื่อของคุณ</label><input type="text" id="joinName" placeholder="ชื่อเล่น..."></div>
+        <div><label>ชื่อของคุณ <span style="font-weight:400;color:var(--muted);font-size:12px;">(ไม่เกิน 20
+              ตัวอักษร)</span></label><input type="text" id="joinName" placeholder="ชื่อเล่น..." maxlength="20"></div>
         <button class="btn btn-pink w-full" style="font-size:16px;padding:16px;border-radius:14px;"
-          onclick="joinRoom()">🎮 เข้าร่วมเกม</button>
+          onclick="joinRoom()"><img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3af/512.webp"
+            width="20" height="20" alt="🎯" onerror="this.replaceWith(this.alt)"> เข้าร่วมเกม</button>
         <button class="btn btn-outline w-full" onclick="goScreen('screen-home')">← กลับ</button>
       </div>
     </div>
@@ -941,11 +1229,15 @@
       </div>
 
       <div class="room-code-box">
-        <p style="font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;">
-          รหัสห้อง — แชร์ให้ทีม</p>
+        <p
+          style="font-family:'Mitr',sans-serif;font-size:14px;font-weight:600;color:var(--ink);letter-spacing:2px;margin-bottom:8px;">
+          <img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f39f/512.webp" width="20" height="20"
+            alt="🎟️" onerror="this.replaceWith(this.alt)"> รหัสห้อง — แชร์ให้ทีม</p>
         <div class="room-code" id="displayCode">----</div>
-        <p style="font-size:12px;color:var(--muted);margin-top:6px;">เปิดเว็บนี้ → กด <strong
-            style="color:var(--cyan);">"เข้าร่วม"</strong> → ใส่รหัส</p>
+        <p style="font-size:14px;color:var(--muted);margin-top:8px;">เปิดเว็บนี้ → กด <strong
+            style="color:var(--pink);">"เข้าร่วม"</strong> → ใส่รหัส</p>
+        <div class="qr-wrap" id="qrWrap" style="display:none;"></div>
+        <p id="qrHint" style="display:none;font-size:13px;color:var(--muted);margin-top:6px;">หรือสแกน QR เข้าเลย 📱</p>
       </div>
 
       <div class="card">
@@ -978,20 +1270,22 @@
     <div style="display:flex;flex-direction:column;align-items:center;gap:20px;padding:0 24px;">
       <div class="dots"><span></span><span></span><span></span></div>
       <p class="text-muted">รอ Host เริ่มเกม...</p>
-      <div class="card" style="max-width:300px;text-align:center;">
-        <div style="font-size:40px;" id="waitAvatar">🎮</div>
-        <div style="font-size:18px;font-weight:700;margin-top:8px;" id="waitName">-</div>
-        <div class="badge badge-green" style="margin-top:8px;">เข้าร่วมสำเร็จ ✓</div>
+      <div class="card" style="max-width:320px;text-align:center;">
+        <div class="wait-avatar-big" id="waitAvatar">🎮</div>
+        <div style="font-family:'Mitr',sans-serif;font-size:22px;font-weight:700;margin-top:8px;" id="waitName">-</div>
+        <div class="badge badge-green" style="margin-top:10px;">เข้าร่วมสำเร็จ ✓</div>
       </div>
-      <div id="waitRoomName" style="font-size:13px;color:var(--muted);"></div>
+      <div id="waitRoomName" style="font-size:15px;color:var(--muted);"></div>
     </div>
   </div>
 
   <!-- ══ QUESTION ══ -->
   <div id="screen-question" class="screen">
     <div class="q-header">
-      <div style="font-size:13px;color:var(--muted);">ข้อ <span id="qCur">1</span>/<span id="qTot">10</span></div>
-      <span class="badge badge-gold">⚡ ตอบเร็ว = คะแนนโบนัส</span>
+      <div class="q-counter">ข้อ <span id="qCur">1</span>/<span id="qTot">10</span></div>
+      <span class="badge badge-gold"><img class="emo"
+          src="https://fonts.gstatic.com/s/e/notoemoji/latest/26a1/512.webp" width="16" height="16" alt="⚡"
+          onerror="this.replaceWith(this.alt)"> ตอบเร็ว = คะแนนโบนัส</span>
       <span class="badge badge-host" id="hostViewBadge" style="display:none;">HOST VIEW</span>
     </div>
     <div class="timer-wrap">
@@ -1004,16 +1298,24 @@
       <div class="q-text-big" id="qTextBig">...</div>
     </div>
     <div class="ans-grid" id="ansGrid"></div>
+    <div class="who-list" id="whoList" style="display:none;"></div>
     <div id="hostNextWrap" style="display:none;text-align:center;margin-top:4px;">
-      <button class="btn btn-cyan" onclick="sendNextQuestion()" style="padding:14px 44px;font-size:15px;">ถัดไป
-        →</button>
-      <button class="btn btn-danger btn-sm" onclick="sendEndGame()" style="margin-top:8px;">จบเกม</button>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-gold" onclick="sendShowLeaderboard()" style="padding:14px 30px;font-size:16px;">🏆
+          ดูอันดับ</button>
+        <button class="btn btn-cyan" id="revealNextBtn" onclick="sendNextQuestion()"
+          style="padding:14px 30px;font-size:16px;">ข้อถัดไป →</button>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="sendEndGame()" style="margin-top:10px;">จบเกม</button>
     </div>
+    <p id="revealWait" class="text-muted text-center" style="display:none;">รอ Host พาไปหน้าอันดับ...</p>
     <div class="flex-between" style="flex-wrap:wrap;gap:8px;">
-      <div style="font-size:12px;color:var(--muted);">คะแนน: <strong id="myScoreQ"
-          style="color:var(--gold);font-family:'Space Mono';">0</strong></div>
-      <div style="font-size:12px;color:var(--muted);">ตอบแล้ว <strong id="answeredC"
-          style="color:var(--cyan);">0</strong>/<span id="totalP">0</span></div>
+      <div class="q-counter"><img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1fa99/512.webp"
+          width="20" height="20" alt="🪙" onerror="this.replaceWith(this.alt)"> <strong id="myScoreQ"
+          style="font-family:'Bungee',monospace;">0</strong></div>
+      <div class="q-counter"><img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/270b/512.webp"
+          width="18" height="18" alt="✋" onerror="this.replaceWith(this.alt)"> ตอบแล้ว <strong
+          id="answeredC">0</strong>/<span id="totalP">0</span></div>
     </div>
   </div>
 
@@ -1021,8 +1323,10 @@
   <div id="screen-leaderboard" class="screen">
     <div>
       <div class="text-center">
-        <h2>🏅 คะแนนสะสม</h2>
+        <h2><img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3c6/512.webp" width="28" height="28"
+            alt="🏆" onerror="this.replaceWith(this.alt)"> คะแนนสะสม</h2>
         <p class="text-muted mt-4">หลังข้อที่ <span id="lbQNum">1</span></p>
+        <div class="fastest-banner" id="fastestBanner" style="display:none;"></div>
       </div>
       <div class="lb-list" id="lbList"></div>
       <div id="lbBtns"
@@ -1038,48 +1342,105 @@
   <!-- ══ FINAL ══ -->
   <div id="screen-final" class="screen">
     <div class="confetti-wrap" id="confettiWrap"></div>
-    <div class="trophy">🏆</div>
-    <div>
-      <p style="font-size:12px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:3px;">ผู้ชนะ
+
+    <div class="final-suspense" id="finalSuspense">🥁 ประกาศผล...</div>
+
+    <div id="winnerWrap" style="display:none;text-align:center;">
+      <div class="trophy"><img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3c6/512.webp"
+          width="130" height="130" alt="🏆" onerror="this.replaceWith(this.alt)"></div>
+      <p style="font-size:12px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin:8px 0 3px;">ผู้ชนะ
       </p>
       <div class="win-name" id="winName">-</div>
       <div class="win-score" id="winScore">0 คะแนน</div>
     </div>
+
     <div class="podium" id="podium"></div>
 
-    <!-- PRIZES -->
-    <div style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:360px;">
-      <div id="prize1"
-        style="display:none;background:linear-gradient(135deg,rgba(255,215,0,.15),rgba(255,140,0,.1));border:1px solid rgba(255,215,0,.4);border-radius:16px;padding:14px 18px;display:flex;align-items:center;gap:14px;">
-        <span style="font-size:32px;">🥇</span>
-        <div style="text-align:left;">
-          <div style="font-weight:700;font-size:15px;color:var(--gold);" id="prize1Name">-</div>
-          <div style="font-size:13px;color:var(--text);margin-top:2px;">🎁 Gift Voucher Grab <strong
-              style="color:var(--gold);">100 บ.</strong></div>
-        </div>
-      </div>
-      <div id="prize2"
-        style="display:none;background:linear-gradient(135deg,rgba(192,192,192,.12),rgba(150,150,150,.07));border:1px solid rgba(200,200,200,.3);border-radius:16px;padding:14px 18px;display:flex;align-items:center;gap:14px;">
-        <span style="font-size:32px;">🥈</span>
-        <div style="text-align:left;">
-          <div style="font-weight:700;font-size:15px;color:#d0d0d0;" id="prize2Name">-</div>
-          <div style="font-size:13px;color:var(--text);margin-top:2px;">🎁 Gift Voucher Grab <strong
-              style="color:#d0d0d0;">50 บ.</strong></div>
-        </div>
-      </div>
-      <div style="font-size:12px;color:var(--muted);margin-top:4px;">📩 ติดต่อรับรางวัลได้ที่ <strong
-          style="color:var(--cyan);">kritsada</strong></div>
+    <!-- FULL RESULTS -->
+    <div id="finalListWrap" style="width:100%;max-width:460px;display:none;">
+      <h3 style="margin-bottom:10px;"><img class="emo"
+          src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4ca/512.webp" width="20" height="20" alt="📊"
+          onerror="this.replaceWith(this.alt)"> คะแนนรวมทุกคน</h3>
+      <div class="lb-list" id="finalList"></div>
     </div>
 
-    <button class="btn btn-gold" onclick="resetGame()" style="padding:14px 44px;font-size:15px;">🔄 เล่นใหม่</button>
+    <div id="finalBtns" style="display:none;flex-direction:column;gap:10px;align-items:center;"></div>
   </div>
 
   <script>
     // ══════════════════════════════════════
     // CONSTANTS
     // ══════════════════════════════════════
-    const AVATARS = ['🦁', '🐯', '🦊', '🐺', '🐻', '🐼', '🦄', '🐸', '🐙', '🦋', '🦅', '🐬', '🦈', '🦒', '🦓', '🦘', '🐲', '🤖', '👾', '🎭'];
-    const COLORS = ['#ffd700', '#00f5ff', '#39ff14', '#ff6b35', '#bf5af2', '#ff073a', '#00bfff', '#ff69b4'];
+    // ทุกตัวมีเวอร์ชัน animated ใน Noto Animated Emoji (เช็คกับ CDN แล้ว)
+    const AVATARS = ['🦁', '🦊', '🐺', '🐻', '🐼', '🦄', '🐸', '🐙', '🦋', '🐬', '🦈', '🤖', '👾', '🐱', '🦖', '👻', '🎃', '🐮', '🦉', '🐧'];
+
+    // ══════════════════════════════════════
+    // SOUND ENGINE (Web Audio — สังเคราะห์เสียงเอง ไม่มีไฟล์)
+    // ══════════════════════════════════════
+    const SFX = (() => {
+      let ctx = null;
+      let muted = false;
+      try { muted = localStorage.getItem('tb_muted') === '1'; } catch { }
+      function ensure() {
+        if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (ctx.state === 'suspended') ctx.resume();
+        return ctx;
+      }
+      // autoplay policy: ปลดล็อก AudioContext จาก gesture แรกของผู้ใช้
+      addEventListener('pointerdown', () => { try { ensure(); } catch { } }, { once: true });
+
+      function tone(freq, dur, { type = 'square', vol = .15, when = 0, slide = 0 } = {}) {
+        if (muted) return;
+        let c; try { c = ensure(); } catch { return; }
+        const t0 = c.currentTime + when;
+        const o = c.createOscillator(), g = c.createGain();
+        o.type = type;
+        o.frequency.setValueAtTime(freq, t0);
+        if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, freq + slide), t0 + dur);
+        g.gain.setValueAtTime(vol, t0);
+        g.gain.exponentialRampToValueAtTime(.001, t0 + dur);
+        o.connect(g); g.connect(c.destination);
+        o.start(t0); o.stop(t0 + dur + .05);
+      }
+      return {
+        get muted() { return muted; },
+        toggle() { muted = !muted; try { localStorage.setItem('tb_muted', muted ? '1' : '0'); } catch { } return muted; },
+        tick(urgent) { tone(urgent ? 1150 : 880, .06, { vol: .07 }); },
+        qStart() { tone(520, .09, { type: 'triangle', vol: .14 }); tone(780, .13, { type: 'triangle', vol: .14, when: .09 }); },
+        select() { tone(640, .06, { type: 'triangle', vol: .13 }); },
+        join() { tone(700, .07, { type: 'triangle', vol: .1 }); tone(1050, .1, { type: 'triangle', vol: .1, when: .07 }); },
+        correct() { [523, 659, 784, 1047].forEach((f, i) => tone(f, .13, { type: 'triangle', vol: .16, when: i * .07 })); },
+        wrong() { tone(220, .32, { type: 'sawtooth', vol: .12, slide: -140 }); },
+        streak() { tone(880, .08, { type: 'triangle', vol: .15 }); tone(1175, .14, { type: 'triangle', vol: .15, when: .08 }); },
+        drumroll(dur = 1.6) {
+          const n = Math.floor(dur / .07);
+          for (let i = 0; i < n; i++) tone(130 + Math.random() * 50, .05, { type: 'triangle', vol: .05 + (i / n) * .07, when: i * .07 });
+        },
+        fanfare() { [523, 523, 659, 784, 659, 784, 1047].forEach((f, i) => tone(f, i >= 5 ? .4 : .15, { type: 'triangle', vol: .17, when: i * .14 })); },
+      };
+    })();
+
+    function toggleMute() {
+      const m = SFX.toggle();
+      const btn = document.getElementById('muteBtn');
+      btn.textContent = m ? '🔇' : '🔊';
+      btn.classList.toggle('muted', m);
+      if (!m) SFX.select();
+    }
+    function vibrate(pattern) { try { navigator.vibrate?.(pattern); } catch { } }
+
+    // ══════════════════════════════════════
+    // ANIMATED EMOJI (Google Noto Animated Emoji)
+    // ══════════════════════════════════════
+    const EMO_BASE = 'https://fonts.gstatic.com/s/e/notoemoji/latest/';
+    function emoCode(ch) {
+      return [...ch].map(c => c.codePointAt(0).toString(16)).filter(c => c !== 'fe0f').join('_');
+    }
+    // fallback: โหลดรูปไม่ได้ → แทนที่ด้วย emoji ตัวอักษรปกติ (replaceWith = text node ปลอดภัย)
+    function emo(ch, size = 32) {
+      return `<img class="emo" src="${EMO_BASE}${emoCode(ch)}/512.webp" width="${size}" height="${size}" alt="${esc(ch)}" loading="lazy" onerror="this.replaceWith(this.alt)">`;
+    }
+    const COLORS = ['#ffb800', '#ff2e88', '#1789dc', '#21b26b', '#8a3ffc', '#f5455c', '#ff7a1a', '#fff'];
     const SAMPLE_QS = {
       dev: [
         { q: "HTTP Status Code 404 หมายความว่าอะไร?", opts: ["Server Error", "Unauthorized", "Not Found", "OK"], correct: 2 },
@@ -1201,6 +1562,30 @@
     let answered = false;
     let roomCode = null;
     let gameName = '';
+    let hostToken = null;
+    let pendingResult = null;
+    let lastTickSec = null;
+
+    // ══════════════════════════════════════
+    // SESSION (กลับเข้าห้องเดิมหลัง refresh / เน็ตหลุด)
+    // ══════════════════════════════════════
+    function saveHostSession() { try { sessionStorage.setItem('tb_host', JSON.stringify({ code: roomCode, token: hostToken })); } catch { } }
+    function savePlayerSession() { try { sessionStorage.setItem('tb_player', JSON.stringify({ code: roomCode, name: playerName, avatar: playerAvatar })); } catch { } }
+    function clearSessions() { try { sessionStorage.removeItem('tb_host'); sessionStorage.removeItem('tb_player'); } catch { } }
+
+    function tryResume() {
+      // ws หลุดแล้วต่อใหม่โดยไม่ได้ refresh — state ในหน้ายังอยู่ครบ
+      if (roomCode && role === 'host' && hostToken) { send({ type: 'host_reconnect', code: roomCode, token: hostToken }); return; }
+      if (roomCode && role === 'player' && playerName) { send({ type: 'join_room', code: roomCode, name: playerName, avatar: playerAvatar }); return; }
+      if (roomCode) return;
+      // refresh หน้า — กู้จาก sessionStorage
+      try {
+        const hs = JSON.parse(sessionStorage.getItem('tb_host') || 'null');
+        if (hs?.code && hs?.token) { role = 'host'; hostToken = hs.token; send({ type: 'host_reconnect', code: hs.code, token: hs.token }); return; }
+        const ps = JSON.parse(sessionStorage.getItem('tb_player') || 'null');
+        if (ps?.code && ps?.name) { role = 'player'; playerName = ps.name; playerAvatar = ps.avatar; send({ type: 'join_room', code: ps.code, name: ps.name, avatar: ps.avatar }); }
+      } catch { }
+    }
 
     // ══════════════════════════════════════
     // WEBSOCKET
@@ -1224,6 +1609,7 @@
           const msg = sendQueue.shift();
           ws.send(JSON.stringify(msg));
         }
+        tryResume();
       };
 
       ws.onmessage = (e) => {
@@ -1265,20 +1651,60 @@
 
         case 'room_created':
           roomCode = msg.code;
+          hostToken = msg.token;
+          saveHostSession();
           document.getElementById('displayCode').textContent = msg.code;
           document.getElementById('lobbyName').textContent = msg.gameName;
           document.getElementById('setupSummary').textContent = `${questions.length} คำถาม · ${timeTotal} วิ/ข้อ`;
+          renderQR(msg.code);
           goScreen('screen-lobby');
           break;
 
+        case 'host_reconnected':
+          roomCode = msg.code;
+          role = 'host';
+          saveHostSession();
+          currentQ = msg.currentQ;
+          totalPlayers = msg.players.length;
+          if (msg.phase === 'lobby') {
+            document.getElementById('displayCode').textContent = msg.code;
+            document.getElementById('lobbyName').textContent = msg.gameName;
+            renderLobbyPlayers(msg.players);
+            renderQR(msg.code);
+            goScreen('screen-lobby');
+          } else if (msg.phase === 'question') {
+            showQuestion(msg);
+            document.getElementById('answeredC').textContent = msg.answeredCount;
+          } else if (msg.phase === 'leaderboard') {
+            showLeaderboard(msg.leaderboard, msg.isLastQuestion, msg.fastest);
+          } else if (msg.phase === 'final') {
+            showFinalScreen(msg.leaderboard);
+          }
+          toast('กลับเข้าห้องแล้ว ✓');
+          break;
+
+        case 'reconnect_failed':
+          clearSessions();
+          if (roomCode) { toast('❌ ห้องถูกปิดแล้ว'); resetGame(); }
+          else { role = null; hostToken = null; }
+          break;
+
         case 'player_joined':
+          if (role === 'host') SFX.join();
+          renderLobbyPlayers(msg.players);
+          break;
+
         case 'player_left':
           renderLobbyPlayers(msg.players);
           break;
 
         case 'joined':
           roomCode = msg.code;
+          myScore = msg.score || 0;
+          savePlayerSession();
           document.getElementById('waitRoomName').textContent = `ห้อง: ${msg.gameName}`;
+          document.getElementById('waitName').textContent = playerName;
+          document.getElementById('waitAvatar').innerHTML = emo(playerAvatar, 64);
           goScreen('screen-waiting');
           break;
 
@@ -1286,8 +1712,14 @@
           currentQ = msg.currentQ;
           totalPlayers = msg.total || totalPlayers;
           answered = false;
+          pendingResult = null;
           timeTotal = msg.timeLeft;
           showQuestion(msg);
+          if (msg.answered) {
+            // กลับเข้ามากลางข้อที่ตอบไปแล้ว — ล็อกตัวเลือกไว้
+            answered = true;
+            document.querySelectorAll('.ans-btn').forEach(b => b.disabled = true);
+          }
           break;
 
         case 'timer':
@@ -1295,9 +1727,8 @@
           break;
 
         case 'answer_result':
-          myScore = msg.score;
-          document.getElementById('myScoreQ').textContent = myScore.toLocaleString();
-          if (msg.pts > 0) showScorePop('+' + msg.pts);
+          // เก็บไว้ก่อน — ยังไม่เฉลยว่าถูก/ผิดจนกว่า reveal จะมา (เพิ่ม suspense)
+          pendingResult = msg;
           break;
 
         case 'answer_update':
@@ -1306,15 +1737,39 @@
           break;
 
         case 'reveal':
-          revealAnswer(msg.correct);
-          showLeaderboard(msg.leaderboard, msg.isLastQuestion);
+          startRevealSequence(msg);
+          break;
+
+        case 'show_leaderboard':
+          showLeaderboard(msg.leaderboard, msg.isLastQuestion, msg.fastest);
           break;
 
         case 'final':
           showFinalScreen(msg.leaderboard);
           break;
 
+        case 'game_reset':
+          // host กดเล่นรอบใหม่ — ทุกคนกลับ lobby/หน้ารอ คะแนนรีเซ็ต
+          clearFinalTimers();
+          myScore = 0; currentQ = 0; answered = false; pendingResult = null;
+          toast('🔁 เริ่มรอบใหม่!');
+          SFX.join();
+          if (role === 'host') {
+            document.getElementById('displayCode').textContent = msg.code;
+            document.getElementById('lobbyName').textContent = msg.gameName;
+            renderLobbyPlayers(msg.players);
+            renderQR(msg.code);
+            goScreen('screen-lobby');
+          } else {
+            document.getElementById('waitRoomName').textContent = `ห้อง: ${msg.gameName}`;
+            document.getElementById('waitName').textContent = playerName;
+            document.getElementById('waitAvatar').innerHTML = emo(playerAvatar, 64);
+            goScreen('screen-waiting');
+          }
+          break;
+
         case 'error':
+          if (msg.message === 'ไม่พบห้องนี้') clearSessions();
           toast('❌ ' + msg.message);
           break;
       }
@@ -1329,7 +1784,90 @@
       // Clear urgency when leaving question screen
       document.body.classList.remove('warning','urgent','critical');
     }
-    function goSetup() { renderQList(); goScreen('screen-setup'); }
+    function goSetup() { renderQList(); refreshSets(); goScreen('screen-setup'); }
+
+    // ══════════════════════════════════════
+    // QUESTION BANK (คลังคำถามใน DB)
+    // ══════════════════════════════════════
+    function esc(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
+
+    async function api(path, opts) {
+      const res = await fetch(path, opts);
+      if (!res.ok) throw new Error('api ' + res.status);
+      return res.json();
+    }
+
+    async function refreshSets() {
+      try {
+        const sets = await api('/api/sets');
+        const el = document.getElementById('setList');
+        if (!sets.length) { el.innerHTML = '<p class="text-muted text-center" style="padding:10px;">ยังไม่มีชุดที่บันทึกไว้</p>'; return; }
+        el.innerHTML = sets.map(s => `
+      <div class="q-item">
+        <div class="q-text">${esc(s.name)} <span class="text-muted" style="font-size:11px;">· ${s.count} ข้อ</span></div>
+        <button class="btn btn-outline btn-sm" onclick="loadSet(${s.id})">โหลด</button>
+        <button class="q-remove" onclick="deleteSetUi(${s.id})">✕</button>
+      </div>`).join('');
+      } catch { }
+    }
+
+    async function saveCurrentSet() {
+      const name = document.getElementById('setName').value.trim();
+      if (!name) { toast('⚠️ ตั้งชื่อชุดคำถามก่อน'); return; }
+      if (!questions.length) { toast('⚠️ ยังไม่มีคำถามให้บันทึก'); return; }
+      try {
+        await api('/api/sets', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, questions }),
+        });
+        toast(`บันทึก "${name}" (${questions.length} ข้อ) ✓`);
+        document.getElementById('setName').value = '';
+        refreshSets();
+      } catch { toast('❌ บันทึกไม่สำเร็จ'); }
+    }
+
+    async function loadSet(id) {
+      try {
+        const s = await api('/api/sets/' + id);
+        questions = s.questions;
+        renderQList();
+        toast(`โหลด "${s.name}" ${s.questions.length} ข้อ ✓`);
+      } catch { toast('❌ โหลดชุดคำถามไม่สำเร็จ'); }
+    }
+
+    async function deleteSetUi(id) {
+      if (!confirm('ลบชุดคำถามนี้ออกจากคลัง?')) return;
+      try { await api('/api/sets/' + id, { method: 'DELETE' }); refreshSets(); toast('ลบแล้ว ✓'); }
+      catch { toast('❌ ลบไม่สำเร็จ'); }
+    }
+
+    let bankSearchTimer = null;
+    let bankResults = [];
+    function debouncedBankSearch() { clearTimeout(bankSearchTimer); bankSearchTimer = setTimeout(bankSearch, 300); }
+
+    async function bankSearch() {
+      const term = document.getElementById('bankSearch').value.trim();
+      const el = document.getElementById('bankResults');
+      if (!term) { bankResults = []; el.innerHTML = ''; return; }
+      try {
+        bankResults = await api('/api/questions/search?q=' + encodeURIComponent(term));
+        if (!bankResults.length) { el.innerHTML = '<p class="text-muted text-center" style="padding:10px;">ไม่พบคำถามในคลัง</p>'; return; }
+        el.innerHTML = bankResults.map((r, i) => `
+      <div class="q-item">
+        <div class="q-text">${esc(r.q)} <span class="text-muted" style="font-size:11px;">· ${esc(r.setName)}</span></div>
+        <button class="btn btn-outline btn-sm" onclick="addFromBank(${i})">➕</button>
+      </div>`).join('');
+      } catch { }
+    }
+
+    function addFromBank(i) {
+      const r = bankResults[i];
+      if (!r) return;
+      questions.push({ q: r.q, opts: r.opts, correct: r.correct });
+      renderQList();
+      toast('เพิ่มจากคลังแล้ว ✓');
+    }
 
     // ══════════════════════════════════════
     // SETUP
@@ -1361,10 +1899,15 @@
       document.getElementById('qCountBadge').textContent = questions.length;
       const el = document.getElementById('qList');
       if (!questions.length) { el.innerHTML = '<p class="text-muted text-center" style="padding:14px;">ยังไม่มีคำถาม</p>'; return; }
-      el.innerHTML = questions.map((q, i) => `
+      const filter = (document.getElementById('qFilter')?.value || '').trim().toLowerCase();
+      const items = questions
+        .map((q, i) => ({ q, i }))
+        .filter(x => !filter || x.q.q.toLowerCase().includes(filter) || x.q.opts.some(o => o.toLowerCase().includes(filter)));
+      if (!items.length) { el.innerHTML = '<p class="text-muted text-center" style="padding:14px;">ไม่พบคำถามที่ค้นหา</p>'; return; }
+      el.innerHTML = items.map(({ q, i }) => `
     <div class="q-item">
       <div class="q-num">${i + 1}</div>
-      <div class="q-text">${q.q}</div>
+      <div class="q-text">${esc(q.q)}</div>
       <button class="q-remove" onclick="removeQ(${i})">✕</button>
     </div>`).join('');
     }
@@ -1386,13 +1929,30 @@
       document.getElementById('lobbyStatus').textContent = players.length > 0 ? `${players.length} คน ✓` : 'รอ...';
       document.getElementById('lobbyPlayers').innerHTML = players.map(p => `
     <div class="p-chip">
-      <div class="p-avatar">${p.avatar}</div>
-      <div class="p-name">${p.name}</div>
+      <div class="p-avatar">${emo(p.avatar, 24)}</div>
+      <div class="p-name">${esc(p.name)}</div>
     </div>`).join('') || '<p class="text-muted" style="font-size:12px;">รอผู้เล่น...</p>';
+    }
+
+    // QR ชี้ไป /?join=CODE — สแกนแล้วเปิดหน้า join พร้อมกรอกรหัสให้เลย
+    function renderQR(code) {
+      const wrap = document.getElementById('qrWrap');
+      const hint = document.getElementById('qrHint');
+      if (typeof QRCode === 'undefined') { wrap.style.display = 'none'; hint.style.display = 'none'; return; }
+      wrap.innerHTML = '';
+      new QRCode(wrap, {
+        text: `${location.origin}/?join=${code}`,
+        width: 132, height: 132,
+        colorDark: '#241a4d', colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M,
+      });
+      wrap.style.display = 'inline-block';
+      hint.style.display = 'block';
     }
 
     function startGame() { send({ type: 'start_game' }); }
     function sendNextQuestion() { send({ type: 'next_question' }); }
+    function sendShowLeaderboard() { send({ type: 'show_leaderboard' }); }
     function sendEndGame() { send({ type: 'end_game' }); }
 
     // ══════════════════════════════════════
@@ -1400,7 +1960,7 @@
     // ══════════════════════════════════════
     function joinRoom() {
       const code = document.getElementById('joinCode').value.trim().toUpperCase();
-      const name = document.getElementById('joinName').value.trim();
+      const name = document.getElementById('joinName').value.trim().slice(0, 20);
       if (!code || code.length !== 4) { toast('⚠️ รหัส 4 ตัว'); return; }
       if (!name) { toast('⚠️ ใส่ชื่อด้วย'); return; }
       role = 'player';
@@ -1417,6 +1977,8 @@
     // ══════════════════════════════════════
     function showQuestion(msg) {
       clearInterval(timerInterval);
+      lastTickSec = null;
+      SFX.qStart();
       goScreen('screen-question');
 
       document.getElementById('qCur').textContent = msg.currentQ + 1;
@@ -1427,13 +1989,15 @@
       document.getElementById('totalP').textContent = totalPlayers;
       document.getElementById('hostViewBadge').style.display = role === 'host' ? '' : 'none';
       document.getElementById('hostNextWrap').style.display = 'none';
+      const who = document.getElementById('whoList');
+      who.style.display = 'none'; who.innerHTML = '';
+      document.getElementById('revealWait').style.display = 'none';
 
-      const letters = ['A', 'B', 'C', 'D'];
-      const colors = ['var(--green)', 'var(--cyan)', 'var(--gold)', 'var(--purple)'];
+      const shapes = ['▲', '◆', '●', '■'];
       document.getElementById('ansGrid').innerHTML = msg.question.opts.map((opt, i) => `
     <button class="ans-btn" id="ansBtn${i}" onclick="selectAnswer(${i})" ${role === 'host' ? 'disabled' : ''}>
-      <span class="ans-letter" style="color:${colors[i]}">${letters[i]}</span>
-      ${opt}
+      <span class="ans-letter">${shapes[i]}</span>
+      ${esc(opt)}
     </button>`).join('');
 
       // Local timer display
@@ -1458,26 +2022,33 @@
       num.classList.remove('warning','urgent','critical');
       document.body.classList.remove('warning','urgent','critical');
 
+      // เสียงติ๊ก 10 วิสุดท้าย (กันเบิ้ลจาก server msg + local interval ที่วิ่งพร้อมกัน)
+      if (t <= 10 && t > 0 && t !== lastTickSec) { lastTickSec = t; SFX.tick(t <= 5); }
+
+      const stripe = (a, b) => `repeating-linear-gradient(-45deg, ${a} 0 14px, ${b} 14px 28px)`;
       if (t <= 3) {
         num.classList.add('critical');
         document.body.classList.add('critical');
-        bar.style.background = 'var(--red)';
+        bar.style.background = stripe('#f5455c', '#e02b45');
       } else if (t <= 5) {
         num.classList.add('urgent');
         document.body.classList.add('urgent');
-        bar.style.background = 'linear-gradient(90deg,var(--red),var(--pink))';
+        bar.style.background = stripe('#f5455c', '#ff7a9b');
       } else if (t <= 10) {
         num.classList.add('warning');
         document.body.classList.add('warning');
-        bar.style.background = 'linear-gradient(90deg,var(--gold),var(--orange))';
+        bar.style.background = stripe('#ffb800', '#ff9a2e');
       } else {
-        bar.style.background = 'linear-gradient(90deg,var(--green),var(--cyan))';
+        bar.style.background = stripe('#21b26b', '#35c77e');
       }
+      bar.style.backgroundSize = '40px 40px';
     }
 
     function selectAnswer(idx) {
       if (answered || role === 'host') return;
       answered = true;
+      SFX.select();
+      vibrate(30);
       clearInterval(timerInterval);
       document.querySelectorAll('.ans-btn').forEach(b => b.disabled = true);
       document.getElementById('ansBtn' + idx).classList.add('selected');
@@ -1498,6 +2069,82 @@
       }
     }
 
+    // ลำดับเฉลย: drumroll สร้าง suspense → เฉลย + กราฟจำนวนคนตอบ → คะแนนเด้ง → leaderboard
+    function startRevealSequence(msg) {
+      clearInterval(timerInterval);
+      document.body.classList.remove('warning', 'urgent', 'critical');
+      const num = document.getElementById('timerNum');
+      if (num) { num.classList.remove('warning', 'urgent', 'critical'); num.textContent = '?!'; }
+      const grid = document.getElementById('ansGrid');
+      document.querySelectorAll('.ans-btn').forEach(b => b.disabled = true);
+      const onQuestionScreen = document.getElementById('screen-question').classList.contains('active');
+
+      if (!onQuestionScreen) {
+        // เพิ่งกลับเข้าเกมกลาง phase เฉลย — ข้าม drama ไปดู leaderboard เลย
+        showLeaderboard(msg.leaderboard, msg.isLastQuestion, msg.fastest);
+        return;
+      }
+
+      grid.classList.add('suspense');
+      SFX.drumroll(1.6);
+
+      setTimeout(() => {
+        grid.classList.remove('suspense');
+        revealAnswer(msg.correct);
+        showAnswerCounts(msg.counts);
+        showWhoAnswered(msg.results);
+        // ข้อสุดท้าย: ปุ่มข้ามเปลี่ยนเป็นไปหน้าผลสรุป (server จบเกมให้เองเมื่อเกินข้อสุดท้าย)
+        document.getElementById('revealNextBtn').textContent = msg.isLastQuestion ? '🏁 ดูผลสรุป' : 'ข้อถัดไป →';
+        if (role !== 'host') document.getElementById('revealWait').style.display = 'block';
+
+        const r = pendingResult;
+        pendingResult = null;
+        if (role === 'player') {
+          if (r && r.correct) {
+            SFX.correct();
+            vibrate([60, 40, 120]);
+            myScore = r.score;
+            document.getElementById('myScoreQ').textContent = myScore.toLocaleString();
+            showScorePop('+' + r.pts);
+            if (r.streak >= 2) setTimeout(() => { SFX.streak(); showScorePop('🔥 x' + r.streak); }, 900);
+          } else if (r || !answered) {
+            SFX.wrong();
+            vibrate(180);
+            if (r) { myScore = r.score; document.getElementById('myScoreQ').textContent = myScore.toLocaleString(); }
+          }
+        } else {
+          SFX.correct();
+        }
+        // ค้างที่หน้าเฉลย — host เป็นคนกด "ดูอันดับ" เอง
+      }, 1600);
+    }
+
+    function showWhoAnswered(results) {
+      if (!Array.isArray(results) || !results.length) return;
+      const el = document.getElementById('whoList');
+      const chip = (r) => `
+    <div class="who-chip ${r.correct === true ? 'ok' : r.correct === false ? 'bad' : 'none'}">
+      ${emo(r.avatar, 20)} <span class="who-name">${esc(r.name)}</span>
+      <span class="who-pts">${r.correct === true ? '+' + r.pts : r.correct === false ? '✗' : '⏱'}</span>
+    </div>`;
+      // เรียง: ถูก → ผิด → ไม่ทันตอบ
+      const rank = (r) => r.correct === true ? 0 : r.correct === false ? 1 : 2;
+      const sorted = [...results].sort((x, y) => rank(x) - rank(y));
+      const okCount = results.filter(r => r.correct === true).length;
+      el.innerHTML = `<div class="who-title">ตอบถูก ${okCount}/${results.length} คน</div>`
+        + sorted.map(chip).join('');
+      el.querySelectorAll('.who-chip').forEach((c, i) => c.style.animationDelay = (i * .06) + 's');
+      el.style.display = 'flex';
+    }
+
+    function showAnswerCounts(counts) {
+      if (!Array.isArray(counts)) return;
+      counts.forEach((n, i) => {
+        const btn = document.getElementById('ansBtn' + i);
+        if (btn) btn.insertAdjacentHTML('beforeend', `<span class="ans-count">${n} คน</span>`);
+      });
+    }
+
     function showScorePop(text) {
       const d = document.createElement('div');
       d.className = 'score-pop';
@@ -1509,63 +2156,113 @@
     // ══════════════════════════════════════
     // LEADERBOARD
     // ══════════════════════════════════════
-    function showLeaderboard(lb, isLast) {
-      setTimeout(() => {
-        goScreen('screen-leaderboard');
+    function showLeaderboard(lb, isLast, fastest) {
+      // ไม่ต้องหน่วงแล้ว — หน้านี้มาจากการกดของ host เอง
+      goScreen('screen-leaderboard');
         document.getElementById('lbQNum').textContent = currentQ + 1;
-        const medals = ['🥇', '🥈', '🥉'];
-        document.getElementById('lbList').innerHTML = lb.map((p, i) => `
-      <div class="lb-row" style="animation-delay:${i * .07}s;">
-        <div class="lb-rank">${medals[i] || (i + 1)}</div>
-        <div class="lb-av">${p.avatar}</div>
-        <div class="lb-name">${p.name}${p.name === playerName ? ' <span style="color:var(--cyan);font-size:11px;">(คุณ)</span>' : ''}</div>
-        <div class="lb-score">${p.score.toLocaleString()}</div>
-      </div>`).join('');
 
-        if (role === 'host') {
-          document.getElementById('lbNextBtn').style.display = !isLast ? '' : 'none';
-          document.getElementById('lbFinalBtn').style.display = isLast ? '' : 'none';
-          document.getElementById('lbBtns').style.display = 'flex';
+        const fb = document.getElementById('fastestBanner');
+        if (fastest && fastest.name) {
+          fb.innerHTML = `${emo('⚡', 18)} เร็วสุด: ${emo(fastest.avatar, 18)} <strong>${esc(fastest.name)}</strong> · ${(fastest.ms / 1000).toFixed(1)} วิ`;
+          fb.style.display = 'inline-block';
         } else {
-          document.getElementById('lbBtns').style.display = 'none';
+          fb.style.display = 'none';
         }
-      }, 1800);
+
+        const medals = ['🥇', '🥈', '🥉'];
+        document.getElementById('lbList').innerHTML = lb.map((p, i) => {
+          const delta = p.delta > 0 ? `<span class="lb-delta up">▲${p.delta}</span>`
+            : p.delta < 0 ? `<span class="lb-delta down">▼${-p.delta}</span>` : '';
+          return `
+      <div class="lb-row" style="animation-delay:${i * .07}s;">
+        <div class="lb-rank">${medals[i] ? emo(medals[i], 30) : (i + 1)}</div>
+        <div class="lb-av">${emo(p.avatar, 30)}</div>
+        <div class="lb-name">${esc(p.name)}${p.name === playerName ? ' <span style="color:var(--pink);font-size:12px;">(คุณ)</span>' : ''}${p.streak >= 2 ? `<span class="lb-streak">${emo('🔥', 15)} x${p.streak}</span>` : ''}</div>
+        ${delta}
+        <div class="lb-score">${p.score.toLocaleString()}</div>
+      </div>`;
+        }).join('');
+
+      if (role === 'host') {
+        document.getElementById('lbNextBtn').style.display = !isLast ? '' : 'none';
+        document.getElementById('lbFinalBtn').style.display = isLast ? '' : 'none';
+        document.getElementById('lbBtns').style.display = 'flex';
+      } else {
+        document.getElementById('lbBtns').style.display = 'none';
+      }
     }
 
     // ══════════════════════════════════════
     // FINAL
     // ══════════════════════════════════════
-    function showFinalScreen(lb) {
-      goScreen('screen-final');
-      const winner = lb[0];
-      document.getElementById('winName').textContent = winner?.name || '-';
-      document.getElementById('winScore').textContent = (winner?.score || 0).toLocaleString() + ' คะแนน';
+    // ── ประกาศผลแบบมีจังหวะ: อันดับ 3 → 2 → drumroll → แชมป์ + confetti → ตารางรวม ──
+    let finalTimers = [];
+    function clearFinalTimers() { finalTimers.forEach(clearTimeout); finalTimers = []; }
+    function ft(ms, fn) { finalTimers.push(setTimeout(fn, ms)); }
 
-      const top3 = [lb[1], lb[0], lb[2]].filter(Boolean);
-      const heights = ['150px', '190px', '120px'];
-      const crowns = ['🥈', '🥇', '🥉'];
-      document.getElementById('podium').innerHTML = top3.map((p, i) => `
-    <div class="pod" style="height:${heights[i]};">
-      <div>${crowns[i]}</div>
-      <div class="pod-emoji">${p.avatar}</div>
-      <div class="pod-name">${p.name}</div>
+    function addPod(p, place) {
+      const heights = { 1: '210px', 2: '170px', 3: '150px' };
+      const order = { 2: 0, 1: 1, 3: 2 }; // ตำแหน่งบนเวที: เงิน-ทอง-ทองแดง
+      const crowns = { 1: '🥇', 2: '🥈', 3: '🥉' };
+      document.getElementById('podium').insertAdjacentHTML('beforeend', `
+    <div class="pod pod-p${place}" style="height:${heights[place]};order:${order[place]};">
+      <div>${emo(crowns[place], 30)}</div>
+      <div class="pod-emoji">${emo(p.avatar, 36)}</div>
+      <div class="pod-name">${esc(p.name)}</div>
       <div class="pod-pts">${p.score.toLocaleString()}</div>
-    </div>`).join('');
-
-      // Show prizes for top 2
-      const p1el = document.getElementById('prize1');
-      const p2el = document.getElementById('prize2');
-      if (lb[0]) {
-        document.getElementById('prize1Name').textContent = lb[0].avatar + ' ' + lb[0].name;
-        p1el.style.display = 'flex';
-      }
-      if (lb[1]) {
-        document.getElementById('prize2Name').textContent = lb[1].avatar + ' ' + lb[1].name;
-        p2el.style.display = 'flex';
-      }
-
-      spawnConfetti();
+    </div>`);
     }
+
+    function renderFinalList(lb) {
+      const medals = ['🥇', '🥈', '🥉'];
+      document.getElementById('finalList').innerHTML = lb.map((p, i) => `
+    <div class="lb-row" style="animation-delay:${i * .08}s;">
+      <div class="lb-rank">${medals[i] ? emo(medals[i], 30) : (i + 1)}</div>
+      <div class="lb-av">${emo(p.avatar, 30)}</div>
+      <div class="lb-name">${esc(p.name)}${p.name === playerName ? ' <span style="color:var(--pink);font-size:12px;">(คุณ)</span>' : ''}</div>
+      <div class="lb-score">${p.score.toLocaleString()}</div>
+    </div>`).join('');
+    }
+
+    function showFinalScreen(lb) {
+      clearFinalTimers();
+      goScreen('screen-final');
+      document.getElementById('finalSuspense').style.display = 'block';
+      document.getElementById('winnerWrap').style.display = 'none';
+      document.getElementById('finalListWrap').style.display = 'none';
+      document.getElementById('finalBtns').style.display = 'none';
+      document.getElementById('podium').innerHTML = '';
+      document.getElementById('confettiWrap').innerHTML = '';
+
+      document.getElementById('winName').textContent = lb[0]?.name || '-';
+      document.getElementById('winScore').textContent = (lb[0]?.score || 0).toLocaleString() + ' คะแนน';
+
+      SFX.drumroll(1.1);
+      ft(1100, () => { if (lb[2]) { addPod(lb[2], 3); SFX.streak(); vibrate(40); } });
+      ft(2300, () => { if (lb[1]) { addPod(lb[1], 2); SFX.streak(); vibrate(40); } });
+      ft(3300, () => SFX.drumroll(1.5));
+      ft(4800, () => {
+        document.getElementById('finalSuspense').style.display = 'none';
+        if (lb[0]) addPod(lb[0], 1);
+        document.getElementById('winnerWrap').style.display = 'block';
+        SFX.fanfare();
+        vibrate([80, 60, 220]);
+        spawnConfetti();
+      });
+      ft(6200, () => {
+        renderFinalList(lb);
+        document.getElementById('finalListWrap').style.display = 'block';
+        const btns = document.getElementById('finalBtns');
+        btns.innerHTML = role === 'host'
+          ? `<button class="btn btn-gold" style="padding:14px 36px;font-size:16px;" onclick="sendRestart()">🔄 เล่นรอบใหม่ (คนเดิม)</button>
+             <button class="btn btn-outline" onclick="resetGame()">🏠 กลับหน้าแรก</button>`
+          : `<p class="text-muted">รอ Host เริ่มรอบใหม่ หรือ</p>
+             <button class="btn btn-outline" onclick="resetGame()">🏠 กลับหน้าแรก</button>`;
+        btns.style.display = 'flex';
+      });
+    }
+
+    function sendRestart() { send({ type: 'restart_game' }); }
 
     function spawnConfetti() {
       const w = document.getElementById('confettiWrap');
@@ -1595,8 +2292,12 @@
     // RESET
     // ══════════════════════════════════════
     function resetGame() {
-      role = null; playerName = null; playerAvatar = null;
-      myScore = 0; questions = []; currentQ = 0; answered = false; roomCode = null;
+      // ออกแบบตั้งใจ — บอก server ให้เอาเราออกจากห้อง จะได้ไม่โดนดึงกลับตอน host เริ่มรอบใหม่
+      if (roomCode && ws?.readyState === 1) send({ type: 'leave_room' });
+      clearSessions();
+      clearFinalTimers();
+      role = null; playerName = null; playerAvatar = null; hostToken = null;
+      myScore = 0; questions = []; currentQ = 0; answered = false; roomCode = null; pendingResult = null;
       clearInterval(timerInterval);
       goScreen('screen-home');
     }
@@ -1615,6 +2316,24 @@
     // ══════════════════════════════════════
     document.getElementById('joinCode').addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(); });
     document.getElementById('joinName').addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(); });
+
+    // มาจาก QR (/?join=CODE) → เปิดหน้า join กรอกรหัสให้เลย
+    (() => {
+      const jp = new URLSearchParams(location.search).get('join');
+      if (jp && /^[a-z0-9]{4}$/i.test(jp)) {
+        document.getElementById('joinCode').value = jp.toUpperCase();
+        goScreen('screen-join');
+        document.getElementById('joinName').focus();
+      }
+    })();
+
+    // สถานะปุ่มเสียงตามที่จำไว้
+    if (SFX.muted) {
+      const btn = document.getElementById('muteBtn');
+      btn.textContent = '🔇';
+      btn.classList.add('muted');
+    }
+
     connectWs();
   </script>
 </body>
