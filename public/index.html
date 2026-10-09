@@ -83,7 +83,10 @@
     }
 
     /* ── FLOATING DOODLES ── */
-    .bg-doodles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .bg-doodles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; transition: opacity .4s; }
+    /* ระหว่างตอบคำถาม/เฉลย ซ่อนอีโมจิลอย — ไม่แย่งสายตาจากคำถาม (โดยเฉพาะบนจอโปรเจกเตอร์) */
+    body:has(#screen-question.active) .bg-doodles { opacity: 0; }
+    body:has(#screen-question.active) .bg-doodles span { animation-play-state: paused; }
     .bg-doodles span {
       position: absolute;
       font-size: 34px;
