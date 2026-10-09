@@ -343,7 +343,8 @@
       from { opacity: 0; transform: translateX(-14px) scale(.96); }
       to   { opacity: 1; transform: translateX(0)     scale(1); }
     }
-    .q-item:hover { translate: -1px -1px; box-shadow: 4px 4px 0 rgba(36, 26, 77, .4); }
+    .q-item.editing { outline: 3px solid var(--gold); outline-offset: 1px; }
+.q-item:hover { translate: -1px -1px; box-shadow: 4px 4px 0 rgba(36, 26, 77, .4); }
     .q-num {
       width: 30px; height: 30px; border-radius: 10px;
       background: var(--gold);
@@ -1041,6 +1042,168 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
     }
+
+    /* ── TOGGLES ── */
+    .toggle-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chk {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: 'Mitr', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0;
+      color: var(--ink); background: #fff;
+      border: 2.5px solid var(--ink); border-radius: 999px;
+      padding: 7px 14px; margin: 0; cursor: pointer; user-select: none;
+      transition: background .15s;
+    }
+    .chk input { width: 18px; height: 18px; accent-color: var(--pink); margin: 0; }
+    .chk:has(input:checked) { background: var(--gold); }
+    .hint { font-size: 13px; color: var(--muted); line-height: 1.55; }
+
+    /* ── QUICK ADD (AI / import) ── */
+    details.quick { border: 2.5px solid var(--ink); border-radius: 16px; background: #fff; }
+    details.quick > summary {
+      cursor: pointer; list-style: none; padding: 12px 16px;
+      display: flex; align-items: center; gap: 8px;
+      font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 15px; color: var(--ink);
+    }
+    details.quick > summary::-webkit-details-marker { display: none; }
+    details.quick > summary::after { content: '▾'; margin-left: auto; transition: transform .2s; }
+    details.quick[open] > summary::after { transform: rotate(180deg); }
+    .quick-body { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .ai-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .btn.loading { opacity: .8; pointer-events: none; animation: suspensePulse .5s ease-in-out infinite alternate; }
+
+    /* ── CSV IMPORT ── */
+    .imp-steps { display: flex; flex-direction: column; gap: 10px; }
+    .imp-step { display: flex; gap: 10px; align-items: flex-start; }
+    .imp-num {
+      flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+      display: grid; place-items: center;
+      font-family: 'Bungee', monospace; font-size: 13px;
+      background: var(--gold); border: 2.5px solid var(--ink);
+    }
+    .imp-step-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+    .imp-step-title { font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 15px; color: var(--ink); line-height: 28px; }
+    .drop-zone {
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+      padding: 18px 12px; margin: 0; cursor: pointer; text-align: center;
+      border: 3px dashed var(--ink); border-radius: 16px; background: var(--paper);
+      font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 0;
+      transition: background .15s, transform .15s;
+    }
+    .drop-zone:hover, .drop-zone.drag { background: var(--paper-2); transform: scale(1.01); }
+    .drop-zone .hint { font-family: 'Anuphan', sans-serif; font-weight: 500; }
+    .imp-preview { display: flex; flex-direction: column; gap: 10px; border-top: 3px dashed var(--ink); padding-top: 14px; }
+    .imp-summary { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-family: 'Mitr', sans-serif; font-weight: 600; }
+    .imp-pill { border: 2px solid var(--ink); border-radius: 999px; padding: 2px 10px; font-size: 13px; background: #fff; }
+    .imp-pill.ok { background: #baf1d4; }
+    .imp-pill.bad { background: #ffd2d9; }
+    .imp-list { display: flex; flex-direction: column; gap: 8px; max-height: 460px; overflow-y: auto; padding: 2px 4px 4px 2px; }
+    .imp-item { background: #fff; border: 2.5px solid var(--ink); border-radius: 14px; padding: 10px 12px; }
+    .imp-item.bad { background: #fff3f5; border-color: var(--red); }
+    .imp-q { display: flex; gap: 8px; align-items: flex-start; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+    .imp-q .q-num { flex-shrink: 0; }
+    .imp-q-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+    .imp-thumb { width: 44px; height: 44px; object-fit: cover; border: 2px solid var(--ink); border-radius: 8px; flex-shrink: 0; }
+    .imp-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .imp-opt {
+      display: flex; gap: 6px; align-items: center; min-width: 0;
+      font-size: 14px; padding: 4px 8px; border-radius: 10px;
+      border: 2px solid #ddd6ea; background: var(--card); color: var(--ink);
+    }
+    .imp-opt b { font-family: 'Bungee', monospace; font-size: 11px; flex-shrink: 0; }
+    .imp-opt span { overflow-wrap: anywhere; }
+    .imp-opt.ok { background: #baf1d4; border-color: var(--green); font-weight: 700; }
+    .imp-opt.empty { border-style: dashed; color: var(--red); }
+    .imp-err { margin-top: 6px; font-size: 13px; font-weight: 600; color: #a01530; }
+    .imp-actions { display: flex; flex-direction: column; gap: 8px; }
+    @media (max-width: 480px) { .imp-opts { grid-template-columns: 1fr; } }
+
+    /* ── IMAGES ── */
+    .img-row { display: flex; gap: 8px; align-items: center; }
+    .img-preview-wrap { position: relative; display: inline-block; margin-top: 8px; }
+    .img-preview { display: block; max-width: 100%; max-height: 160px; border: 3px solid var(--ink); border-radius: 14px; }
+    .img-preview-wrap .q-remove { position: absolute; top: 6px; right: 6px; background: var(--card); border: 2px solid var(--ink); border-radius: 999px; width: 30px; height: 30px; }
+    .q-img {
+      display: block; max-width: 100%; max-height: min(34vh, 340px);
+      margin: 0 auto 14px; object-fit: contain;
+      border: 3px solid var(--ink); border-radius: 16px; background: #fff;
+    }
+    .q-tag {
+      display: inline-block; font-size: 11px; font-weight: 700; line-height: 1.5;
+      border: 2px solid var(--ink); border-radius: 999px; padding: 0 7px; margin-left: 4px;
+      background: var(--gold); white-space: nowrap; vertical-align: middle;
+    }
+
+    /* ── DOUBLE POINTS ── */
+    .badge-double { background: var(--pink); color: #fff; animation: suspensePulse .45s ease-in-out infinite alternate; }
+    .double-splash {
+      position: fixed; inset: 0; z-index: 900; pointer-events: none;
+      display: none; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+      background: rgba(36, 26, 77, .82);
+    }
+    .double-splash.show { display: flex; }
+    .ds-big {
+      font-family: 'Bungee', monospace; font-size: clamp(80px, 22vw, 190px); line-height: 1;
+      color: var(--gold); -webkit-text-stroke: 4px var(--ink); text-shadow: 7px 9px 0 var(--pink);
+      animation: dsPop .55s cubic-bezier(.34, 1.56, .64, 1) both, dsWobble .45s .55s ease-in-out infinite alternate;
+    }
+    .ds-sub { font-family: 'Mitr', sans-serif; font-size: clamp(18px, 4.5vw, 30px); font-weight: 700; color: #fff; text-align: center; padding: 0 16px; }
+    @keyframes dsPop { from { transform: scale(.2) rotate(-25deg); opacity: 0; } to { transform: scale(1) rotate(-5deg); opacity: 1; } }
+    @keyframes dsWobble { from { transform: scale(1) rotate(-5deg); } to { transform: scale(1.08) rotate(3deg); } }
+
+    /* ── TEAMS ── */
+    .team-board { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 520px; margin: 14px auto 4px; }
+    .team-row {
+      position: relative; overflow: hidden;
+      display: flex; align-items: center; gap: 10px;
+      background: var(--card); border: 2.5px solid var(--ink); border-radius: 14px;
+      padding: 9px 14px; font-family: 'Mitr', sans-serif; font-weight: 600; color: var(--ink);
+      box-shadow: 3px 4px 0 rgba(36, 26, 77, .85);
+      animation: chipIn .45s cubic-bezier(.34, 1.56, .64, 1) both;
+    }
+    .team-row.mine { border-color: var(--pink); }
+    .tb-fill { position: absolute; inset: 0 auto 0 0; background: var(--gold); opacity: .35; transition: width .9s cubic-bezier(.34, 1.2, .64, 1); }
+    .team-row > :not(.tb-fill) { position: relative; }
+    .tb-rank { width: 28px; text-align: center; }
+    .tb-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tb-score { font-family: 'Bungee', monospace; }
+    .team-pick { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .team-tag { display: block; font-size: 11px; color: var(--muted); font-weight: 600; }
+
+    /* ── REACTIONS ── */
+    .react-bar {
+      position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 800;
+      display: none; gap: 2px; max-width: calc(100vw - 24px);
+      background: var(--card); border: 3px solid var(--ink); border-radius: 999px; padding: 5px 8px;
+      box-shadow: 4px 5px 0 rgba(36, 26, 77, .85);
+    }
+    .react-bar.show { display: flex; }
+    .react-bar button { background: none; border: none; cursor: pointer; padding: 4px; line-height: 0; border-radius: 50%; transition: transform .12s; }
+    .react-bar button:hover { transform: scale(1.18); }
+    .react-bar button:active { transform: scale(1.35); }
+    body.has-react .screen.active { padding-bottom: 90px; }
+    body.has-react .toast { bottom: 96px; } /* อย่าให้ toast จมใต้แถบรีแอคชัน */
+    .react-layer { position: fixed; inset: 0; z-index: 850; pointer-events: none; overflow: hidden; }
+    .react-float {
+      position: absolute; bottom: -70px;
+      display: flex; flex-direction: column; align-items: center;
+      animation: floatUp linear forwards;
+    }
+    .rf-name {
+      font-family: 'Mitr', sans-serif; font-size: 12px; font-weight: 600; color: var(--ink);
+      background: var(--card); border: 2px solid var(--ink); border-radius: 999px;
+      padding: 0 8px; margin-top: 2px; white-space: nowrap; max-width: 140px; overflow: hidden; text-overflow: ellipsis;
+    }
+    @keyframes floatUp {
+      0%   { transform: translate(0, 0) scale(.5); opacity: 0; }
+      10%  { transform: translate(var(--dx1), -12vh) scale(1); opacity: 1; }
+      80%  { opacity: 1; }
+      100% { transform: translate(var(--dx2), -110vh) scale(1.1); opacity: 0; }
+    }
+    @media (max-width: 480px) {
+      .react-bar button img { width: 26px; height: 26px; }
+      .ai-grid { grid-template-columns: 1fr 1fr; }
+      .ai-grid > :last-child { grid-column: span 2; }
+    }
   </style>
 </head>
 
@@ -1048,6 +1211,12 @@
 
   <div id="urgency-overlay"></div>
   <div class="toast" id="toast"></div>
+  <div class="double-splash" id="doubleSplash" aria-live="assertive">
+    <div class="ds-big">x2</div>
+    <div class="ds-sub">⚡ ข้อนี้คะแนนคูณสอง! ⚡</div>
+  </div>
+  <div class="react-layer" id="reactLayer" aria-hidden="true"></div>
+  <div class="react-bar" id="reactBar" aria-label="ส่งรีแอคชัน"></div>
   <button class="mute-btn" id="muteBtn" onclick="toggleMute()" title="เปิด/ปิดเสียง">🔊</button>
   <div class="bg-doodles" aria-hidden="true">
     <span><img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/2753/512.webp" width="40" height="40" alt="❓" onerror="this.replaceWith(this.alt)"></span>
@@ -1120,10 +1289,21 @@
             </select>
           </div>
         </div>
+        <div class="toggle-row">
+          <label class="chk"><input type="checkbox" id="optShuffleQ"> 🔀 สุ่มลำดับคำถาม</label>
+          <label class="chk"><input type="checkbox" id="optShuffleOpts"> 🔀 สุ่มลำดับตัวเลือก</label>
+          <label class="chk"><input type="checkbox" id="optFinalDouble"> ⚡ ข้อสุดท้าย x2</label>
+          <label class="chk"><input type="checkbox" id="optTeams" onchange="toggleTeamsInput()"> 👥 โหมดทีม</label>
+        </div>
+        <div id="teamsWrap" style="display:none;">
+          <label>ชื่อทีม <span style="font-weight:400;color:var(--muted);font-size:12px;">(คั่นด้วย , · 2–8 ทีม)</span></label>
+          <input type="text" id="teamNames" value="ทีมแดง, ทีมน้ำเงิน, ทีมเขียว" maxlength="200">
+          <p class="hint" style="margin-top:6px;">ผู้เล่นเลือกทีมเองระหว่างรอ ใครไม่เลือกระบบจัดให้ · คะแนนทีม = ค่าเฉลี่ยต่อคน (ทีมคนเยอะไม่ได้เปรียบ)</p>
+        </div>
       </div>
 
       <div class="card" style="display:flex;flex-direction:column;gap:14px;">
-        <h3>เพิ่มคำถาม</h3>
+        <h3 id="qFormTitle">เพิ่มคำถาม</h3>
         <div><label>คำถาม</label><textarea id="qText" placeholder="พิมพ์คำถาม..."></textarea></div>
         <div><label>ตัวเลือก</label>
           <div class="options-grid">
@@ -1137,15 +1317,105 @@
                 type="text" id="opt3" placeholder="ตัวเลือก D"></div>
           </div>
         </div>
-        <div><label>คำตอบที่ถูก</label>
-          <select id="correctOpt">
-            <option value="0">A</option>
-            <option value="1">B</option>
-            <option value="2">C</option>
-            <option value="3">D</option>
-          </select>
+        <div><label>รูปประกอบ <span style="font-weight:400;color:var(--muted);font-size:12px;">(ไม่บังคับ)</span></label>
+          <div class="img-row">
+            <input type="text" id="qImageUrl" placeholder="วางลิงก์รูป https://..." oninput="onImageUrl()" style="flex:1;min-width:0;">
+            <label class="btn btn-outline btn-sm" style="margin:0;white-space:nowrap;">📷 อัปโหลด<input type="file"
+                id="qImageFile" accept="image/*" onchange="onImageFile(this)" hidden></label>
+          </div>
+          <div class="img-preview-wrap" id="qImagePreviewWrap" style="display:none;">
+            <img id="qImagePreview" class="img-preview" alt="ตัวอย่างรูป">
+            <button class="q-remove" onclick="clearImage()" title="ลบรูป">✕</button>
+          </div>
         </div>
-        <button class="btn btn-gold w-full" onclick="addQuestion()">➕ เพิ่มคำถาม</button>
+        <div><label>คำตอบที่ถูก</label>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <select id="correctOpt" style="flex:1;min-width:120px;">
+              <option value="0">A</option>
+              <option value="1">B</option>
+              <option value="2">C</option>
+              <option value="3">D</option>
+            </select>
+            <label class="chk"><input type="checkbox" id="qDouble"> ⚡ ข้อนี้ x2</label>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-gold w-full" id="qSubmitBtn" onclick="addQuestion()">➕ เพิ่มคำถาม</button>
+          <button class="btn btn-outline" id="qCancelBtn" onclick="cancelEditQ()" style="display:none;white-space:nowrap;">ยกเลิก</button>
+        </div>
+      </div>
+
+      <div class="card" style="display:flex;flex-direction:column;gap:12px;">
+        <h3>⚡ เพิ่มคำถามแบบเร็ว</h3>
+        <details class="quick" id="aiCard" style="display:none;">
+          <summary>🤖 ให้ AI ช่วยคิดคำถาม</summary>
+          <div class="quick-body">
+            <textarea id="aiTopic" maxlength="20000" style="min-height:100px;"
+              placeholder="ใส่หัวข้อ เช่น &quot;ความรู้เรื่อง Q3 roadmap&quot; หรือวางเนื้อหาเอกสาร/สไลด์ทั้งก้อนก็ได้ AI จะออกข้อสอบจากเนื้อหานั้น"></textarea>
+            <div class="ai-grid">
+              <select id="aiCount" aria-label="จำนวนข้อ">
+                <option value="5">5 ข้อ</option>
+                <option value="10" selected>10 ข้อ</option>
+                <option value="15">15 ข้อ</option>
+                <option value="20">20 ข้อ</option>
+              </select>
+              <select id="aiDifficulty" aria-label="ความยาก">
+                <option value="mixed">คละความยาก</option>
+                <option value="easy">ง่าย</option>
+                <option value="medium">ปานกลาง</option>
+                <option value="hard">ยาก</option>
+              </select>
+              <select id="aiLang" aria-label="ภาษา">
+                <option value="th">ภาษาไทย</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+            <div><label for="aiModel">โมเดล AI <span style="font-weight:400;color:var(--muted);font-size:12px;">(ผ่าน OpenRouter)</span></label>
+              <select id="aiModel"></select>
+            </div>
+            <button class="btn btn-pink w-full" id="aiBtn" onclick="generateAI()">✨ สร้างคำถาม</button>
+            <p class="hint">AI อาจผิดได้ — ตรวจเฉลยก่อนเล่น (กดที่ข้อในรายการเพื่อแก้)</p>
+          </div>
+        </details>
+        <details class="quick" id="importCard" open>
+          <summary>📄 นำเข้าคำถามจากไฟล์ CSV / Excel</summary>
+          <div class="quick-body">
+            <div class="imp-steps">
+              <div class="imp-step">
+                <div class="imp-num">1</div>
+                <div class="imp-step-body">
+                  <div class="imp-step-title">ดาวน์โหลดเทมเพลต</div>
+                  <div><button class="btn btn-outline btn-sm" onclick="downloadTemplate()">⬇️ quiz-template.csv</button></div>
+                </div>
+              </div>
+              <div class="imp-step">
+                <div class="imp-num">2</div>
+                <div class="imp-step-body">
+                  <div class="imp-step-title">เปิดใน Excel / Google Sheets แล้วใส่คำถาม</div>
+                  <p class="hint">1 แถว = 1 ข้อ · คอลัมน์ <strong>คำตอบ</strong> ใส่ A–D (หรือพิมพ์คำตอบเต็มก็ได้) · <strong>x2</strong> ใส่ Y ถ้าอยากให้ข้อนั้นคะแนนคูณสอง · ลบแถวตัวอย่างออกได้เลย<br>บันทึกเป็น <strong>CSV UTF-8</strong> จะดีที่สุด (CSV ธรรมดาจาก Excel ภาษาไทยก็อ่านได้)</p>
+                </div>
+              </div>
+              <div class="imp-step">
+                <div class="imp-num">3</div>
+                <div class="imp-step-body">
+                  <div class="imp-step-title">เลือกไฟล์ (หรือลากมาวาง) — ดูตัวอย่างก่อนบันทึก</div>
+                  <label class="drop-zone" id="dropZone">
+                    📂 เลือกไฟล์ .csv
+                    <span class="hint">ไฟล์ไม่ถูกอัปโหลด — อ่านในเครื่องคุณเท่านั้น</span>
+                    <input type="file" id="importFile" accept=".csv,.tsv,.txt,text/csv" hidden onchange="importFromFile(this)">
+                  </label>
+                  <details>
+                    <summary class="hint" style="cursor:pointer;">หรือ copy ตารางจากชีตมาวางตรงนี้</summary>
+                    <textarea id="importText" style="min-height:90px;font-size:14px;margin-top:6px;"
+                      placeholder="HTTPS ใช้ port ใด?	80	8080	443	3000	C"></textarea>
+                    <button class="btn btn-outline btn-sm" style="margin-top:6px;" onclick="importFromText()">👀 ดูตัวอย่าง</button>
+                  </details>
+                </div>
+              </div>
+            </div>
+            <div class="imp-preview" id="importPreview" style="display:none;"></div>
+          </div>
+        </details>
       </div>
 
       <div class="card" style="display:flex;flex-direction:column;gap:12px;">
@@ -1176,8 +1446,8 @@
           <span class="text-muted" style="font-size:11px;">บันทึกไว้ใช้ซ้ำได้ทุกเครื่อง</span>
         </div>
         <div style="display:flex;gap:8px;">
-          <input type="text" id="setName" placeholder="ชื่อชุดคำถาม เช่น Town Hall Q3" style="flex:1;">
-          <button class="btn btn-gold btn-sm" onclick="saveCurrentSet()" style="white-space:nowrap;">💾 บันทึกชุดนี้</button>
+          <input type="text" id="setName" placeholder="ชื่อชุดคำถาม เช่น Town Hall Q3" style="flex:1;" oninput="updateSaveBtn()">
+          <button class="btn btn-gold btn-sm" id="saveSetBtn" onclick="saveCurrentSet()" style="white-space:nowrap;">💾 บันทึกชุดนี้</button>
         </div>
         <div id="setList">
           <p class="text-muted text-center" style="padding:10px;">ยังไม่มีชุดที่บันทึกไว้</p>
@@ -1275,6 +1545,10 @@
         <div style="font-family:'Mitr',sans-serif;font-size:22px;font-weight:700;margin-top:8px;" id="waitName">-</div>
         <div class="badge badge-green" style="margin-top:10px;">เข้าร่วมสำเร็จ ✓</div>
       </div>
+      <div class="card" id="teamPickWrap" style="display:none;max-width:420px;width:100%;text-align:center;">
+        <h3 style="margin-bottom:10px;">👥 เลือกทีมของคุณ</h3>
+        <div class="team-pick" id="teamPick"></div>
+      </div>
       <div id="waitRoomName" style="font-size:15px;color:var(--muted);"></div>
     </div>
   </div>
@@ -1286,6 +1560,7 @@
       <span class="badge badge-gold"><img class="emo"
           src="https://fonts.gstatic.com/s/e/notoemoji/latest/26a1/512.webp" width="16" height="16" alt="⚡"
           onerror="this.replaceWith(this.alt)"> ตอบเร็ว = คะแนนโบนัส</span>
+      <span class="badge badge-double" id="doubleBadge" style="display:none;">⚡ x2 คะแนน</span>
       <span class="badge badge-host" id="hostViewBadge" style="display:none;">HOST VIEW</span>
     </div>
     <div class="timer-wrap">
@@ -1295,6 +1570,7 @@
       <div class="timer-num" id="timerNum">20</div>
     </div>
     <div class="card">
+      <img id="qImg" class="q-img" alt="" style="display:none;">
       <div class="q-text-big" id="qTextBig">...</div>
     </div>
     <div class="ans-grid" id="ansGrid"></div>
@@ -1327,6 +1603,7 @@
             alt="🏆" onerror="this.replaceWith(this.alt)"> คะแนนสะสม</h2>
         <p class="text-muted mt-4">หลังข้อที่ <span id="lbQNum">1</span></p>
         <div class="fastest-banner" id="fastestBanner" style="display:none;"></div>
+        <div class="team-board" id="teamBoard" style="display:none;"></div>
       </div>
       <div class="lb-list" id="lbList"></div>
       <div id="lbBtns"
@@ -1358,6 +1635,10 @@
 
     <!-- FULL RESULTS -->
     <div id="finalListWrap" style="width:100%;max-width:460px;display:none;">
+      <div id="finalTeamsWrap" style="display:none;margin-bottom:18px;">
+        <h3 id="finalTeamsTitle" style="text-align:center;">👥 อันดับทีม</h3>
+        <div class="team-board" id="finalTeams"></div>
+      </div>
       <h3 style="margin-bottom:10px;"><img class="emo"
           src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f4ca/512.webp" width="20" height="20" alt="📊"
           onerror="this.replaceWith(this.alt)"> คะแนนรวมทุกคน</h3>
@@ -1565,25 +1846,31 @@
     let hostToken = null;
     let pendingResult = null;
     let lastTickSec = null;
+    let playerToken = null;
+    let roomTeams = [];
+    let myTeam = null;
+    let revealed = false;
+    let answerOpenAt = 0;
+    let introTimer = null;
 
     // ══════════════════════════════════════
     // SESSION (กลับเข้าห้องเดิมหลัง refresh / เน็ตหลุด)
     // ══════════════════════════════════════
     function saveHostSession() { try { sessionStorage.setItem('tb_host', JSON.stringify({ code: roomCode, token: hostToken })); } catch { } }
-    function savePlayerSession() { try { sessionStorage.setItem('tb_player', JSON.stringify({ code: roomCode, name: playerName, avatar: playerAvatar })); } catch { } }
+    function savePlayerSession() { try { sessionStorage.setItem('tb_player', JSON.stringify({ code: roomCode, name: playerName, avatar: playerAvatar, token: playerToken })); } catch { } }
     function clearSessions() { try { sessionStorage.removeItem('tb_host'); sessionStorage.removeItem('tb_player'); } catch { } }
 
     function tryResume() {
       // ws หลุดแล้วต่อใหม่โดยไม่ได้ refresh — state ในหน้ายังอยู่ครบ
       if (roomCode && role === 'host' && hostToken) { send({ type: 'host_reconnect', code: roomCode, token: hostToken }); return; }
-      if (roomCode && role === 'player' && playerName) { send({ type: 'join_room', code: roomCode, name: playerName, avatar: playerAvatar }); return; }
+      if (roomCode && role === 'player' && playerName) { send({ type: 'join_room', code: roomCode, name: playerName, avatar: playerAvatar, token: playerToken }); return; }
       if (roomCode) return;
       // refresh หน้า — กู้จาก sessionStorage
       try {
         const hs = JSON.parse(sessionStorage.getItem('tb_host') || 'null');
         if (hs?.code && hs?.token) { role = 'host'; hostToken = hs.token; send({ type: 'host_reconnect', code: hs.code, token: hs.token }); return; }
         const ps = JSON.parse(sessionStorage.getItem('tb_player') || 'null');
-        if (ps?.code && ps?.name) { role = 'player'; playerName = ps.name; playerAvatar = ps.avatar; send({ type: 'join_room', code: ps.code, name: ps.name, avatar: ps.avatar }); }
+        if (ps?.code && ps?.name) { role = 'player'; playerName = ps.name; playerAvatar = ps.avatar; playerToken = ps.token || null; send({ type: 'join_room', code: ps.code, name: ps.name, avatar: ps.avatar, token: playerToken }); }
       } catch { }
     }
 
@@ -1655,7 +1942,10 @@
           saveHostSession();
           document.getElementById('displayCode').textContent = msg.code;
           document.getElementById('lobbyName').textContent = msg.gameName;
-          document.getElementById('setupSummary').textContent = `${questions.length} คำถาม · ${timeTotal} วิ/ข้อ`;
+          timeTotal = msg.timePerQ || timeTotal;
+          roomTeams = msg.teams || [];
+          document.getElementById('setupSummary').textContent =
+            `${msg.total} คำถาม · ${timeTotal} วิ/ข้อ` + (roomTeams.length ? ` · 👥 ${roomTeams.join(' vs ')}` : '');
           renderQR(msg.code);
           goScreen('screen-lobby');
           break;
@@ -1666,6 +1956,8 @@
           saveHostSession();
           currentQ = msg.currentQ;
           totalPlayers = msg.players.length;
+          timeTotal = msg.timePerQ || timeTotal;
+          roomTeams = msg.teams || [];
           if (msg.phase === 'lobby') {
             document.getElementById('displayCode').textContent = msg.code;
             document.getElementById('lobbyName').textContent = msg.gameName;
@@ -1676,9 +1968,9 @@
             showQuestion(msg);
             document.getElementById('answeredC').textContent = msg.answeredCount;
           } else if (msg.phase === 'leaderboard') {
-            showLeaderboard(msg.leaderboard, msg.isLastQuestion, msg.fastest);
+            showLeaderboard(msg.leaderboard, msg.isLastQuestion, msg.fastest, msg.teamBoard);
           } else if (msg.phase === 'final') {
-            showFinalScreen(msg.leaderboard);
+            showFinalScreen(msg.leaderboard, msg.teamBoard);
           }
           toast('กลับเข้าห้องแล้ว ✓');
           break;
@@ -1698,10 +1990,30 @@
           renderLobbyPlayers(msg.players);
           break;
 
+        case 'team_set':
+          if (msg.team !== myTeam) {
+            myTeam = msg.team;
+            toast(`👥 คุณอยู่${myTeam}`);
+          }
+          renderTeamPick();
+          break;
+
+        case 'reaction':
+          if (role === 'host') spawnReaction(msg.emoji, msg.name);
+          break;
+
+        case 'results':
+          exportResults(msg);
+          break;
+
         case 'joined':
           roomCode = msg.code;
           myScore = msg.score || 0;
+          playerToken = msg.token || playerToken;
+          roomTeams = msg.teams || [];
+          myTeam = msg.team || null;
           savePlayerSession();
+          renderTeamPick();
           document.getElementById('waitRoomName').textContent = `ห้อง: ${msg.gameName}`;
           document.getElementById('waitName').textContent = playerName;
           document.getElementById('waitAvatar').innerHTML = emo(playerAvatar, 64);
@@ -1741,17 +2053,19 @@
           break;
 
         case 'show_leaderboard':
-          showLeaderboard(msg.leaderboard, msg.isLastQuestion, msg.fastest);
+          showLeaderboard(msg.leaderboard, msg.isLastQuestion, msg.fastest, msg.teamBoard);
           break;
 
         case 'final':
-          showFinalScreen(msg.leaderboard);
+          showFinalScreen(msg.leaderboard, msg.teamBoard);
           break;
 
         case 'game_reset':
           // host กดเล่นรอบใหม่ — ทุกคนกลับ lobby/หน้ารอ คะแนนรีเซ็ต
           clearFinalTimers();
           myScore = 0; currentQ = 0; answered = false; pendingResult = null;
+          roomTeams = msg.teams || roomTeams;
+          renderTeamPick();
           toast('🔁 เริ่มรอบใหม่!');
           SFX.join();
           if (role === 'host') {
@@ -1783,6 +2097,8 @@
       document.getElementById(id).classList.add('active');
       // Clear urgency when leaving question screen
       document.body.classList.remove('warning','urgent','critical');
+      updateReactBar();
+      updateWakeLock();
     }
     function goSetup() { renderQList(); refreshSets(); goScreen('screen-setup'); }
 
@@ -1791,21 +2107,56 @@
     // ══════════════════════════════════════
     function esc(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
 
-    async function api(path, opts) {
-      const res = await fetch(path, opts);
-      if (!res.ok) throw new Error('api ' + res.status);
+    // PIN ผู้ดูแล — server ตั้ง ADMIN_PIN ไว้ จะถามครั้งแรกที่บันทึก/ลบ/ใช้ AI แล้วจำไว้ในเครื่อง
+    function getPin() { try { return localStorage.getItem('tb_pin') || ''; } catch { return ''; } }
+    function setPin(p) { try { p ? localStorage.setItem('tb_pin', p) : localStorage.removeItem('tb_pin'); } catch { } }
+
+    async function api(path, opts = {}, retried = false) {
+      const headers = { ...(opts.headers || {}) };
+      const pin = getPin();
+      if (pin) headers['x-admin-pin'] = pin;
+      const res = await fetch(path, { ...opts, headers });
+      if (res.status === 401) {
+        setPin('');
+        const p = retried ? null : prompt(pin ? 'PIN ไม่ถูกต้อง ใส่ใหม่อีกครั้ง' : '🔒 ใส่ PIN ผู้ดูแล (Host PIN)');
+        if (p && p.trim()) { setPin(p.trim()); return api(path, opts, true); }
+      }
+      if (!res.ok) { const err = new Error('api ' + res.status); err.status = res.status; throw err; }
       return res.json();
+    }
+
+    let appConfig = { pinRequired: false, aiEnabled: false };
+    async function loadConfig() {
+      try {
+        appConfig = await (await fetch('/api/config')).json();
+        document.getElementById('aiCard').style.display = appConfig.aiEnabled ? '' : 'none';
+        let saved = '';
+        try { saved = localStorage.getItem('tb_ai_model') || ''; } catch { }
+        const sel = document.getElementById('aiModel');
+        sel.innerHTML = (appConfig.aiModels || []).map((m, i) =>
+          `<option value="${esc(m)}"${m === saved ? ' selected' : ''}>${esc(m)}${i === 0 ? ' (ค่าเริ่มต้น)' : ''}</option>`).join('');
+        sel.onchange = () => { try { localStorage.setItem('tb_ai_model', sel.value); } catch { } };
+      } catch { }
+    }
+
+    let savedSetNames = [];
+    function updateSaveBtn() {
+      const name = document.getElementById('setName').value.trim();
+      document.getElementById('saveSetBtn').textContent = savedSetNames.includes(name) ? '💾 บันทึกทับ' : '💾 บันทึกชุดนี้';
     }
 
     async function refreshSets() {
       try {
         const sets = await api('/api/sets');
+        savedSetNames = sets.map(s => s.name);
+        updateSaveBtn();
         const el = document.getElementById('setList');
         if (!sets.length) { el.innerHTML = '<p class="text-muted text-center" style="padding:10px;">ยังไม่มีชุดที่บันทึกไว้</p>'; return; }
         el.innerHTML = sets.map(s => `
       <div class="q-item">
         <div class="q-text">${esc(s.name)} <span class="text-muted" style="font-size:11px;">· ${s.count} ข้อ</span></div>
         <button class="btn btn-outline btn-sm" onclick="loadSet(${s.id})">โหลด</button>
+        <button class="btn btn-outline btn-sm" onclick="loadSet(${s.id}, true)" title="แก้ไขชุดนี้">✏️</button>
         <button class="q-remove" onclick="deleteSetUi(${s.id})">✕</button>
       </div>`).join('');
       } catch { }
@@ -1815,6 +2166,7 @@
       const name = document.getElementById('setName').value.trim();
       if (!name) { toast('⚠️ ตั้งชื่อชุดคำถามก่อน'); return; }
       if (!questions.length) { toast('⚠️ ยังไม่มีคำถามให้บันทึก'); return; }
+      if (savedSetNames.includes(name) && !confirm(`บันทึกทับชุด "${name}" ที่มีอยู่แล้ว?`)) return;
       try {
         await api('/api/sets', {
           method: 'POST',
@@ -1822,24 +2174,32 @@
           body: JSON.stringify({ name, questions }),
         });
         toast(`บันทึก "${name}" (${questions.length} ข้อ) ✓`);
-        document.getElementById('setName').value = '';
         refreshSets();
-      } catch { toast('❌ บันทึกไม่สำเร็จ'); }
+      } catch (e) { toast(e.status === 401 ? '🔒 ต้องใช้ PIN ผู้ดูแล' : '❌ บันทึกไม่สำเร็จ'); }
     }
 
-    async function loadSet(id) {
+    async function loadSet(id, edit = false) {
       try {
         const s = await api('/api/sets/' + id);
         questions = s.questions;
+        cancelEditQ();
         renderQList();
-        toast(`โหลด "${s.name}" ${s.questions.length} ข้อ ✓`);
+        // ใส่ชื่อชุดไว้ให้ — แก้คำถามแล้วกดบันทึกจะบันทึกทับชุดเดิม (upsert ตามชื่อ)
+        document.getElementById('setName').value = s.name;
+        updateSaveBtn();
+        if (edit) {
+          document.getElementById('qList').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          toast(`แก้ไข "${s.name}" — กดข้อที่ต้องการแก้ แล้วกด 💾 บันทึกทับ`);
+        } else {
+          toast(`โหลด "${s.name}" ${s.questions.length} ข้อ ✓`);
+        }
       } catch { toast('❌ โหลดชุดคำถามไม่สำเร็จ'); }
     }
 
     async function deleteSetUi(id) {
       if (!confirm('ลบชุดคำถามนี้ออกจากคลัง?')) return;
       try { await api('/api/sets/' + id, { method: 'DELETE' }); refreshSets(); toast('ลบแล้ว ✓'); }
-      catch { toast('❌ ลบไม่สำเร็จ'); }
+      catch (e) { toast(e.status === 401 ? '🔒 ต้องใช้ PIN ผู้ดูแล' : '❌ ลบไม่สำเร็จ'); }
     }
 
     let bankSearchTimer = null;
@@ -1864,7 +2224,7 @@
     function addFromBank(i) {
       const r = bankResults[i];
       if (!r) return;
-      questions.push({ q: r.q, opts: r.opts, correct: r.correct });
+      questions.push(cleanQ(r));
       renderQList();
       toast('เพิ่มจากคลังแล้ว ✓');
     }
@@ -1876,6 +2236,7 @@
       const cat = document.getElementById('sampleCat').value;
       const labels = { dev: 'Dev', qa: 'QA', po: 'PO', pm: 'PM', mixed: 'Mixed', general: 'ความรู้ทั่วไป', funny: 'ขำๆ' };
       questions = JSON.parse(JSON.stringify(SAMPLE_QS[cat]));
+      cancelEditQ();
       renderQList();
       toast(`โหลด 10 คำถาม ${labels[cat]} แล้ว ✓`);
     }
@@ -1886,16 +2247,58 @@
       const correct = parseInt(document.getElementById('correctOpt').value);
       if (!q) { toast('⚠️ กรุณาใส่คำถาม'); return; }
       if (opts.some(o => !o)) { toast('⚠️ ใส่ตัวเลือกครบ 4 ข้อ'); return; }
-      questions.push({ q, opts, correct });
+      const item = cleanQ({ q, opts, correct, image: formImage, double: document.getElementById('qDouble').checked });
+      const wasEditing = editingIndex !== null;
+      if (wasEditing) questions[editingIndex] = item;
+      else questions.push(item);
+      cancelEditQ();
       renderQList();
-      document.getElementById('qText').value = '';
-      [0, 1, 2, 3].forEach(i => document.getElementById('opt' + i).value = '');
-      toast('เพิ่มคำถามแล้ว ✓');
+      toast(wasEditing ? 'แก้ไขคำถามแล้ว ✓' : 'เพิ่มคำถามแล้ว ✓');
     }
 
-    function removeQ(i) { questions.splice(i, 1); renderQList(); }
+    // index ของข้อที่กำลังแก้ในฟอร์มด้านบน (null = โหมดเพิ่มข้อใหม่)
+    let editingIndex = null;
+
+    function editQ(i) {
+      const q = questions[i];
+      if (!q) return;
+      editingIndex = i;
+      document.getElementById('qText').value = q.q;
+      [0, 1, 2, 3].forEach(k => document.getElementById('opt' + k).value = q.opts[k] ?? '');
+      document.getElementById('correctOpt').value = String(q.correct);
+      document.getElementById('qDouble').checked = !!q.double;
+      document.getElementById('qImageUrl').value = /^https?:/i.test(q.image || '') ? q.image : '';
+      setFormImage(q.image || null);
+      document.getElementById('qFormTitle').textContent = `✏️ แก้ไขคำถามข้อ ${i + 1}`;
+      document.getElementById('qSubmitBtn').textContent = '💾 บันทึกการแก้ไข';
+      document.getElementById('qCancelBtn').style.display = '';
+      renderQList();
+      document.getElementById('qFormTitle').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.getElementById('qText').focus({ preventScroll: true });
+    }
+
+    function cancelEditQ() {
+      editingIndex = null;
+      document.getElementById('qText').value = '';
+      [0, 1, 2, 3].forEach(k => document.getElementById('opt' + k).value = '');
+      document.getElementById('correctOpt').value = '0';
+      document.getElementById('qDouble').checked = false;
+      clearImage();
+      document.getElementById('qFormTitle').textContent = 'เพิ่มคำถาม';
+      document.getElementById('qSubmitBtn').textContent = '➕ เพิ่มคำถาม';
+      document.getElementById('qCancelBtn').style.display = 'none';
+      renderQList();
+    }
+
+    function removeQ(i) {
+      questions.splice(i, 1);
+      if (editingIndex === i) cancelEditQ();
+      else if (editingIndex !== null && editingIndex > i) editingIndex--;
+      renderQList();
+    }
 
     function renderQList() {
+      saveDraft();
       document.getElementById('qCountBadge').textContent = questions.length;
       const el = document.getElementById('qList');
       if (!questions.length) { el.innerHTML = '<p class="text-muted text-center" style="padding:14px;">ยังไม่มีคำถาม</p>'; return; }
@@ -1905,12 +2308,451 @@
         .filter(x => !filter || x.q.q.toLowerCase().includes(filter) || x.q.opts.some(o => o.toLowerCase().includes(filter)));
       if (!items.length) { el.innerHTML = '<p class="text-muted text-center" style="padding:14px;">ไม่พบคำถามที่ค้นหา</p>'; return; }
       el.innerHTML = items.map(({ q, i }) => `
-    <div class="q-item">
+    <div class="q-item${i === editingIndex ? ' editing' : ''}" onclick="editQ(${i})" style="cursor:pointer;" title="กดเพื่อแก้ไข">
       <div class="q-num">${i + 1}</div>
-      <div class="q-text">${esc(q.q)}</div>
-      <button class="q-remove" onclick="removeQ(${i})">✕</button>
+      <div class="q-text">${esc(q.q)} <span class="text-muted" style="font-size:11px;">· ตอบ ${'ABCD'[q.correct]}</span>${q.image ? '<span class="q-tag" style="background:#fff;">🖼️ รูป</span>' : ''}${q.double ? '<span class="q-tag">⚡ x2</span>' : ''}</div>
+      <span style="opacity:.6;">✏️</span>
+      <button class="q-remove" onclick="event.stopPropagation();removeQ(${i})">✕</button>
     </div>`).join('');
     }
+
+    // เก็บเฉพาะ field ที่ server รู้จัก
+    function cleanQ(x) {
+      const out = { q: x.q, opts: [...x.opts], correct: x.correct };
+      if (x.image) out.image = x.image;
+      if (x.double) out.double = true;
+      return out;
+    }
+
+    // ── autosave: refresh หน้าตั้งค่าแล้วคำถามไม่หาย ──
+    function saveDraft() {
+      try { localStorage.setItem('tb_draft', JSON.stringify(questions)); }
+      catch { /* เต็ม quota (รูปเยอะ) — ข้ามไป ไม่ให้ UI พัง */ }
+    }
+    function loadDraft() {
+      try {
+        const d = JSON.parse(localStorage.getItem('tb_draft') || 'null');
+        if (Array.isArray(d) && d.length) questions = d;
+      } catch { }
+    }
+
+    function toggleTeamsInput() {
+      document.getElementById('teamsWrap').style.display = document.getElementById('optTeams').checked ? '' : 'none';
+    }
+
+    // ── รูปประกอบคำถาม ──
+    let formImage = null;
+    function setFormImage(src) {
+      formImage = src || null;
+      const wrap = document.getElementById('qImagePreviewWrap');
+      const img = document.getElementById('qImagePreview');
+      if (formImage) { img.src = formImage; wrap.style.display = 'inline-block'; }
+      else { img.removeAttribute('src'); wrap.style.display = 'none'; }
+    }
+    function onImageUrl() {
+      const v = document.getElementById('qImageUrl').value.trim();
+      setFormImage(/^https?:\/\/\S+$/i.test(v) ? v : null);
+    }
+    function clearImage() {
+      document.getElementById('qImageUrl').value = '';
+      document.getElementById('qImageFile').value = '';
+      setFormImage(null);
+    }
+    async function onImageFile(input) {
+      const f = input.files?.[0];
+      if (!f) return;
+      try {
+        document.getElementById('qImageUrl').value = '';
+        setFormImage(await resizeImage(f, 900, .74));
+      } catch { toast('❌ อ่านรูปไม่ได้'); }
+    }
+    // ย่อรูปฝั่ง client ให้เหลือ ~50–120KB — ส่งให้ผู้เล่นทุกคนทุกข้อ ต้องเบา
+    function resizeImage(file, max, quality) {
+      return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          const scale = Math.min(1, max / Math.max(img.width, img.height));
+          const c = document.createElement('canvas');
+          c.width = Math.round(img.width * scale);
+          c.height = Math.round(img.height * scale);
+          const ctx = c.getContext('2d');
+          ctx.fillStyle = '#fff';
+          ctx.fillRect(0, 0, c.width, c.height);
+          ctx.drawImage(img, 0, 0, c.width, c.height);
+          URL.revokeObjectURL(url);
+          resolve(c.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('image')); };
+        img.src = url;
+      });
+    }
+
+    // ── AI สร้างคำถาม ──
+    async function generateAI() {
+      const topic = document.getElementById('aiTopic').value.trim();
+      if (!topic) { toast('⚠️ ใส่หัวข้อหรือเนื้อหาก่อน'); return; }
+      const btn = document.getElementById('aiBtn');
+      const label = btn.textContent;
+      btn.classList.add('loading');
+      btn.textContent = '🤖 กำลังคิดคำถาม... (ราว 10–30 วิ)';
+      try {
+        const r = await api('/api/ai/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            topic,
+            count: Number(document.getElementById('aiCount').value),
+            difficulty: document.getElementById('aiDifficulty').value,
+            language: document.getElementById('aiLang').value,
+            model: document.getElementById('aiModel').value,
+          }),
+        });
+        questions.push(...r.questions.map(cleanQ));
+        renderQList();
+        SFX.correct();
+        toast(`✨ AI สร้าง ${r.questions.length} ข้อแล้ว — ตรวจเฉลยก่อนเล่นนะ`, 3500);
+        document.getElementById('qList').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (e) {
+        toast(e.status === 429 ? '⏳ ใช้ AI ถี่เกินไป รอสักครู่' : e.status === 401 ? '🔒 ต้องใช้ PIN ผู้ดูแล' : '❌ AI สร้างคำถามไม่สำเร็จ ลองใหม่อีกครั้ง');
+      } finally {
+        btn.classList.remove('loading');
+        btn.textContent = label;
+      }
+    }
+
+    // ── นำเข้าจาก Excel / Google Sheets (TSV ตอน copy-paste, CSV จากไฟล์) ──
+    function parseRows(text) {
+      const delim = text.includes('\t') ? '\t' : ',';
+      const rows = [];
+      let row = [], cell = '', inQuote = false;
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (inQuote) {
+          if (c === '"') {
+            if (text[i + 1] === '"') { cell += '"'; i++; } else inQuote = false;
+          } else cell += c;
+        } else if (c === '"' && cell === '') inQuote = true;
+        else if (c === delim) { row.push(cell); cell = ''; }
+        else if (c === '\n' || c === '\r') {
+          if (c === '\r' && text[i + 1] === '\n') i++;
+          row.push(cell); rows.push(row); row = []; cell = '';
+        } else cell += c;
+      }
+      if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+      return rows.map(r => r.map(c => c.trim())).filter(r => r.some(Boolean));
+    }
+
+    function parseAnswer(v, opts) {
+      const s = String(v || '').trim();
+      const map = { A: 0, B: 1, C: 2, D: 3, '1': 0, '2': 1, '3': 2, '4': 3, 'ก': 0, 'ข': 1, 'ค': 2, 'ง': 3 };
+      if (s.toUpperCase() in map) return map[s.toUpperCase()];
+      return opts.findIndex(o => o === s); // พิมพ์คำตอบเต็มๆ ก็ได้
+    }
+
+    // ── นำเข้า: อ่านไฟล์ในเครื่อง → พรีวิว → ผู้ใช้กดยืนยันค่อยบันทึก ──
+    let importState = null; // { name, items: [{ row, q, opts, correct, image, double, errors }] }
+
+    const isUrl = (v) => /^https?:\/\/\S+$/i.test(v || '');
+    const isYes = (v) => /^(y|yes|x2|2|1|true|ใช่|✓|✔)$/i.test(String(v || '').trim());
+
+    function parseImport(text) {
+      const rows = parseRows(text.replace(/^\ufeff/, ''));
+      const items = [];
+      rows.forEach((r, i) => {
+        const [q = '', a = '', b = '', c = '', d = '', ans = '', col7 = '', col8 = ''] = r;
+        const opts = [a, b, c, d];
+        const correct = parseAnswer(ans, opts);
+        // แถวแรกที่คำตอบไม่ใช่ A–D = หัวตาราง ข้ามไป
+        if (i === 0 && correct < 0) return;
+        const errors = [];
+        if (!q) errors.push('ไม่มีคำถาม');
+        if (q.length > 500) errors.push('คำถามยาวเกิน 500 ตัวอักษร');
+        const missing = opts.map((o, k) => o ? null : 'ABCD'[k]).filter(Boolean);
+        if (missing.length) errors.push(`ตัวเลือก ${missing.join(', ')} ว่าง`);
+        if (opts.some(o => o.length > 500)) errors.push('ตัวเลือกยาวเกิน 500 ตัวอักษร');
+        if (!ans) errors.push('ไม่ได้ใส่คำตอบ');
+        else if (correct < 0) errors.push(`คำตอบ "${ans}" ไม่ตรงกับ A–D หรือตัวเลือกใด`);
+        // คอลัมน์ 7 = x2, 8 = รูป — ไฟล์รุ่นแรกที่ไม่มี x2 คอลัมน์ 7 เป็นลิงก์รูป ก็รับได้
+        const image = isUrl(col8) ? col8 : isUrl(col7) ? col7 : null;
+        const double = !isUrl(col7) && isYes(col7);
+        items.push({ row: i + 1, q, opts, correct, image, double, errors });
+      });
+      return items;
+    }
+
+    // Excel บน Windows/Mac บันทึก "CSV" ธรรมดาเป็น Windows-874 — ลอง UTF-8 ก่อน ไม่ผ่านค่อย fallback
+    async function decodeFile(file) {
+      const buf = await file.arrayBuffer();
+      try { return new TextDecoder('utf-8', { fatal: true }).decode(buf); }
+      catch { return new TextDecoder('windows-874').decode(buf); }
+    }
+
+    function showImportPreview(name, text) {
+      const items = parseImport(text);
+      if (!items.length) { toast('⚠️ ไม่พบข้อมูลคำถามในไฟล์', 3000); return; }
+      importState = { name, items };
+      renderImportPreview();
+      document.getElementById('importPreview').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function renderImportPreview() {
+      const el = document.getElementById('importPreview');
+      if (!importState) { el.style.display = 'none'; el.innerHTML = ''; return; }
+      const { name, items } = importState;
+      const good = items.filter(x => !x.errors.length);
+      const bad = items.length - good.length;
+      const tooMany = good.length > 200;
+      el.innerHTML = `
+        <div class="flex-between" style="gap:8px;flex-wrap:wrap;">
+          <h3 style="overflow-wrap:anywhere;">👀 ตัวอย่างจาก ${esc(name)}</h3>
+          <button class="btn btn-outline btn-sm" onclick="cancelImport()">✕ ยกเลิก</button>
+        </div>
+        <div class="imp-summary">
+          <span class="imp-pill">ทั้งหมด ${items.length} แถว</span>
+          <span class="imp-pill ok">✓ ใช้ได้ ${good.length} ข้อ</span>
+          ${bad ? `<span class="imp-pill bad">⚠ มีปัญหา ${bad} แถว (จะถูกข้าม)</span>` : ''}
+        </div>
+        ${tooMany ? '<p class="imp-err">⚠ มีเกิน 200 ข้อ — แบ่งเป็นหลายไฟล์ดีกว่า</p>' : ''}
+        <div class="imp-list">
+          ${items.map((it, n) => `
+          <div class="imp-item${it.errors.length ? ' bad' : ''}">
+            <div class="imp-q">
+              <div class="q-num">${it.errors.length ? '!' : n + 1 - items.slice(0, n).filter(x => x.errors.length).length}</div>
+              <div class="imp-q-text">${esc(it.q) || '<span class="text-muted">(ไม่มีคำถาม)</span>'}
+                ${it.double ? '<span class="q-tag">⚡ x2</span>' : ''}
+                <span class="text-muted" style="font-size:11px;font-weight:500;">· แถว ${it.row}</span>
+              </div>
+              ${it.image ? `<img class="imp-thumb" src="${esc(it.image)}" alt="" onerror="this.style.display='none'">` : ''}
+            </div>
+            <div class="imp-opts">
+              ${it.opts.map((o, k) => `
+              <div class="imp-opt${k === it.correct ? ' ok' : ''}${o ? '' : ' empty'}">
+                <b>${'ABCD'[k]}</b><span>${o ? esc(o) : '(ว่าง)'}</span>${k === it.correct ? ' ✓' : ''}
+              </div>`).join('')}
+            </div>
+            ${it.errors.length ? `<div class="imp-err">⚠ ${it.errors.map(esc).join(' · ')}</div>` : ''}
+          </div>`).join('')}
+        </div>
+        ${good.length && !tooMany ? `
+        <div class="imp-actions">
+          <label class="chk" style="align-self:flex-start;"><input type="checkbox" id="importReplace"> แทนที่คำถามเดิมในรายการ (${questions.length} ข้อ)</label>
+          <button class="btn btn-gold w-full" onclick="confirmImport()">➕ ใช้ ${good.length} ข้อนี้ในเกม</button>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="importSetName" value="${esc(name.replace(/\.[^.]+$/, ''))}" placeholder="ชื่อชุดคำถาม" maxlength="100" style="flex:1;min-width:0;">
+            <button class="btn btn-cyan btn-sm" style="white-space:nowrap;" onclick="saveImportToBank()">💾 บันทึกลงคลัง</button>
+          </div>
+        </div>` : '<p class="imp-err">ยังไม่มีข้อที่ใช้ได้ — แก้ไฟล์แล้วเลือกใหม่อีกครั้ง</p>'}`;
+      el.style.display = 'flex';
+    }
+
+    function importedQuestions() {
+      return importState.items.filter(x => !x.errors.length).map(x => cleanQ(x));
+    }
+
+    function confirmImport() {
+      if (!importState) return;
+      const qs = importedQuestions();
+      if (document.getElementById('importReplace')?.checked) {
+        if (editingIndex !== null) cancelEditQ();
+        questions = qs;
+      } else {
+        questions.push(...qs);
+      }
+      renderQList();
+      toast(`📥 เพิ่ม ${qs.length} ข้อเข้ารายการแล้ว ✓`, 3000);
+      cancelImport();
+      document.getElementById('qList').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    async function saveImportToBank() {
+      if (!importState) return;
+      const name = document.getElementById('importSetName').value.trim();
+      if (!name) { toast('⚠️ ตั้งชื่อชุดคำถามก่อน'); return; }
+      if (savedSetNames.includes(name) && !confirm(`บันทึกทับชุด "${name}" ที่มีอยู่แล้ว?`)) return;
+      const qs = importedQuestions();
+      try {
+        await api('/api/sets', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, questions: qs }),
+        });
+        toast(`💾 บันทึก "${name}" (${qs.length} ข้อ) ลงคลังแล้ว ✓`, 3000);
+        refreshSets();
+      } catch (e) { toast(e.status === 401 ? '🔒 ต้องใช้ PIN ผู้ดูแล' : '❌ บันทึกไม่สำเร็จ'); }
+    }
+
+    function cancelImport() {
+      importState = null;
+      renderImportPreview();
+    }
+
+    function importFromText() {
+      const el = document.getElementById('importText');
+      if (!el.value.trim()) { toast('⚠️ วางข้อมูลจากชีตก่อน'); return; }
+      showImportPreview('ข้อมูลที่วาง', el.value);
+    }
+    async function importFromFile(input) {
+      const f = input.files?.[0];
+      input.value = ''; // เลือกไฟล์เดิมซ้ำหลังแก้ได้
+      if (!f) return;
+      if (f.size > 5 * 1024 * 1024) { toast('⚠️ ไฟล์ใหญ่เกิน 5MB'); return; }
+      try { showImportPreview(f.name, await decodeFile(f)); }
+      catch { toast('❌ อ่านไฟล์ไม่ได้'); }
+    }
+
+    // ลากไฟล์มาวางบน drop zone
+    (() => {
+      const dz = document.getElementById('dropZone');
+      ['dragenter', 'dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag'); }));
+      ['dragleave', 'drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag'); }));
+      dz.addEventListener('drop', e => {
+        const f = e.dataTransfer?.files?.[0];
+        if (f) importFromFile({ files: [f], set value(_) { } });
+      });
+    })();
+
+    // ── CSV ──
+    function csvCell(v) {
+      let s = String(v ?? '');
+      if (typeof v === 'string' && /^[=+\-@\t\r]/.test(s)) s = "'" + s; // กัน formula injection ใน Excel
+      return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }
+    function downloadCsv(filename, rows) {
+      // BOM ให้ Excel อ่านภาษาไทยถูก
+      const csv = '\ufeff' + rows.map(r => r.map(csvCell).join(',')).join('\r\n');
+      const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    function downloadTemplate() {
+      downloadCsv('quiz-template.csv', [
+        ['คำถาม', 'A', 'B', 'C', 'D', 'คำตอบ (A-D)', 'x2 (ใส่ Y)', 'ลิงก์รูป (ไม่บังคับ)'],
+        ['HTTPS ใช้ port ใดเป็นค่าเริ่มต้น?', '80', '8080', '443', '3000', 'C', '', ''],
+        ['น้ำมีสูตรเคมีว่าอะไร?', 'CO2', 'H2O', 'O2', 'H2SO4', 'B', '', ''],
+        ['ดาวเคราะห์ที่ใหญ่ที่สุดในระบบสุริยะคือ?', 'โลก', 'ดาวอังคาร', 'ดาวพฤหัสบดี', 'ดาวเสาร์', 'C', 'Y', ''],
+      ]);
+      toast('⬇️ ดาวน์โหลดเทมเพลตแล้ว — แก้แล้วเลือกไฟล์ในขั้นที่ 3');
+    }
+
+    function downloadResults() { send({ type: 'get_results' }); }
+    function exportResults(msg) {
+      const hasTeams = !!(msg.teamBoard && msg.teamBoard.length);
+      const rows = [
+        ['สรุปผลเกม', msg.gameName],
+        ['วันที่', new Date().toLocaleString('th-TH')],
+        [],
+        ['อันดับ', 'ชื่อ', ...(hasTeams ? ['ทีม'] : []), 'คะแนน', 'ตอบถูก (ข้อ)'],
+        ...msg.players.map((p, i) => [i + 1, p.name, ...(hasTeams ? [p.team || ''] : []), p.score, p.correct]),
+      ];
+      if (hasTeams) {
+        rows.push([], ['อันดับทีม', 'ทีม', 'สมาชิก', 'คะแนนเฉลี่ย', 'คะแนนรวม']);
+        msg.teamBoard.forEach((t, i) => rows.push([i + 1, t.name, t.members, t.avg, t.total]));
+      }
+      rows.push([], ['ข้อ', 'คำถาม', 'เฉลย', 'ตอบถูก (คน)', 'ตอบทั้งหมด', 'ผู้เล่น', '% ถูก', 'เวลาเฉลี่ยคนตอบถูก (วิ)', 'ตอบ A', 'ตอบ B', 'ตอบ C', 'ตอบ D']);
+      msg.history.forEach((h, i) => rows.push([
+        i + 1, h.q, h.correctText, h.correctCount, h.answered, h.players,
+        h.players ? Math.round(h.correctCount / h.players * 100) + '%' : '',
+        h.avgCorrectMs != null ? (h.avgCorrectMs / 1000).toFixed(1) : '',
+        ...h.counts,
+      ]));
+      const stamp = new Date().toISOString().slice(0, 10);
+      downloadCsv(`quiz-results-${stamp}.csv`, rows);
+      toast('📥 ดาวน์โหลดผลแล้ว ✓');
+    }
+
+    // ── ทีม ──
+    function renderTeamPick() {
+      const wrap = document.getElementById('teamPickWrap');
+      if (role !== 'player' || !roomTeams.length) { wrap.style.display = 'none'; return; }
+      wrap.style.display = '';
+      document.getElementById('teamPick').innerHTML = roomTeams.map((t, i) =>
+        `<button class="btn btn-sm ${t === myTeam ? 'btn-gold' : 'btn-outline'}" onclick="pickTeam(${i})">${t === myTeam ? '✓ ' : ''}${esc(t)}</button>`
+      ).join('');
+    }
+    function pickTeam(i) {
+      const t = roomTeams[i];
+      if (!t) return;
+      SFX.select();
+      send({ type: 'pick_team', team: t });
+    }
+    function renderTeamBoard(elId, tb) {
+      const el = document.getElementById(elId);
+      if (!tb || !tb.length) { el.style.display = 'none'; el.innerHTML = ''; return; }
+      const max = Math.max(1, ...tb.map(t => t.avg));
+      el.innerHTML = tb.map((t, i) => `
+    <div class="team-row${t.name === myTeam ? ' mine' : ''}" style="animation-delay:${i * .08}s;">
+      <div class="tb-fill" style="width:0%;" data-w="${(t.avg / max * 100).toFixed(1)}"></div>
+      <div class="tb-rank">${i === 0 ? emo('👑', 22) : i + 1}</div>
+      <div class="tb-name">${esc(t.name)} <span class="text-muted" style="font-size:12px;">· ${t.members} คน</span></div>
+      <div class="tb-score">${t.avg.toLocaleString()}</div>
+    </div>`).join('');
+      el.style.display = 'flex';
+      // หลอดคะแนนวิ่งขึ้นหลัง render
+      requestAnimationFrame(() => requestAnimationFrame(() =>
+        el.querySelectorAll('.tb-fill').forEach(f => f.style.width = f.dataset.w + '%')));
+    }
+
+    // ── รีแอคชัน ──
+    const REACTIONS = ['👏', '😂', '🔥', '😱', '❤️', '🎉', '🤯', '👍'];
+    let lastReactAt = 0;
+    function initReactBar() {
+      document.getElementById('reactBar').innerHTML = REACTIONS.map(e =>
+        `<button onclick="sendReaction('${e}')" aria-label="${e}">${emo(e, 32)}</button>`).join('');
+    }
+    function updateReactBar() {
+      const screen = document.querySelector('.screen.active')?.id;
+      const show = role === 'player' && (
+        ['screen-waiting', 'screen-leaderboard', 'screen-final'].includes(screen) ||
+        (screen === 'screen-question' && (answered || revealed)));
+      document.getElementById('reactBar').classList.toggle('show', show);
+      document.body.classList.toggle('has-react', show);
+    }
+    function sendReaction(e) {
+      const now = Date.now();
+      if (now - lastReactAt < 600) return;
+      lastReactAt = now;
+      send({ type: 'reaction', emoji: e });
+      spawnReaction(e, null);
+      vibrate(12);
+    }
+    function spawnReaction(e, name) {
+      if (!REACTIONS.includes(e)) return;
+      const layer = document.getElementById('reactLayer');
+      if (layer.childElementCount > 45) return; // ห้องใหญ่กดรัว — จำกัดจำนวนบนจอ
+      const d = document.createElement('div');
+      d.className = 'react-float';
+      d.style.left = (4 + Math.random() * 86) + 'vw';
+      d.style.setProperty('--dx1', (Math.random() * 60 - 30).toFixed(0) + 'px');
+      d.style.setProperty('--dx2', (Math.random() * 140 - 70).toFixed(0) + 'px');
+      d.style.animationDuration = (2.8 + Math.random() * 1.6).toFixed(2) + 's';
+      d.innerHTML = emo(e, Math.round(name ? 44 + Math.random() * 22 : 40)) + (name ? `<span class="rf-name">${esc(name)}</span>` : '');
+      d.addEventListener('animationend', () => d.remove());
+      layer.appendChild(d);
+    }
+
+    // ── กันจอมือถือดับระหว่างเกม ──
+    let wakeLock = null, wakeBusy = false;
+    async function updateWakeLock() {
+      if (!('wakeLock' in navigator) || wakeBusy) return;
+      const screen = document.querySelector('.screen.active')?.id;
+      const want = document.visibilityState === 'visible' &&
+        ['screen-lobby', 'screen-waiting', 'screen-question', 'screen-leaderboard', 'screen-final'].includes(screen);
+      wakeBusy = true;
+      try {
+        if (want && !wakeLock) {
+          wakeLock = await navigator.wakeLock.request('screen');
+          wakeLock.addEventListener('release', () => { wakeLock = null; });
+        } else if (!want && wakeLock) {
+          await wakeLock.release();
+          wakeLock = null;
+        }
+      } catch { wakeLock = null; }
+      finally { wakeBusy = false; }
+    }
+    document.addEventListener('visibilitychange', updateWakeLock);
 
     // ══════════════════════════════════════
     // HOST ACTIONS
@@ -1920,7 +2762,20 @@
       role = 'host';
       gameName = document.getElementById('gameName').value || 'Quiz Rush';
       timeTotal = parseInt(document.getElementById('timePerQ').value);
-      send({ type: 'create_room', gameName, timePerQ: timeTotal, questions });
+      const teamMode = document.getElementById('optTeams').checked;
+      const teams = teamMode
+        ? [...new Set(document.getElementById('teamNames').value.split(/[,\n]/).map(s => s.trim()).filter(Boolean))]
+        : [];
+      if (teamMode && teams.length < 2) { toast('⚠️ โหมดทีมต้องมีอย่างน้อย 2 ทีม'); return; }
+      if (teams.length > 8) { toast('⚠️ ได้สูงสุด 8 ทีม'); return; }
+      if (editingIndex !== null) cancelEditQ();
+      send({
+        type: 'create_room', gameName, timePerQ: timeTotal, questions: questions.map(cleanQ),
+        shuffleQuestions: document.getElementById('optShuffleQ').checked,
+        shuffleOptions: document.getElementById('optShuffleOpts').checked,
+        finalDouble: document.getElementById('optFinalDouble').checked,
+        teams,
+      });
     }
 
     function renderLobbyPlayers(players) {
@@ -1930,7 +2785,7 @@
       document.getElementById('lobbyPlayers').innerHTML = players.map(p => `
     <div class="p-chip">
       <div class="p-avatar">${emo(p.avatar, 24)}</div>
-      <div class="p-name">${esc(p.name)}</div>
+      <div class="p-name">${esc(p.name)}${p.team ? `<span class="team-tag">${esc(p.team)}</span>` : ''}</div>
     </div>`).join('') || '<p class="text-muted" style="font-size:12px;">รอผู้เล่น...</p>';
     }
 
@@ -1977,13 +2832,19 @@
     // ══════════════════════════════════════
     function showQuestion(msg) {
       clearInterval(timerInterval);
+      clearTimeout(introTimer);
       lastTickSec = null;
+      revealed = false;
       SFX.qStart();
       goScreen('screen-question');
 
       document.getElementById('qCur').textContent = msg.currentQ + 1;
       document.getElementById('qTot').textContent = msg.total || '?';
       document.getElementById('qTextBig').textContent = msg.question.q;
+      const qImg = document.getElementById('qImg');
+      if (msg.question.image) { qImg.src = msg.question.image; qImg.style.display = 'block'; }
+      else { qImg.removeAttribute('src'); qImg.style.display = 'none'; }
+      document.getElementById('doubleBadge').style.display = msg.question.double ? '' : 'none';
       document.getElementById('myScoreQ').textContent = myScore.toLocaleString();
       document.getElementById('answeredC').textContent = '0';
       document.getElementById('totalP').textContent = totalPlayers;
@@ -2000,15 +2861,40 @@
       ${esc(opt)}
     </button>`).join('');
 
-      // Local timer display
+      // ข้อ x2: โชว์ splash ก่อน แล้วค่อยเปิดให้ตอบ/เริ่มนับเวลา (server หน่วงเวลาเท่ากัน)
+      const intro = msg.introMs || 0;
+      answerOpenAt = Date.now() + intro;
       let t = msg.timeLeft;
       updateTimer(t);
-      timerInterval = setInterval(() => {
-        t--;
-        updateTimer(t);
-        if (t <= 0) clearInterval(timerInterval);
-      }, 1000);
+      const startLocalTimer = () => {
+        if (role === 'player' && !answered) document.querySelectorAll('.ans-btn').forEach(b => b.disabled = false);
+        timerInterval = setInterval(() => {
+          t--;
+          updateTimer(t);
+          if (t <= 0) clearInterval(timerInterval);
+        }, 1000);
+      };
+      if (intro > 0) {
+        document.querySelectorAll('.ans-btn').forEach(b => b.disabled = true);
+        showDoubleSplash(intro);
+        introTimer = setTimeout(startLocalTimer, intro);
+      } else {
+        hideDoubleSplash();
+        startLocalTimer();
+      }
+      updateReactBar();
     }
+
+    function showDoubleSplash(ms) {
+      const el = document.getElementById('doubleSplash');
+      el.classList.remove('show'); void el.offsetWidth; // restart animation
+      el.classList.add('show');
+      SFX.drumroll(Math.min(1.4, ms / 1000));
+      setTimeout(() => SFX.fanfare(), Math.max(0, ms - 900));
+      vibrate([40, 40, 40, 40, 120]);
+      setTimeout(hideDoubleSplash, ms);
+    }
+    function hideDoubleSplash() { document.getElementById('doubleSplash').classList.remove('show'); }
 
     function updateTimer(t) {
       const bar = document.getElementById('timerBar');
@@ -2045,7 +2931,7 @@
     }
 
     function selectAnswer(idx) {
-      if (answered || role === 'host') return;
+      if (answered || role === 'host' || Date.now() < answerOpenAt) return;
       answered = true;
       SFX.select();
       vibrate(30);
@@ -2053,6 +2939,7 @@
       document.querySelectorAll('.ans-btn').forEach(b => b.disabled = true);
       document.getElementById('ansBtn' + idx).classList.add('selected');
       send({ type: 'answer', answer: idx });
+      updateReactBar();
     }
 
     function revealAnswer(correct) {
@@ -2072,6 +2959,10 @@
     // ลำดับเฉลย: drumroll สร้าง suspense → เฉลย + กราฟจำนวนคนตอบ → คะแนนเด้ง → leaderboard
     function startRevealSequence(msg) {
       clearInterval(timerInterval);
+      clearTimeout(introTimer);
+      hideDoubleSplash();
+      revealed = true;
+      updateReactBar();
       document.body.classList.remove('warning', 'urgent', 'critical');
       const num = document.getElementById('timerNum');
       if (num) { num.classList.remove('warning', 'urgent', 'critical'); num.textContent = '?!'; }
@@ -2081,7 +2972,7 @@
 
       if (!onQuestionScreen) {
         // เพิ่งกลับเข้าเกมกลาง phase เฉลย — ข้าม drama ไปดู leaderboard เลย
-        showLeaderboard(msg.leaderboard, msg.isLastQuestion, msg.fastest);
+        showLeaderboard(msg.leaderboard, msg.isLastQuestion, msg.fastest, msg.teamBoard);
         return;
       }
 
@@ -2156,7 +3047,7 @@
     // ══════════════════════════════════════
     // LEADERBOARD
     // ══════════════════════════════════════
-    function showLeaderboard(lb, isLast, fastest) {
+    function showLeaderboard(lb, isLast, fastest, teamBoard) {
       // ไม่ต้องหน่วงแล้ว — หน้านี้มาจากการกดของ host เอง
       goScreen('screen-leaderboard');
         document.getElementById('lbQNum').textContent = currentQ + 1;
@@ -2168,6 +3059,7 @@
         } else {
           fb.style.display = 'none';
         }
+        renderTeamBoard('teamBoard', teamBoard);
 
         const medals = ['🥇', '🥈', '🥉'];
         document.getElementById('lbList').innerHTML = lb.map((p, i) => {
@@ -2224,7 +3116,7 @@
     </div>`).join('');
     }
 
-    function showFinalScreen(lb) {
+    function showFinalScreen(lb, teamBoard) {
       clearFinalTimers();
       goScreen('screen-final');
       document.getElementById('finalSuspense').style.display = 'block';
@@ -2251,10 +3143,17 @@
       });
       ft(6200, () => {
         renderFinalList(lb);
+        const hasTeams = !!(teamBoard && teamBoard.length);
+        document.getElementById('finalTeamsWrap').style.display = hasTeams ? 'block' : 'none';
+        if (hasTeams) {
+          document.getElementById('finalTeamsTitle').innerHTML = `${emo('🏆', 20)} ทีมชนะ: ${esc(teamBoard[0].name)}`;
+          renderTeamBoard('finalTeams', teamBoard);
+        }
         document.getElementById('finalListWrap').style.display = 'block';
         const btns = document.getElementById('finalBtns');
         btns.innerHTML = role === 'host'
           ? `<button class="btn btn-gold" style="padding:14px 36px;font-size:16px;" onclick="sendRestart()">🔄 เล่นรอบใหม่ (คนเดิม)</button>
+             <button class="btn btn-cyan" onclick="downloadResults()">📥 ดาวน์โหลดผล (CSV)</button>
              <button class="btn btn-outline" onclick="resetGame()">🏠 กลับหน้าแรก</button>`
           : `<p class="text-muted">รอ Host เริ่มรอบใหม่ หรือ</p>
              <button class="btn btn-outline" onclick="resetGame()">🏠 กลับหน้าแรก</button>`;
@@ -2297,8 +3196,12 @@
       clearSessions();
       clearFinalTimers();
       role = null; playerName = null; playerAvatar = null; hostToken = null;
-      myScore = 0; questions = []; currentQ = 0; answered = false; roomCode = null; pendingResult = null;
+      playerToken = null; roomTeams = []; myTeam = null; revealed = false;
+      // ไม่ล้าง questions — host กลับมาตั้งเกมใหม่ได้เลย (และมี autosave)
+      myScore = 0; currentQ = 0; answered = false; roomCode = null; pendingResult = null;
       clearInterval(timerInterval);
+      clearTimeout(introTimer);
+      hideDoubleSplash();
       goScreen('screen-home');
     }
 
@@ -2334,6 +3237,9 @@
       btn.classList.add('muted');
     }
 
+    loadDraft();
+    loadConfig();
+    initReactBar();
     connectWs();
   </script>
 </body>
