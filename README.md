@@ -128,3 +128,7 @@ trivia-battle/
 | `ADMIN_PIN` | (ว่าง = ไม่ล็อก) | **ตั้งก่อนใช้จริง** — ต้องใส่ PIN ก่อนบันทึก/ลบคลังคำถาม และใช้ AI (ถามครั้งเดียว จำไว้ในเครื่อง) |
 | `PUBLIC_URL` | `https://quizzy.deskmate.site` | โดเมนจริง ใช้ทำลิงก์รูปพรีวิวตอนแชร์ (og:image) |
 | `OPENROUTER_API_KEY` | (ว่าง = ซ่อนปุ่ม AI) | เปิดฟีเจอร์ 🤖 AI สร้างคำถามผ่าน [OpenRouter](https://openrouter.ai) ใช้ `google/gemini-2.5-flash` จำกัด 30 ครั้ง/ชม. |
+
+## 🎵 เครดิตเสียง
+
+เพลงประกาศแชมป์ (`public/sfx-fanfare.mp3`) มาจาก [Music Jingles](https://kenney.nl/assets/music-jingles) โดย Kenney — สัญญาอนุญาต CC0 · เสียงอื่นในเกมสังเคราะห์สดด้วย Web Audio

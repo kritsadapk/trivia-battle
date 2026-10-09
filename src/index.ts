@@ -13,7 +13,7 @@ const PUBLIC_URL = (process.env.PUBLIC_URL || "https://quizzy.deskmate.site").re
 const HTML = readFileSync(join(import.meta.dir, "../public/index.html"), "utf-8").replaceAll("%PUBLIC_URL%", PUBLIC_URL);
 // ไฟล์แบรนด์ (favicon / รูปพรีวิว) — โหลดครั้งเดียวตอนเริ่ม
 const ASSETS: Record<string, { body: Uint8Array; type: string }> = Object.fromEntries(
-  [["icon.svg", "image/svg+xml"], ["og.png", "image/png"], ["apple-touch-icon.png", "image/png"]].map(([f, type]) => [
+  [["icon.svg", "image/svg+xml"], ["og.png", "image/png"], ["apple-touch-icon.png", "image/png"], ["sfx-fanfare.mp3", "audio/mpeg"]].map(([f, type]) => [
     f, { body: readFileSync(join(import.meta.dir, "../public", f)), type },
   ])
 );
@@ -732,6 +732,7 @@ const app = new Elysia()
   .get("/icon.svg", () => asset("icon.svg"))
   .get("/favicon.ico", () => asset("icon.svg"))
   .get("/og.png", () => asset("og.png"))
+  .get("/sfx/fanfare.mp3", () => asset("sfx-fanfare.mp3"))
   .get("/apple-touch-icon.png", () => asset("apple-touch-icon.png"))
   .get("/health", () => ({ status: "ok", rooms: rooms.size }))
   .get("/api/config", () => ({ pinRequired: !!ADMIN_PIN, aiEnabled }))

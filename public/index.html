@@ -1982,45 +1982,91 @@
     // SOUND ENGINE (Web Audio — สังเคราะห์เสียงเอง ไม่มีไฟล์)
     // ══════════════════════════════════════
     const SFX = (() => {
+      // เสียงโทน "ไม้เคาะ/มาริมบา" สังเคราะห์สด (ไม่มีไฟล์) + เพลงประกาศแชมป์จากไฟล์จริง (Kenney, CC0)
+      // จอ host = ลำโพงหลักของห้อง: เสียงลุ้น (ติ๊ก/กลอง/มีคนเข้า) ดังเฉพาะจอนี้
+      // มือถือผู้เล่น: เบากว่า และมีแค่เสียงของตัวเอง — กัน 30 เครื่องร้องพร้อมกันจนฟังไม่รู้เรื่อง
       let ctx = null;
       let muted = false;
+      let fanfareBuf = null, fanfareLoad = null;
       try { muted = localStorage.getItem('tb_muted') === '1'; } catch { }
       function ensure() {
         if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
         if (ctx.state === 'suspended') ctx.resume();
         return ctx;
       }
-      // autoplay policy: ปลดล็อก AudioContext จาก gesture แรกของผู้ใช้
-      addEventListener('pointerdown', () => { try { ensure(); } catch { } }, { once: true });
+      function loadFanfare() {
+        if (fanfareLoad) return;
+        fanfareLoad = fetch('/sfx/fanfare.mp3')
+          .then(r => r.arrayBuffer())
+          .then(b => ensure().decodeAudioData(b))
+          .then(buf => { fanfareBuf = buf; })
+          .catch(() => { fanfareLoad = null; });
+      }
+      // autoplay policy: ปลดล็อก AudioContext จาก gesture แรกของผู้ใช้ แล้วโหลดเพลงแชมป์รอไว้
+      addEventListener('pointerdown', () => { try { ensure(); loadFanfare(); } catch { } }, { once: true });
 
-      function tone(freq, dur, { type = 'square', vol = .15, when = 0, slide = 0 } = {}) {
+      const onPhone = () => role === 'player';
+      const level = () => onPhone() ? .55 : 1;
+
+      function mallet(freq, when = 0, { dur = .45, vol = .32 } = {}) {
         if (muted) return;
         let c; try { c = ensure(); } catch { return; }
         const t0 = c.currentTime + when;
-        const o = c.createOscillator(), g = c.createGain();
-        o.type = type;
-        o.frequency.setValueAtTime(freq, t0);
-        if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, freq + slide), t0 + dur);
-        g.gain.setValueAtTime(vol, t0);
-        g.gain.exponentialRampToValueAtTime(.001, t0 + dur);
-        o.connect(g); g.connect(c.destination);
-        o.start(t0); o.stop(t0 + dur + .05);
+        const lp = c.createBiquadFilter();
+        lp.type = 'lowpass'; lp.frequency.value = 3200; lp.connect(c.destination);
+        // เสียงหลัก + โอเวอร์โทนสั้นๆ ให้เหมือนตีไม้/โลหะ
+        [[1, vol, dur], [4, vol * .22, dur * .25], [10, vol * .06, .04]].forEach(([mul, v, d]) => {
+          const o = c.createOscillator(), g = c.createGain();
+          o.type = 'sine'; o.frequency.setValueAtTime(freq * mul, t0);
+          g.gain.setValueAtTime(0, t0);
+          g.gain.linearRampToValueAtTime(v * level(), t0 + .004);
+          g.gain.exponentialRampToValueAtTime(.0008, t0 + d);
+          o.connect(g); g.connect(lp); o.start(t0); o.stop(t0 + d + .05);
+        });
       }
+      function noiseHit(when, vol, freq = 180) {
+        if (muted) return;
+        let c; try { c = ensure(); } catch { return; }
+        const t0 = c.currentTime + when, len = .09;
+        const buf = c.createBuffer(1, Math.floor(c.sampleRate * len), c.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 3);
+        const src = c.createBufferSource(), bp = c.createBiquadFilter(), g = c.createGain();
+        src.buffer = buf; bp.type = 'bandpass'; bp.frequency.value = freq; bp.Q.value = .8; g.gain.value = vol * level();
+        src.connect(bp); bp.connect(g); g.connect(c.destination); src.start(t0);
+      }
+
       return {
         get muted() { return muted; },
         toggle() { muted = !muted; try { localStorage.setItem('tb_muted', muted ? '1' : '0'); } catch { } return muted; },
-        tick(urgent) { tone(urgent ? 1150 : 880, .06, { vol: .07 }); },
-        qStart() { tone(520, .09, { type: 'triangle', vol: .14 }); tone(780, .13, { type: 'triangle', vol: .14, when: .09 }); },
-        select() { tone(640, .06, { type: 'triangle', vol: .13 }); },
-        join() { tone(700, .07, { type: 'triangle', vol: .1 }); tone(1050, .1, { type: 'triangle', vol: .1, when: .07 }); },
-        correct() { [523, 659, 784, 1047].forEach((f, i) => tone(f, .13, { type: 'triangle', vol: .16, when: i * .07 })); },
-        wrong() { tone(220, .32, { type: 'sawtooth', vol: .12, slide: -140 }); },
-        streak() { tone(880, .08, { type: 'triangle', vol: .15 }); tone(1175, .14, { type: 'triangle', vol: .15, when: .08 }); },
+        tick(urgent) { if (!onPhone()) mallet(urgent ? 1568 : 1175, 0, { dur: .09, vol: urgent ? .28 : .2 }); },
+        qStart() { mallet(784); mallet(1175, .1); },
+        select() { mallet(880, 0, { dur: .2, vol: .26 }); },
+        join() { if (!onPhone()) { mallet(1047, 0, { dur: .25 }); mallet(1568, .08, { dur: .3 }); } },
+        correct() { [523, 659, 784, 1047].forEach((f, i) => mallet(f, i * .075, { dur: i === 3 ? .7 : .35 })); },
+        wrong() { mallet(330, 0, { dur: .35, vol: .3 }); mallet(247, .16, { dur: .55, vol: .3 }); },
+        streak() { [1047, 1319, 1568].forEach((f, i) => mallet(f, i * .06, { dur: .3, vol: .24 })); },
+        // ข้อ x2: ไล่โน้ตขึ้นเร็วๆ — แยกจากเพลงแชมป์ ให้ตอนประกาศแชมป์ยังพิเศษ
+        double() { [523, 659, 784, 1047, 1319, 1568].forEach((f, i) => mallet(f, i * .055, { dur: i === 5 ? .6 : .25, vol: .26 })); },
         drumroll(dur = 1.6) {
-          const n = Math.floor(dur / .07);
-          for (let i = 0; i < n; i++) tone(130 + Math.random() * 50, .05, { type: 'triangle', vol: .05 + (i / n) * .07, when: i * .07 });
+          if (onPhone()) return;
+          const n = Math.max(6, Math.round(dur / .062));
+          for (let i = 0; i < n; i++) noiseHit(i * .062, .25 + (i / n) * .9, 160 + (i % 2) * 40);
+          noiseHit(n * .062 + .02, 1.4, 120);
         },
-        fanfare() { [523, 523, 659, 784, 659, 784, 1047].forEach((f, i) => tone(f, i >= 5 ? .4 : .15, { type: 'triangle', vol: .17, when: i * .14 })); },
+        fanfare() {
+          if (muted) return;
+          if (fanfareBuf) {
+            let c; try { c = ensure(); } catch { return; }
+            const src = c.createBufferSource(), g = c.createGain();
+            src.buffer = fanfareBuf; g.gain.value = .9 * level();
+            src.connect(g); g.connect(c.destination); src.start();
+            return;
+          }
+          // ไฟล์ยังโหลดไม่เสร็จ/โหลดไม่ได้ — ใช้เวอร์ชันสังเคราะห์แทน
+          [[523, 0], [659, .14], [784, .28], [1047, .46], [784, .66], [1047, .8]].forEach(([f, t]) => mallet(f, t, { dur: .5 }));
+          [523, 659, 784, 1047].forEach(f => mallet(f, .98, { dur: 1.3, vol: .22 }));
+        },
       };
     })();
 
@@ -3562,7 +3608,7 @@
       el.classList.remove('show'); void el.offsetWidth; // restart animation
       el.classList.add('show');
       SFX.drumroll(Math.min(1.4, ms / 1000));
-      setTimeout(() => SFX.fanfare(), Math.max(0, ms - 900));
+      setTimeout(() => SFX.double(), Math.max(0, ms - 700));
       vibrate([40, 40, 40, 40, 120]);
       setTimeout(hideDoubleSplash, ms);
     }
