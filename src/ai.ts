@@ -63,7 +63,7 @@ export async function generateQuestions(input: GenerateInput): Promise<QuestionI
     headers: {
       Authorization: `Bearer ${API_KEY}`,
       "Content-Type": "application/json",
-      "X-Title": "Quiz Rush",
+      "X-Title": "Quizzy",
     },
     body: JSON.stringify({
       model: MODEL,

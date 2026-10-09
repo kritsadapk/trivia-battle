@@ -1,4 +1,6 @@
-# 🏆 Team Trivia Battle
+# 🎉 Quizzy
+
+ควิซปาร์ตี้สำหรับทีม — https://quizzy.deskmate.site
 
 เกมตอบคำถาม Real-time สำหรับทีม — Bun + Elysia.js + WebSocket
 
@@ -124,4 +126,5 @@ trivia-battle/
 | `PORT` | 3000 | render.yaml ตั้งไว้แล้ว |
 | `DB_PATH` | `data/trivia.db` (local) / `/data/trivia.db` (Docker) | ชี้ไป Persistent Disk ถ้ามี |
 | `ADMIN_PIN` | (ว่าง = ไม่ล็อก) | **ตั้งก่อนใช้จริง** — ต้องใส่ PIN ก่อนบันทึก/ลบคลังคำถาม และใช้ AI (ถามครั้งเดียว จำไว้ในเครื่อง) |
+| `PUBLIC_URL` | `https://quizzy.deskmate.site` | โดเมนจริง ใช้ทำลิงก์รูปพรีวิวตอนแชร์ (og:image) |
 | `OPENROUTER_API_KEY` | (ว่าง = ซ่อนปุ่ม AI) | เปิดฟีเจอร์ 🤖 AI สร้างคำถามผ่าน [OpenRouter](https://openrouter.ai) ใช้ `google/gemini-2.5-flash` จำกัด 30 ครั้ง/ชม. |

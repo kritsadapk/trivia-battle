@@ -6,7 +6,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
-  <title>Quiz Rush 🚀</title>
+  <title>Quizzy — ควิซปาร์ตี้สำหรับทีม</title>
+  <meta name="description" content="ควิซปาร์ตี้สำหรับทีม สร้างคำถามเอง ให้ AI คิด หรือนำเข้าจาก Excel แล้วให้ทุกคนสแกน QR เล่นพร้อมกันจากมือถือ">
+  <meta name="theme-color" content="#ff2e88">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <!-- พรีวิวตอนแชร์ลิงก์ (LINE / Slack / Facebook) — %PUBLIC_URL% ถูกแทนที่ฝั่ง server -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Quizzy">
+  <meta property="og:title" content="Quizzy — ควิซปาร์ตี้สำหรับทีม">
+  <meta property="og:description" content="สแกน QR แล้วเล่นพร้อมกันจากมือถือ ตอบไว ได้แต้มเยอะ">
+  <meta property="og:url" content="%PUBLIC_URL%/">
+  <meta property="og:image" content="%PUBLIC_URL%/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Anuphan:wght@400;500;600;700&family=Bungee&display=swap" rel="stylesheet">
@@ -146,6 +160,22 @@
       50%      { transform: rotate(-1deg) scale(1.025); }
     }
 
+    /* โลโก้ Quizzy: wordmark + สติกเกอร์ ? */
+    .logo-q {
+      position: absolute; top: -6px; right: -26px;
+      width: clamp(40px, 8vw, 64px); height: clamp(40px, 8vw, 64px);
+      display: grid; place-items: center;
+      font-family: 'Bungee', monospace; font-size: clamp(22px, 4.6vw, 38px); color: var(--ink);
+      background: var(--gold); border: 4px solid var(--ink); border-radius: 50%;
+      box-shadow: 3px 4px 0 var(--ink);
+      animation: logoQ 2.4s ease-in-out infinite;
+    }
+    @keyframes logoQ {
+      0%, 100% { transform: rotate(12deg) translateY(0); }
+      50%      { transform: rotate(-6deg) translateY(-6px); }
+    }
+    .by-line { font-family: 'Mitr', sans-serif; font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 1px; margin-top: 4px; opacity: .8; }
+    @media (prefers-reduced-motion: reduce) { .logo-q, .title { animation: none; } }
     .subtitle { font-family: 'Mitr', sans-serif; font-size: 15px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; }
     h2 { font-family: 'Mitr', sans-serif; font-size: 26px; font-weight: 700; line-height: 1.2; }
     h3 { font-family: 'Mitr', sans-serif; font-size: 15px; font-weight: 600; color: var(--ink); letter-spacing: 1px; }
@@ -1355,9 +1385,11 @@
   <div id="screen-home" class="screen active">
     <div style="text-align:center;padding:56px 24px 12px;">
       <div class="home-logo-wrap">
-        <div class="title">QUIZ RUSH</div>
+        <h1 class="title">QUIZZY</h1>
+        <span class="logo-q" aria-hidden="true">?</span>
       </div>
       <div class="subtitle">ควิซปาร์ตี้ · ตอบไว ได้แต้มเยอะ</div>
+      <div class="by-line">by Deskmate</div>
     </div>
     <div
       style="display:flex;align-items:center;justify-content:center;padding:0 24px 28px;flex-direction:column;gap:24px;">
@@ -1429,7 +1461,7 @@
         <summary><span>⚙️ ตั้งค่าเกม</span><span class="settings-sum" id="settingsSummary"></span></summary>
         <div class="settings-body">
           <div class="settings-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-            <div><label for="gameName">ชื่อเกม</label><input type="text" id="gameName" value="Quiz Rush 🚀" maxlength="40"></div>
+            <div><label for="gameName">ชื่อเกม</label><input type="text" id="gameName" value="Quizzy 🎉" maxlength="40"></div>
             <div><label for="timePerQ">เวลาต่อข้อ</label>
               <select id="timePerQ">
                 <option value="10">10 วิ (เร็ว)</option>
@@ -1580,7 +1612,7 @@
       <div class="flex-between">
         <div>
           <div class="flex gap-8">
-            <h2 id="lobbyName">Quiz Rush</h2><span class="badge badge-host">HOST</span>
+            <h2 id="lobbyName">Quizzy</h2><span class="badge badge-host">HOST</span>
           </div>
           <p class="text-muted mt-4">รอผู้เล่นเข้าร่วม...</p>
         </div>
@@ -3082,7 +3114,7 @@
       if (questions.some(q => !isValidQ(q))) { toast('⚠️ มีข้อที่ยังไม่ครบ — แก้ก่อนสร้างห้อง'); openFirstInvalid(); return; }
       if (questions.length < 2) { toast('⚠️ ต้องมีอย่างน้อย 2 คำถาม'); return; }
       role = 'host';
-      gameName = document.getElementById('gameName').value || 'Quiz Rush';
+      gameName = document.getElementById('gameName').value || 'Quizzy';
       timeTotal = parseInt(document.getElementById('timePerQ').value);
       const teamMode = document.getElementById('optTeams').checked;
       const teams = teamMode

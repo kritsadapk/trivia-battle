@@ -8,7 +8,18 @@ import {
 import { aiEnabled, generateQuestions, type GenerateInput } from "./ai";
 
 // Serve index.html natively — works without @elysiajs/static
-const HTML = readFileSync(join(import.meta.dir, "../public/index.html"), "utf-8");
+// PUBLIC_URL ใช้ทำลิงก์เต็มของรูปพรีวิว (og:image ต้องเป็น absolute URL)
+const PUBLIC_URL = (process.env.PUBLIC_URL || "https://quizzy.deskmate.site").replace(/\/+$/, "");
+const HTML = readFileSync(join(import.meta.dir, "../public/index.html"), "utf-8").replaceAll("%PUBLIC_URL%", PUBLIC_URL);
+// ไฟล์แบรนด์ (favicon / รูปพรีวิว) — โหลดครั้งเดียวตอนเริ่ม
+const ASSETS: Record<string, { body: Uint8Array; type: string }> = Object.fromEntries(
+  [["icon.svg", "image/svg+xml"], ["og.png", "image/png"], ["apple-touch-icon.png", "image/png"]].map(([f, type]) => [
+    f, { body: readFileSync(join(import.meta.dir, "../public", f)), type },
+  ])
+);
+const asset = (f: string) => new Response(ASSETS[f].body, {
+  headers: { "Content-Type": ASSETS[f].type, "Cache-Control": "public, max-age=86400" },
+});
 
 // ══════════════════════════════════════
 // TYPES
@@ -340,7 +351,7 @@ function handleMessage(ws: any, raw: string | object) {
       const code = genCode();
       const room: Room = {
         code,
-        gameName: (typeof msg.gameName === "string" ? msg.gameName.trim().slice(0, 40) : "") || "Team Trivia",
+        gameName: (typeof msg.gameName === "string" ? msg.gameName.trim().slice(0, 40) : "") || "Quizzy",
         timePerQ,
         questions,
         teams: teams.length >= 2 ? teams : [],
@@ -718,6 +729,10 @@ const app = new Elysia()
     "Cache-Control": "no-store, no-cache, must-revalidate",
     "Pragma": "no-cache",
   } }))
+  .get("/icon.svg", () => asset("icon.svg"))
+  .get("/favicon.ico", () => asset("icon.svg"))
+  .get("/og.png", () => asset("og.png"))
+  .get("/apple-touch-icon.png", () => asset("apple-touch-icon.png"))
   .get("/health", () => ({ status: "ok", rooms: rooms.size }))
   .get("/api/config", () => ({ pinRequired: !!ADMIN_PIN, aiEnabled }))
   .post("/api/admin/check", ({ headers, set }) => {
@@ -794,4 +809,4 @@ const app = new Elysia()
   })
   .listen(process.env.PORT || 3000);
 
-console.log(`🎮 Trivia Battle running at http://localhost:${app.server?.port}`);
+console.log(`🎉 Quizzy running at http://localhost:${app.server?.port}`);
