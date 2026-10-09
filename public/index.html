@@ -1071,6 +1071,130 @@
     .ai-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
     .btn.loading { opacity: .8; pointer-events: none; animation: suspensePulse .5s ease-in-out infinite alternate; }
 
+    /* ── SETUP (question-first) ── */
+    #screen-setup > div { overflow: visible; padding-bottom: 8px; }
+    /* เลื่อนหาข้อ/ปุ่ม ให้พ้นแถบสร้างห้องที่ติดล่างจอ */
+    html:has(#screen-setup.active) { scroll-padding-bottom: 104px; scroll-padding-top: 16px; }
+    /* หน้าเตรียมคำถามไม่มีเสียง — ซ่อนปุ่มเสียงที่ลอยทับปุ่มกลับ/ล้างทั้งหมด */
+    body:has(#screen-setup.active) .mute-btn { display: none; }
+    .set-bar { padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; }
+    .set-bar-row { display: flex; gap: 8px; align-items: center; }
+    .set-bar-row .btn { white-space: nowrap; }
+    input.set-name { font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 18px; }
+    .set-status { font-size: 13px; color: var(--muted); padding-left: 4px; }
+    .set-status.ok { color: #0b6b3a; font-weight: 600; }
+    .set-status.dirty { color: #b35a00; font-weight: 600; }
+
+    .src-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
+    .src-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 11px 10px; cursor: pointer; color: var(--ink);
+      background: var(--card); border: 3px solid var(--ink); border-radius: 14px;
+      box-shadow: 3px 4px 0 rgba(36, 26, 77, .9);
+      font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 15px;
+      transition: transform .12s, box-shadow .12s, background .12s;
+    }
+    .src-btn:hover { background: var(--paper-2); transform: translateY(-2px); box-shadow: 3px 6px 0 rgba(36, 26, 77, .9); }
+    .src-btn:active { transform: translateY(2px); box-shadow: 1px 1px 0 rgba(36, 26, 77, .9); }
+
+    .empty-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .empty-tile {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 22px 12px; text-align: center; cursor: pointer; color: var(--ink);
+      background: #fff; border: 3px solid var(--ink); border-radius: 18px;
+      box-shadow: 4px 5px 0 rgba(36, 26, 77, .9);
+      transition: transform .15s, background .15s;
+    }
+    .empty-tile:hover { transform: translateY(-3px) rotate(-.6deg); background: var(--paper-2); }
+    .et-title { font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 17px; }
+    .et-desc { font-size: 13px; color: var(--muted); line-height: 1.4; }
+
+    .qi { background: #fff; border: 2.5px solid var(--ink); border-radius: 14px; margin-bottom: 8px; transition: box-shadow .15s; }
+    .qi.invalid { border-color: #e08a00; }
+    .qi.open { box-shadow: 4px 5px 0 var(--gold); }
+    .qi-head { display: flex; align-items: center; gap: 10px; padding: 10px 12px; cursor: pointer; border-radius: 12px; }
+    .qi-head:hover { background: var(--paper); }
+    .qi-title { flex: 1; min-width: 0; font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .qi-tags { display: flex; gap: 4px; flex-shrink: 0; }
+    .qi-tags .q-tag { margin-left: 0; }
+    .q-tag.ans { background: #baf1d4; }
+    .q-tag.warn { background: #ffe1b8; }
+    .qi-chev { flex-shrink: 0; transition: transform .2s; color: var(--muted); }
+    .qi.open .qi-chev { transform: rotate(180deg); }
+    .qi-body { display: flex; flex-direction: column; gap: 10px; padding: 12px; border-top: 2px dashed #ddd6ea; }
+    textarea.qi-q { min-height: 64px; }
+    .qi-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .qi-opt { display: flex; gap: 6px; align-items: center; }
+    .qi-opt input { padding: 10px 12px; min-width: 0; }
+    .qi-mark {
+      flex-shrink: 0; width: 40px; height: 40px; cursor: pointer;
+      border: 2.5px solid var(--ink); border-radius: 12px; background: var(--c); color: #fff;
+      font-family: 'Bungee', monospace; font-size: 14px;
+      transition: transform .12s, background .15s;
+    }
+    .qi-mark:hover { transform: scale(1.08); }
+    .qi-opt.correct .qi-mark { background: var(--green); font-size: 18px; box-shadow: 0 0 0 3px #baf1d4; }
+    .qi-opt.correct input { border-color: var(--green); background: #f0fff6; }
+    .qi-tools { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .qi-tools .btn-sm { padding: 7px 12px; }
+    .qi-done { margin-left: auto; }
+    .add-row { border-style: dashed; box-shadow: none; }
+
+    details.settings-card > summary {
+      list-style: none; cursor: pointer;
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 15px; color: var(--ink);
+    }
+    details.settings-card > summary::-webkit-details-marker { display: none; }
+    details.settings-card > summary::after { content: '▾'; transition: transform .2s; }
+    details.settings-card[open] > summary::after { transform: rotate(180deg); }
+    .settings-sum { flex: 1; min-width: 0; text-align: right; font-family: 'Anuphan', sans-serif; font-weight: 500; font-size: 13px; color: var(--muted); }
+    .settings-body { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; }
+
+    .setup-footer {
+      position: sticky; bottom: 12px; z-index: 30;
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 10px 10px 20px; color: #fff;
+      background: var(--ink); border-radius: 999px;
+      box-shadow: 0 10px 28px rgba(36, 26, 77, .35);
+    }
+    .sf-info { flex: 1; min-width: 0; font-size: 15px; }
+    .sf-info strong { font-family: 'Bungee', monospace; color: var(--gold); }
+    .sf-warn { background: none; border: none; padding: 0; color: #ffcf6b; font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
+    .setup-footer .btn { box-shadow: 0 4px 0 #000; }
+
+    /* ── SHEET (dialog) ── */
+    dialog.sheet {
+      width: min(580px, calc(100vw - 24px)); max-height: min(88vh, 920px);
+      margin: auto; padding: 0; color: var(--ink);
+      background: var(--card); border: 3px solid var(--ink); border-radius: 22px;
+      box-shadow: 6px 7px 0 rgba(36, 26, 77, .9);
+    }
+    dialog.sheet[open] { display: flex; flex-direction: column; animation: sheetIn .3s cubic-bezier(.34, 1.3, .64, 1); }
+    dialog.sheet::backdrop { background: rgba(36, 26, 77, .55); }
+    @keyframes sheetIn { from { opacity: 0; transform: translateY(24px) scale(.97); } to { opacity: 1; transform: none; } }
+    .sheet-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px 14px 20px; border-bottom: 3px solid var(--ink); }
+    .sheet-head h3 { flex: 1; font-size: 17px; letter-spacing: 0; }
+    .sheet-x { width: 36px; height: 36px; border: 2.5px solid var(--ink); border-radius: 50%; background: #fff; font-size: 16px; cursor: pointer; flex-shrink: 0; }
+    .sheet-body { display: flex; flex-direction: column; gap: 12px; padding: 16px 20px 22px; overflow-y: auto; }
+    .sheet-sec { font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 14px; color: var(--muted); margin-top: 4px; }
+    .sample-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    @media (max-width: 600px) {
+      dialog.sheet {
+        width: 100vw; max-width: 100vw; max-height: 92vh;
+        margin: auto 0 0; border-radius: 22px 22px 0 0; border-bottom: none;
+      }
+      @keyframes sheetIn { from { transform: translateY(100%); } to { transform: none; } }
+    }
+    @media (max-width: 480px) {
+      .qi-opts { grid-template-columns: 1fr; }
+      .empty-tiles { gap: 8px; }
+      .empty-tile { padding: 16px 8px; }
+      .src-bar { grid-template-columns: 1fr 1fr; }
+      .setup-footer { padding-left: 16px; }
+      .sf-info { font-size: 13px; }
+    }
+
     /* ── CSV IMPORT ── */
     .imp-steps { display: flex; flex-direction: column; gap: 10px; }
     .imp-step { display: flex; gap: 10px; align-items: flex-start; }
@@ -1269,117 +1393,112 @@
       <div class="flex-between">
         <div>
           <div class="flex gap-8">
-            <h2>ตั้งค่าเกม</h2><span class="badge badge-host">HOST</span>
+            <h2>สร้างเกม</h2><span class="badge badge-host">HOST</span>
           </div>
-          <p class="text-muted mt-4">เพิ่มคำถามสำหรับทีม</p>
+          <p class="text-muted mt-4">เตรียมคำถาม แล้วกดสร้างห้อง</p>
         </div>
         <button class="btn btn-outline btn-sm" onclick="goScreen('screen-home')">← กลับ</button>
       </div>
 
-      <div class="card" style="display:flex;flex-direction:column;gap:14px;">
-        <h3>ตั้งค่าเกม</h3>
-        <div class="settings-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-          <div><label>ชื่อเกม</label><input type="text" id="gameName" value="Quiz Rush 🚀" maxlength="40"></div>
-          <div><label>เวลาต่อข้อ</label>
-            <select id="timePerQ">
-              <option value="10">10 วิ (เร็ว)</option>
-              <option value="20" selected>20 วิ (ปกติ)</option>
-              <option value="30">30 วิ (ง่าย)</option>
-              <option value="60">60 วิ (คิดเยอะ)</option>
-            </select>
-          </div>
+      <!-- ชุดคำถาม: ชื่อ + บันทึก ที่เดียว -->
+      <div class="card set-bar">
+        <div class="set-bar-row">
+          <input type="text" id="setName" class="set-name" placeholder="ตั้งชื่อชุด เช่น Town Hall Q3" maxlength="100"
+            oninput="onSetNameInput()" aria-label="ชื่อชุดคำถาม">
+          <button class="btn btn-gold btn-sm" id="saveSetBtn" onclick="saveCurrentSet()">☁️ บันทึก</button>
         </div>
-        <div class="toggle-row">
-          <label class="chk"><input type="checkbox" id="optShuffleQ"> 🔀 สุ่มลำดับคำถาม</label>
-          <label class="chk"><input type="checkbox" id="optShuffleOpts"> 🔀 สุ่มลำดับตัวเลือก</label>
-          <label class="chk"><input type="checkbox" id="optFinalDouble"> ⚡ ข้อสุดท้าย x2</label>
-          <label class="chk"><input type="checkbox" id="optTeams" onchange="toggleTeamsInput()"> 👥 โหมดทีม</label>
-        </div>
-        <div id="teamsWrap" style="display:none;">
-          <label>ชื่อทีม <span style="font-weight:400;color:var(--muted);font-size:12px;">(คั่นด้วย , · 2–8 ทีม)</span></label>
-          <input type="text" id="teamNames" value="ทีมแดง, ทีมน้ำเงิน, ทีมเขียว" maxlength="200">
-          <p class="hint" style="margin-top:6px;">ผู้เล่นเลือกทีมเองระหว่างรอ ใครไม่เลือกระบบจัดให้ · คะแนนทีม = ค่าเฉลี่ยต่อคน (ทีมคนเยอะไม่ได้เปรียบ)</p>
-        </div>
+        <div class="set-status" id="setStatus"></div>
       </div>
 
-      <div class="card" style="display:flex;flex-direction:column;gap:14px;">
-        <h3 id="qFormTitle">เพิ่มคำถาม</h3>
-        <div><label>คำถาม</label><textarea id="qText" placeholder="พิมพ์คำถาม..."></textarea></div>
-        <div><label>ตัวเลือก</label>
-          <div class="options-grid">
-            <div class="opt-row"><span class="opt-lbl" style="background:var(--red);color:#fff;">A</span><input
-                type="text" id="opt0" placeholder="ตัวเลือก A"></div>
-            <div class="opt-row"><span class="opt-lbl" style="background:var(--cyan);color:#fff;">B</span><input
-                type="text" id="opt1" placeholder="ตัวเลือก B"></div>
-            <div class="opt-row"><span class="opt-lbl" style="background:var(--gold);">C</span><input type="text"
-                id="opt2" placeholder="ตัวเลือก C"></div>
-            <div class="opt-row"><span class="opt-lbl" style="background:var(--purple);color:#fff;">D</span><input
-                type="text" id="opt3" placeholder="ตัวเลือก D"></div>
-          </div>
-        </div>
-        <div><label>รูปประกอบ <span style="font-weight:400;color:var(--muted);font-size:12px;">(ไม่บังคับ)</span></label>
-          <div class="img-row">
-            <input type="text" id="qImageUrl" placeholder="วางลิงก์รูป https://..." oninput="onImageUrl()" style="flex:1;min-width:0;">
-            <label class="btn btn-outline btn-sm" style="margin:0;white-space:nowrap;">📷 อัปโหลด<input type="file"
-                id="qImageFile" accept="image/*" onchange="onImageFile(this)" hidden></label>
-          </div>
-          <div class="img-preview-wrap" id="qImagePreviewWrap" style="display:none;">
-            <img id="qImagePreview" class="img-preview" alt="ตัวอย่างรูป">
-            <button class="q-remove" onclick="clearImage()" title="ลบรูป">✕</button>
-          </div>
-        </div>
-        <div><label>คำตอบที่ถูก</label>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <select id="correctOpt" style="flex:1;min-width:120px;">
-              <option value="0">A</option>
-              <option value="1">B</option>
-              <option value="2">C</option>
-              <option value="3">D</option>
-            </select>
-            <label class="chk"><input type="checkbox" id="qDouble"> ⚡ ข้อนี้ x2</label>
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-gold w-full" id="qSubmitBtn" onclick="addQuestion()">➕ เพิ่มคำถาม</button>
-          <button class="btn btn-outline" id="qCancelBtn" onclick="cancelEditQ()" style="display:none;white-space:nowrap;">ยกเลิก</button>
-        </div>
-      </div>
+      <!-- วิธีเพิ่มคำถาม (โชว์เมื่อมีคำถามแล้ว — ตอนว่างใช้การ์ดใหญ่ในรายการแทน) -->
+      <div class="src-bar" id="srcBar"></div>
 
+      <!-- รายการคำถาม = พระเอกของหน้า -->
       <div class="card" style="display:flex;flex-direction:column;gap:12px;">
-        <h3>⚡ เพิ่มคำถามแบบเร็ว</h3>
-        <details class="quick" id="aiCard" style="display:none;">
-          <summary>🤖 ให้ AI ช่วยคิดคำถาม</summary>
-          <div class="quick-body">
-            <textarea id="aiTopic" maxlength="20000" style="min-height:100px;"
-              placeholder="ใส่หัวข้อ เช่น &quot;ความรู้เรื่อง Q3 roadmap&quot; หรือวางเนื้อหาเอกสาร/สไลด์ทั้งก้อนก็ได้ AI จะออกข้อสอบจากเนื้อหานั้น"></textarea>
-            <div class="ai-grid">
-              <select id="aiCount" aria-label="จำนวนข้อ">
-                <option value="5">5 ข้อ</option>
-                <option value="10" selected>10 ข้อ</option>
-                <option value="15">15 ข้อ</option>
-                <option value="20">20 ข้อ</option>
-              </select>
-              <select id="aiDifficulty" aria-label="ความยาก">
-                <option value="mixed">คละความยาก</option>
-                <option value="easy">ง่าย</option>
-                <option value="medium">ปานกลาง</option>
-                <option value="hard">ยาก</option>
-              </select>
-              <select id="aiLang" aria-label="ภาษา">
-                <option value="th">ภาษาไทย</option>
-                <option value="en">English</option>
+        <div class="flex-between">
+          <h3>คำถาม (<span id="qCountBadge">0</span>)</h3>
+          <button class="btn btn-outline btn-sm" id="clearAllBtn" onclick="clearAll()">🗑️ ล้างทั้งหมด</button>
+        </div>
+        <input type="text" id="qFilter" placeholder="🔍 ค้นหาในรายการ..." oninput="renderQList()" style="display:none;">
+        <div id="qList"></div>
+        <button class="btn btn-outline w-full add-row" id="addRowBtn" onclick="addBlankQuestion()">＋ เพิ่มข้อใหม่</button>
+      </div>
+
+      <!-- ตั้งค่าเกม: พับไว้ โชว์ค่าปัจจุบันสั้นๆ -->
+      <details class="card settings-card" id="settingsCard">
+        <summary><span>⚙️ ตั้งค่าเกม</span><span class="settings-sum" id="settingsSummary"></span></summary>
+        <div class="settings-body">
+          <div class="settings-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            <div><label for="gameName">ชื่อเกม</label><input type="text" id="gameName" value="Quiz Rush 🚀" maxlength="40"></div>
+            <div><label for="timePerQ">เวลาต่อข้อ</label>
+              <select id="timePerQ">
+                <option value="10">10 วิ (เร็ว)</option>
+                <option value="20" selected>20 วิ (ปกติ)</option>
+                <option value="30">30 วิ (ง่าย)</option>
+                <option value="60">60 วิ (คิดเยอะ)</option>
               </select>
             </div>
-            <div><label for="aiModel">โมเดล AI <span style="font-weight:400;color:var(--muted);font-size:12px;">(ผ่าน OpenRouter)</span></label>
-              <select id="aiModel"></select>
-            </div>
-            <button class="btn btn-pink w-full" id="aiBtn" onclick="generateAI()">✨ สร้างคำถาม</button>
-            <p class="hint">AI อาจผิดได้ — ตรวจเฉลยก่อนเล่น (กดที่ข้อในรายการเพื่อแก้)</p>
           </div>
-        </details>
-        <details class="quick" id="importCard" open>
-          <summary>📄 นำเข้าคำถามจากไฟล์ CSV / Excel</summary>
-          <div class="quick-body">
+          <div class="toggle-row">
+            <label class="chk"><input type="checkbox" id="optShuffleQ"> 🔀 สุ่มลำดับคำถาม</label>
+            <label class="chk"><input type="checkbox" id="optShuffleOpts"> 🔀 สุ่มลำดับตัวเลือก</label>
+            <label class="chk"><input type="checkbox" id="optFinalDouble"> ⚡ ข้อสุดท้าย x2</label>
+            <label class="chk"><input type="checkbox" id="optTeams"> 👥 โหมดทีม</label>
+          </div>
+          <div id="teamsWrap" style="display:none;">
+            <label for="teamNames">ชื่อทีม <span style="font-weight:400;color:var(--muted);font-size:12px;">(คั่นด้วย , · 2–8 ทีม)</span></label>
+            <input type="text" id="teamNames" value="ทีมแดง, ทีมน้ำเงิน, ทีมเขียว" maxlength="200">
+            <p class="hint" style="margin-top:6px;">ผู้เล่นเลือกทีมเองระหว่างรอ ใครไม่เลือกระบบจัดให้ · คะแนนทีม = ค่าเฉลี่ยต่อคน</p>
+          </div>
+        </div>
+      </details>
+
+      <!-- แถบสร้างห้อง ติดล่างจอตลอด -->
+      <div class="setup-footer">
+        <div class="sf-info" id="sfInfo">ยังไม่มีคำถาม</div>
+        <button class="btn btn-pink" id="createBtn" onclick="createRoom()">🚀 สร้างห้อง</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SHEETS (หน้าต่างเพิ่มคำถาม) ══ -->
+  <dialog class="sheet" id="dlgAI" aria-labelledby="dlgAITitle">
+    <div class="sheet-head">
+      <h3 id="dlgAITitle">🤖 ให้ AI ช่วยคิดคำถาม</h3>
+      <button class="sheet-x" onclick="closeSheet('dlgAI')" aria-label="ปิด">✕</button>
+    </div>
+    <div class="sheet-body">
+      <textarea id="aiTopic" maxlength="20000" style="min-height:120px;"
+        placeholder="ใส่หัวข้อ เช่น &quot;ความรู้เรื่อง Q3 roadmap&quot; หรือวางเนื้อหาเอกสาร/สไลด์ทั้งก้อนก็ได้ AI จะออกข้อสอบจากเนื้อหานั้น"></textarea>
+      <div class="ai-grid">
+        <select id="aiCount" aria-label="จำนวนข้อ">
+          <option value="5">5 ข้อ</option>
+          <option value="10" selected>10 ข้อ</option>
+          <option value="15">15 ข้อ</option>
+          <option value="20">20 ข้อ</option>
+        </select>
+        <select id="aiDifficulty" aria-label="ความยาก">
+          <option value="mixed">คละความยาก</option>
+          <option value="easy">ง่าย</option>
+          <option value="medium">ปานกลาง</option>
+          <option value="hard">ยาก</option>
+        </select>
+        <select id="aiLang" aria-label="ภาษา">
+          <option value="th">ภาษาไทย</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+      <button class="btn btn-pink w-full" id="aiBtn" onclick="generateAI()">✨ สร้างคำถาม</button>
+      <p class="hint">คำถามจะถูกเพิ่มต่อท้ายรายการ · AI อาจผิดได้ ตรวจเฉลยก่อนเล่น (กดที่ข้อเพื่อแก้)</p>
+    </div>
+  </dialog>
+
+  <dialog class="sheet" id="dlgCSV" aria-labelledby="dlgCSVTitle">
+    <div class="sheet-head">
+      <h3 id="dlgCSVTitle">📄 นำเข้าคำถามจากไฟล์ CSV / Excel</h3>
+      <button class="sheet-x" onclick="closeSheet('dlgCSV')" aria-label="ปิด">✕</button>
+    </div>
+    <div class="sheet-body">
             <div class="imp-steps">
               <div class="imp-step">
                 <div class="imp-num">1</div>
@@ -1414,55 +1533,24 @@
               </div>
             </div>
             <div class="imp-preview" id="importPreview" style="display:none;"></div>
-          </div>
-        </details>
-      </div>
-
-      <div class="card" style="display:flex;flex-direction:column;gap:12px;">
-        <div class="flex-between">
-          <h3>คำถามทั้งหมด (<span id="qCountBadge">0</span>)</h3>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <select id="sampleCat" style="width:auto;padding:8px 12px;font-size:14px;">
-              <option value="dev">💻 Dev</option>
-              <option value="qa">🧪 QA</option>
-              <option value="po">📋 PO</option>
-              <option value="pm">📊 PM</option>
-              <option value="mixed">🌀 Mixed ทุกสาย</option>
-              <option value="general">🌍 ความรู้ทั่วไป</option>
-              <option value="funny">😂 ขำๆ</option>
-            </select>
-            <button class="btn btn-outline btn-sm" onclick="loadSample()">📋 โหลดตัวอย่าง</button>
-          </div>
-        </div>
-        <input type="text" id="qFilter" placeholder="🔍 กรองคำถามในรายการ..." oninput="renderQList()">
-        <div id="qList">
-          <p class="text-muted text-center" style="padding:16px;">ยังไม่มีคำถาม</p>
-        </div>
-      </div>
-
-      <div class="card" style="display:flex;flex-direction:column;gap:12px;">
-        <div class="flex-between">
-          <h3>☁️ คลังคำถาม</h3>
-          <span class="text-muted" style="font-size:11px;">บันทึกไว้ใช้ซ้ำได้ทุกเครื่อง</span>
-        </div>
-        <div style="display:flex;gap:8px;">
-          <input type="text" id="setName" placeholder="ชื่อชุดคำถาม เช่น Town Hall Q3" style="flex:1;" oninput="updateSaveBtn()">
-          <button class="btn btn-gold btn-sm" id="saveSetBtn" onclick="saveCurrentSet()" style="white-space:nowrap;">💾 บันทึกชุดนี้</button>
-        </div>
-        <div id="setList">
-          <p class="text-muted text-center" style="padding:10px;">ยังไม่มีชุดที่บันทึกไว้</p>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          <input type="text" id="bankSearch" placeholder="🔍 ค้นหาคำถามในคลัง..." oninput="debouncedBankSearch()">
-          <div id="bankResults"></div>
-        </div>
-      </div>
-
-      <button class="btn btn-pink w-full" style="font-size:16px;padding:17px;border-radius:14px;"
-        onclick="createRoom()"><img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f680/512.webp"
-          width="22" height="22" alt="🚀" onerror="this.replaceWith(this.alt)"> สร้างห้องเกม</button>
     </div>
-  </div>
+  </dialog>
+
+  <dialog class="sheet" id="dlgBank" aria-labelledby="dlgBankTitle">
+    <div class="sheet-head">
+      <h3 id="dlgBankTitle">☁️ คลังคำถาม</h3>
+      <button class="sheet-x" onclick="closeSheet('dlgBank')" aria-label="ปิด">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div class="sheet-sec">ชุดที่บันทึกไว้</div>
+      <div id="setList"><p class="text-muted text-center" style="padding:10px;">กำลังโหลด...</p></div>
+      <div class="sheet-sec">หยิบทีละข้อจากคลัง</div>
+      <input type="text" id="bankSearch" placeholder="🔍 พิมพ์คำค้น..." oninput="debouncedBankSearch()">
+      <div id="bankResults"></div>
+      <div class="sheet-sec">ชุดตัวอย่าง</div>
+      <div class="sample-grid" id="sampleGrid"></div>
+    </div>
+  </dialog>
 
   <!-- ══ JOIN ══ -->
   <div id="screen-join" class="screen">
@@ -2103,9 +2191,11 @@
     function goSetup() { renderQList(); refreshSets(); goScreen('screen-setup'); }
 
     // ══════════════════════════════════════
-    // QUESTION BANK (คลังคำถามใน DB)
+    // API / CONFIG
     // ══════════════════════════════════════
     function esc(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
+    // ใช้ใน attribute (value="..." / src="...") — esc() ไม่ได้กัน "
+    function escAttr(s) { return esc(s).replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 
     // PIN ผู้ดูแล — server ตั้ง ADMIN_PIN ไว้ จะถามครั้งแรกที่บันทึก/ลบ/ใช้ AI แล้วจำไว้ในเครื่อง
     function getPin() { try { return localStorage.getItem('tb_pin') || ''; } catch { return ''; } }
@@ -2127,79 +2217,365 @@
 
     let appConfig = { pinRequired: false, aiEnabled: false };
     async function loadConfig() {
+      try { appConfig = await (await fetch('/api/config')).json(); } catch { }
+      renderSourceBar();
+      renderQList();
+    }
+
+    // ══════════════════════════════════════
+    // SETUP — เตรียมชุดคำถาม (รายการคำถามเป็นตัวหลัก แก้ในที่)
+    // ══════════════════════════════════════
+    const SAMPLE_LABELS = { dev: '💻 Dev', qa: '🧪 QA', po: '📋 PO', pm: '📊 PM', mixed: '🌀 Mixed', general: '🌍 ความรู้ทั่วไป', funny: '😂 ขำๆ' };
+    const OPT_COLORS = ['var(--red)', 'var(--cyan)', 'var(--gold)', 'var(--purple)'];
+    let openIndex = null;      // ข้อที่กางแก้อยู่ (ทีละข้อ)
+    let savedSnapshot = null;  // สถานะตอนบันทึก/เปิดจากคลังล่าสุด — ใช้บอก "ยังไม่บันทึก"
+    let loadedSetName = null;  // ชุดที่เปิดมาจากคลัง — บันทึกทับชุดนี้ไม่ต้องถามซ้ำ
+    let savedSetNames = [];
+    let bankSets = [];
+
+    const blankQ = () => ({ q: '', opts: ['', '', '', ''], correct: -1 });
+    function qProblems(q) {
+      const p = [];
+      if (!q.q.trim()) p.push('ยังไม่มีคำถาม');
+      if (q.opts.some(o => !o.trim())) p.push('ตัวเลือกไม่ครบ');
+      if (!(q.correct >= 0 && q.correct <= 3)) p.push('ยังไม่เลือกคำตอบ');
+      return p;
+    }
+    const isValidQ = (q) => !qProblems(q).length;
+    const setNameValue = () => document.getElementById('setName').value.trim();
+    const snapshot = () => JSON.stringify({ n: setNameValue(), q: questions.map(cleanQ) });
+
+    // ── autosave ร่างในเครื่อง: refresh แล้วไม่หาย ──
+    function saveDraft() {
       try {
-        appConfig = await (await fetch('/api/config')).json();
-        document.getElementById('aiCard').style.display = appConfig.aiEnabled ? '' : 'none';
-        let saved = '';
-        try { saved = localStorage.getItem('tb_ai_model') || ''; } catch { }
-        const sel = document.getElementById('aiModel');
-        sel.innerHTML = (appConfig.aiModels || []).map((m, i) =>
-          `<option value="${esc(m)}"${m === saved ? ' selected' : ''}>${esc(m)}${i === 0 ? ' (ค่าเริ่มต้น)' : ''}</option>`).join('');
-        sel.onchange = () => { try { localStorage.setItem('tb_ai_model', sel.value); } catch { } };
+        localStorage.setItem('tb_draft', JSON.stringify({
+          name: document.getElementById('setName').value, questions, saved: savedSnapshot, loaded: loadedSetName,
+        }));
+      } catch { /* เต็ม quota (รูปเยอะ) — ข้ามไป ไม่ให้ UI พัง */ }
+    }
+    function loadDraft() {
+      try {
+        const d = JSON.parse(localStorage.getItem('tb_draft') || 'null');
+        if (Array.isArray(d)) { if (d.length) questions = d; return; } // รูปแบบเก่า
+        if (d && Array.isArray(d.questions)) {
+          questions = d.questions;
+          document.getElementById('setName').value = d.name || '';
+          savedSnapshot = d.saved || null;
+          loadedSetName = d.loaded || null;
+        }
       } catch { }
     }
 
-    let savedSetNames = [];
-    function updateSaveBtn() {
-      const name = document.getElementById('setName').value.trim();
-      document.getElementById('saveSetBtn').textContent = savedSetNames.includes(name) ? '💾 บันทึกทับ' : '💾 บันทึกชุดนี้';
+    function markSaved() {
+      savedSnapshot = snapshot();
+      loadedSetName = setNameValue();
+      saveDraft();
+      updateSetStatus();
+    }
+
+    function updateSetStatus() {
+      const name = setNameValue();
+      const el = document.getElementById('setStatus');
+      const exists = savedSetNames.includes(name);
+      document.getElementById('saveSetBtn').textContent = exists ? '☁️ บันทึกทับ' : '☁️ บันทึก';
+      if (!questions.length && !name) {
+        el.textContent = 'ตั้งชื่อแล้วกดบันทึก — เก็บในคลัง ใช้ซ้ำได้ทุกเครื่อง';
+        el.className = 'set-status';
+      } else if (savedSnapshot && savedSnapshot === snapshot()) {
+        el.textContent = '✓ บันทึกในคลังแล้ว';
+        el.className = 'set-status ok';
+      } else {
+        el.textContent = exists ? '● มีการแก้ไข — กด "บันทึกทับ" เพื่ออัปเดตในคลัง' : '● ยังไม่ได้บันทึกลงคลัง (ร่างเก็บในเครื่องนี้แล้ว)';
+        el.className = 'set-status dirty';
+      }
+    }
+    function onSetNameInput() { saveDraft(); updateSetStatus(); }
+
+    function updateFooter() {
+      const bad = questions.filter(q => !isValidQ(q)).length;
+      const good = questions.length - bad;
+      document.getElementById('sfInfo').innerHTML = !questions.length ? 'ยังไม่มีคำถาม'
+        : bad ? `<strong>${good}</strong> ข้อพร้อม · <button class="sf-warn" onclick="openFirstInvalid()">⚠ ${bad} ข้อยังไม่ครบ</button>`
+          : good < 2 ? `<strong>${good}</strong> ข้อ · ต้องมีอย่างน้อย 2 ข้อ`
+            : `<strong>${good}</strong> ข้อ · พร้อมเล่น ✓`;
+    }
+    function changed() { saveDraft(); updateSetStatus(); updateFooter(); }
+
+    // ── วิธีเพิ่มคำถาม ──
+    const SOURCES = [
+      { key: 'type', ico: '✍️', title: 'พิมพ์เอง', desc: 'เริ่มจากข้อแรก', run: 'addBlankQuestion()' },
+      { key: 'ai', ico: '🤖', title: 'ให้ AI คิด', desc: 'ใส่หัวข้อหรือวางเนื้อหา ได้คำถามในไม่กี่วิ', run: "openSheet('dlgAI')" },
+      { key: 'csv', ico: '📄', title: 'นำเข้า CSV', desc: 'โหลดเทมเพลต แก้ใน Excel แล้วเลือกไฟล์', run: "openSheet('dlgCSV')" },
+      { key: 'bank', ico: '☁️', title: 'คลัง & ตัวอย่าง', desc: 'เปิดชุดที่บันทึกไว้ หรือชุดตัวอย่าง', run: 'openBank()' },
+    ];
+    const activeSources = () => SOURCES.filter(x => x.key !== 'ai' || appConfig.aiEnabled);
+    function renderSourceBar() {
+      document.getElementById('srcBar').innerHTML = activeSources().map(x =>
+        `<button class="src-btn" onclick="${x.run}">${emo(x.ico, 22)}<span>${x.title}</span></button>`).join('');
+    }
+
+    // ── รายการคำถาม ──
+    function renderQList() {
+      saveDraft();
+      const has = questions.length > 0;
+      document.getElementById('qCountBadge').textContent = questions.length;
+      document.getElementById('srcBar').style.display = has ? '' : 'none';
+      document.getElementById('addRowBtn').style.display = has ? '' : 'none';
+      document.getElementById('clearAllBtn').style.display = has ? '' : 'none';
+      const filterEl = document.getElementById('qFilter');
+      filterEl.style.display = questions.length > 8 ? '' : 'none';
+      const el = document.getElementById('qList');
+      if (!has) {
+        el.innerHTML = `<p class="hint text-center" style="margin-bottom:4px;">เริ่มเพิ่มคำถามด้วยวิธีไหนก็ได้ 👇</p>
+          <div class="empty-tiles">${activeSources().map(x => `
+          <button class="empty-tile" onclick="${x.run}">
+            ${emo(x.ico, 44)}
+            <span class="et-title">${x.title}</span>
+            <span class="et-desc">${x.desc}</span>
+          </button>`).join('')}</div>`;
+      } else {
+        const filter = questions.length > 8 ? filterEl.value.trim().toLowerCase() : '';
+        const items = questions.map((q, i) => ({ q, i })).filter(({ q, i }) =>
+          !filter || i === openIndex || q.q.toLowerCase().includes(filter) || q.opts.some(o => o.toLowerCase().includes(filter)));
+        el.innerHTML = items.length
+          ? items.map(({ q, i }) => qItemHtml(q, i)).join('')
+          : '<p class="text-muted text-center" style="padding:14px;">ไม่พบคำถามที่ค้นหา</p>';
+      }
+      updateFooter();
+      updateSetStatus();
+    }
+
+    function qHeadHtml(q, i) {
+      const probs = qProblems(q);
+      return `
+        <div class="q-num">${i + 1}</div>
+        <div class="qi-title">${q.q.trim() ? esc(q.q) : '<span class="text-muted">คำถามใหม่...</span>'}</div>
+        <div class="qi-tags">
+          ${q.double ? '<span class="q-tag">⚡ x2</span>' : ''}
+          ${q.image ? '<span class="q-tag" style="background:#fff;">🖼️</span>' : ''}
+          ${probs.length ? `<span class="q-tag warn" title="${escAttr(probs.join(', '))}">⚠ ${esc(probs[0])}</span>`
+          : `<span class="q-tag ans">ตอบ ${'ABCD'[q.correct]}</span>`}
+        </div>
+        <span class="qi-chev">▾</span>`;
+    }
+
+    function qBodyHtml(q, i) {
+      return `<div class="qi-body">
+        <textarea class="qi-q" placeholder="พิมพ์คำถาม..." maxlength="500" oninput="setQText(${i}, this.value)">${esc(q.q)}</textarea>
+        <div class="qi-opts">
+          ${q.opts.map((o, k) => `
+          <div class="qi-opt${k === q.correct ? ' correct' : ''}">
+            <button type="button" class="qi-mark" style="--c:${OPT_COLORS[k]}" onclick="setCorrect(${i}, ${k})"
+              title="ตั้ง ${'ABCD'[k]} เป็นคำตอบที่ถูก" aria-pressed="${k === q.correct}">${k === q.correct ? '✓' : 'ABCD'[k]}</button>
+            <input type="text" value="${escAttr(o)}" placeholder="ตัวเลือก ${'ABCD'[k]}" maxlength="500"
+              oninput="setOpt(${i}, ${k}, this.value)" onkeydown="optKey(event, ${i}, ${k})">
+          </div>`).join('')}
+        </div>
+        <p class="hint">${q.correct >= 0
+          ? `คำตอบที่ถูก: <strong>${'ABCD'[q.correct]}</strong> · แตะตัวอักษรเพื่อเปลี่ยน`
+          : '<strong style="color:#b35a00;">👆 แตะตัวอักษรหน้าตัวเลือกที่ถูก</strong>'} · Enter = ช่องถัดไป</p>
+        ${q.image
+          ? `<div><div class="img-preview-wrap"><img class="img-preview" src="${escAttr(q.image)}" alt="รูปประกอบ">
+               <button class="q-remove" onclick="setImage(${i}, null)" title="ลบรูป">✕</button></div></div>`
+          : `<div class="img-row">
+              <input type="text" placeholder="🖼️ ลิงก์รูป https://..." onchange="setImageUrl(${i}, this.value)" style="flex:1;min-width:0;">
+              <label class="btn btn-outline btn-sm" style="margin:0;white-space:nowrap;">📷 อัปโหลด<input type="file" accept="image/*" hidden onchange="uploadImage(${i}, this)"></label>
+            </div>`}
+        <div class="qi-tools">
+          <label class="chk"><input type="checkbox" ${q.double ? 'checked' : ''} onchange="setDouble(${i}, this.checked)"> ⚡ x2</label>
+          <button class="btn btn-outline btn-sm" onclick="moveQ(${i}, -1)" ${i === 0 ? 'disabled' : ''} title="เลื่อนขึ้น" aria-label="เลื่อนขึ้น">↑</button>
+          <button class="btn btn-outline btn-sm" onclick="moveQ(${i}, 1)" ${i === questions.length - 1 ? 'disabled' : ''} title="เลื่อนลง" aria-label="เลื่อนลง">↓</button>
+          <button class="btn btn-outline btn-sm" onclick="dupQ(${i})" title="ทำสำเนา" aria-label="ทำสำเนา">⧉</button>
+          <button class="btn btn-outline btn-sm" onclick="removeQ(${i})" title="ลบข้อนี้" aria-label="ลบข้อนี้">🗑️</button>
+          <button class="btn btn-gold btn-sm qi-done" onclick="toggleQ(${i})">✓ เสร็จ</button>
+        </div>
+      </div>`;
+    }
+
+    function qItemHtml(q, i) {
+      const open = i === openIndex;
+      return `<div class="qi${open ? ' open' : ''}${isValidQ(q) ? '' : ' invalid'}" id="qi${i}">
+        <div class="qi-head" onclick="toggleQ(${i})" role="button" tabindex="0" aria-expanded="${open}"
+          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleQ(${i});}">${qHeadHtml(q, i)}</div>
+        ${open ? qBodyHtml(q, i) : ''}
+      </div>`;
+    }
+
+    // แก้ข้อความ: อัปเดตแค่หัวข้อ ไม่ render ใหม่ทั้งรายการ (cursor ไม่หลุด)
+    function refreshHead(i) {
+      const item = document.getElementById('qi' + i);
+      if (item) {
+        item.querySelector('.qi-head').innerHTML = qHeadHtml(questions[i], i);
+        item.classList.toggle('invalid', !isValidQ(questions[i]));
+      }
+      changed();
+    }
+    function rerenderItem(i) {
+      const item = document.getElementById('qi' + i);
+      if (item) item.outerHTML = qItemHtml(questions[i], i);
+      changed();
+    }
+    function setQText(i, v) { questions[i].q = v; refreshHead(i); }
+    function setOpt(i, k, v) { questions[i].opts[k] = v; refreshHead(i); }
+    function setCorrect(i, k) { questions[i].correct = k; SFX.select(); rerenderItem(i); }
+    function setDouble(i, on) { if (on) questions[i].double = true; else delete questions[i].double; refreshHead(i); }
+    function setImage(i, src) { if (src) questions[i].image = src; else delete questions[i].image; rerenderItem(i); }
+    function setImageUrl(i, v) {
+      v = v.trim();
+      if (!v) return;
+      if (!/^https?:\/\/\S+$/i.test(v)) { toast('⚠️ ลิงก์รูปต้องขึ้นต้นด้วย https://'); return; }
+      setImage(i, v);
+    }
+    async function uploadImage(i, input) {
+      const f = input.files?.[0];
+      if (!f) return;
+      try { setImage(i, await resizeImage(f, 900, .74)); } catch { toast('❌ อ่านรูปไม่ได้'); }
+    }
+    function optKey(e, i, k) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      const inputs = document.querySelectorAll(`#qi${i} .qi-opt input`);
+      if (k < 3) inputs[k + 1].focus(); else e.target.blur();
+    }
+
+    function toggleQ(i) {
+      openIndex = openIndex === i ? null : i;
+      renderQList();
+      if (openIndex !== null) document.getElementById('qi' + openIndex)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    function openQ(i, focus) {
+      openIndex = i;
+      document.getElementById('qFilter').value = '';
+      renderQList();
+      const item = document.getElementById('qi' + i);
+      if (!item) return;
+      item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (focus) item.querySelector('.qi-q')?.focus({ preventScroll: true });
+    }
+    function openFirstInvalid() {
+      const i = questions.findIndex(q => !isValidQ(q));
+      if (i >= 0) openQ(i, false);
+    }
+    function addBlankQuestion() {
+      questions.push(blankQ());
+      openQ(questions.length - 1, true);
+    }
+    function removeQ(i) {
+      const q = questions[i];
+      if ((q.q.trim() || q.opts.some(o => o.trim())) && !confirm(`ลบข้อ ${i + 1}?`)) return;
+      questions.splice(i, 1);
+      if (openIndex === i) openIndex = null;
+      else if (openIndex !== null && openIndex > i) openIndex--;
+      renderQList();
+    }
+    function moveQ(i, d) {
+      const j = i + d;
+      if (j < 0 || j >= questions.length) return;
+      [questions[i], questions[j]] = [questions[j], questions[i]];
+      if (openIndex === i) openIndex = j;
+      renderQList();
+      document.getElementById('qi' + j)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    function dupQ(i) {
+      questions.splice(i + 1, 0, JSON.parse(JSON.stringify(questions[i])));
+      openQ(i + 1, true);
+      toast('ทำสำเนาแล้ว ✓');
+    }
+    function clearAll() {
+      if (!questions.length || !confirm(`ล้างคำถามทั้งหมด ${questions.length} ข้อ? (ชุดที่บันทึกในคลังไม่หาย)`)) return;
+      questions = [];
+      openIndex = null;
+      document.getElementById('setName').value = '';
+      savedSnapshot = null;
+      loadedSetName = null;
+      renderQList();
+    }
+    // จะเอาชุดอื่นมาแทน — เตือนถ้ามีงานที่ยังไม่บันทึก
+    function confirmReplace() {
+      if (!questions.length || savedSnapshot === snapshot()) return true;
+      return confirm(`แทนที่คำถามปัจจุบัน ${questions.length} ข้อ? (ส่วนที่ยังไม่บันทึกจะหายไป)`);
+    }
+
+    // ── หน้าต่าง (sheet) ──
+    function openSheet(id) {
+      const d = document.getElementById(id);
+      if (!d.open) d.showModal();
+    }
+    function closeSheet(id) {
+      const d = document.getElementById(id);
+      if (d.open) d.close();
+    }
+    // คลิกพื้นหลังนอกกล่อง = ปิด
+    document.querySelectorAll('dialog.sheet').forEach(d =>
+      d.addEventListener('click', e => { if (e.target === d) d.close(); }));
+
+    // ── คลังคำถาม ──
+    function openBank() {
+      document.getElementById('bankSearch').value = '';
+      document.getElementById('bankResults').innerHTML = '';
+      openSheet('dlgBank');
+      refreshSets();
     }
 
     async function refreshSets() {
       try {
-        const sets = await api('/api/sets');
-        savedSetNames = sets.map(s => s.name);
-        updateSaveBtn();
+        bankSets = await api('/api/sets');
+        savedSetNames = bankSets.map(x => x.name);
+        updateSetStatus();
         const el = document.getElementById('setList');
-        if (!sets.length) { el.innerHTML = '<p class="text-muted text-center" style="padding:10px;">ยังไม่มีชุดที่บันทึกไว้</p>'; return; }
-        el.innerHTML = sets.map(s => `
+        if (!bankSets.length) { el.innerHTML = '<p class="text-muted text-center" style="padding:10px;">ยังไม่มีชุดที่บันทึกไว้</p>'; return; }
+        el.innerHTML = bankSets.map(x => `
       <div class="q-item">
-        <div class="q-text">${esc(s.name)} <span class="text-muted" style="font-size:11px;">· ${s.count} ข้อ</span></div>
-        <button class="btn btn-outline btn-sm" onclick="loadSet(${s.id})">โหลด</button>
-        <button class="btn btn-outline btn-sm" onclick="loadSet(${s.id}, true)" title="แก้ไขชุดนี้">✏️</button>
-        <button class="q-remove" onclick="deleteSetUi(${s.id})">✕</button>
+        <div class="q-text">${esc(x.name)} <span class="text-muted" style="font-size:11px;">· ${x.count} ข้อ</span></div>
+        <button class="btn btn-gold btn-sm" onclick="loadSet(${x.id})">เปิด</button>
+        <button class="q-remove" onclick="deleteSetUi(${x.id})" title="ลบชุดนี้" aria-label="ลบชุดนี้">✕</button>
       </div>`).join('');
       } catch { }
     }
 
     async function saveCurrentSet() {
-      const name = document.getElementById('setName').value.trim();
-      if (!name) { toast('⚠️ ตั้งชื่อชุดคำถามก่อน'); return; }
+      const nameEl = document.getElementById('setName');
+      const name = nameEl.value.trim();
       if (!questions.length) { toast('⚠️ ยังไม่มีคำถามให้บันทึก'); return; }
-      if (savedSetNames.includes(name) && !confirm(`บันทึกทับชุด "${name}" ที่มีอยู่แล้ว?`)) return;
+      if (!name) { toast('⚠️ ตั้งชื่อชุดคำถามก่อน'); nameEl.focus(); return; }
+      if (questions.some(q => !isValidQ(q))) { toast('⚠️ มีข้อที่ยังไม่ครบ — แก้ก่อนบันทึก'); openFirstInvalid(); return; }
+      if (savedSetNames.includes(name) && name !== loadedSetName && !confirm(`มีชุดชื่อ "${name}" อยู่แล้ว บันทึกทับ?`)) return;
       try {
         await api('/api/sets', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, questions }),
+          body: JSON.stringify({ name, questions: questions.map(cleanQ) }),
         });
-        toast(`บันทึก "${name}" (${questions.length} ข้อ) ✓`);
+        if (!savedSetNames.includes(name)) savedSetNames.push(name);
+        markSaved();
+        toast(`☁️ บันทึก "${name}" (${questions.length} ข้อ) ✓`);
         refreshSets();
       } catch (e) { toast(e.status === 401 ? '🔒 ต้องใช้ PIN ผู้ดูแล' : '❌ บันทึกไม่สำเร็จ'); }
     }
 
-    async function loadSet(id, edit = false) {
+    async function loadSet(id) {
+      if (!confirmReplace()) return;
       try {
-        const s = await api('/api/sets/' + id);
-        questions = s.questions;
-        cancelEditQ();
+        const x = await api('/api/sets/' + id);
+        questions = x.questions;
+        openIndex = null;
+        document.getElementById('setName').value = x.name;
         renderQList();
-        // ใส่ชื่อชุดไว้ให้ — แก้คำถามแล้วกดบันทึกจะบันทึกทับชุดเดิม (upsert ตามชื่อ)
-        document.getElementById('setName').value = s.name;
-        updateSaveBtn();
-        if (edit) {
-          document.getElementById('qList').scrollIntoView({ behavior: 'smooth', block: 'start' });
-          toast(`แก้ไข "${s.name}" — กดข้อที่ต้องการแก้ แล้วกด 💾 บันทึกทับ`);
-        } else {
-          toast(`โหลด "${s.name}" ${s.questions.length} ข้อ ✓`);
-        }
-      } catch { toast('❌ โหลดชุดคำถามไม่สำเร็จ'); }
+        markSaved();
+        closeSheet('dlgBank');
+        toast(`เปิด "${x.name}" ${x.questions.length} ข้อ ✓ — กดที่ข้อเพื่อแก้`);
+      } catch { toast('❌ เปิดชุดคำถามไม่สำเร็จ'); }
     }
 
     async function deleteSetUi(id) {
-      if (!confirm('ลบชุดคำถามนี้ออกจากคลัง?')) return;
-      try { await api('/api/sets/' + id, { method: 'DELETE' }); refreshSets(); toast('ลบแล้ว ✓'); }
-      catch (e) { toast(e.status === 401 ? '🔒 ต้องใช้ PIN ผู้ดูแล' : '❌ ลบไม่สำเร็จ'); }
+      const name = bankSets.find(x => x.id === id)?.name || '';
+      if (!confirm(`ลบชุด "${name}" ออกจากคลัง?`)) return;
+      try {
+        await api('/api/sets/' + id, { method: 'DELETE' });
+        if (name === loadedSetName) { loadedSetName = null; savedSnapshot = null; }
+        await refreshSets();
+        toast('ลบแล้ว ✓');
+      } catch (e) { toast(e.status === 401 ? '🔒 ต้องใช้ PIN ผู้ดูแล' : '❌ ลบไม่สำเร็จ'); }
     }
 
     let bankSearchTimer = null;
@@ -2216,105 +2592,83 @@
         el.innerHTML = bankResults.map((r, i) => `
       <div class="q-item">
         <div class="q-text">${esc(r.q)} <span class="text-muted" style="font-size:11px;">· ${esc(r.setName)}</span></div>
-        <button class="btn btn-outline btn-sm" onclick="addFromBank(${i})">➕</button>
+        <button class="btn btn-outline btn-sm" onclick="addFromBank(${i}, this)">➕ เพิ่ม</button>
       </div>`).join('');
       } catch { }
     }
 
-    function addFromBank(i) {
+    function addFromBank(i, btn) {
       const r = bankResults[i];
       if (!r) return;
       questions.push(cleanQ(r));
       renderQList();
+      if (btn) { btn.disabled = true; btn.textContent = '✓ เพิ่มแล้ว'; }
       toast('เพิ่มจากคลังแล้ว ✓');
     }
 
-    // ══════════════════════════════════════
-    // SETUP
-    // ══════════════════════════════════════
-    function loadSample() {
-      const cat = document.getElementById('sampleCat').value;
-      const labels = { dev: 'Dev', qa: 'QA', po: 'PO', pm: 'PM', mixed: 'Mixed', general: 'ความรู้ทั่วไป', funny: 'ขำๆ' };
+    function renderSamples() {
+      document.getElementById('sampleGrid').innerHTML = Object.entries(SAMPLE_LABELS).map(([k, label]) =>
+        `<button class="btn btn-outline btn-sm" onclick="loadSample('${k}')">${label} <span class="text-muted" style="font-size:11px;">${SAMPLE_QS[k].length} ข้อ</span></button>`
+      ).join('');
+    }
+    function loadSample(cat) {
+      if (!confirmReplace()) return;
       questions = JSON.parse(JSON.stringify(SAMPLE_QS[cat]));
-      cancelEditQ();
+      openIndex = null;
+      document.getElementById('setName').value = '';
+      savedSnapshot = null;
+      loadedSetName = null;
       renderQList();
-      toast(`โหลด 10 คำถาม ${labels[cat]} แล้ว ✓`);
+      closeSheet('dlgBank');
+      toast(`โหลดชุดตัวอย่าง ${SAMPLE_LABELS[cat]} ✓`);
     }
 
-    function addQuestion() {
-      const q = document.getElementById('qText').value.trim();
-      const opts = [0, 1, 2, 3].map(i => document.getElementById('opt' + i).value.trim());
-      const correct = parseInt(document.getElementById('correctOpt').value);
-      if (!q) { toast('⚠️ กรุณาใส่คำถาม'); return; }
-      if (opts.some(o => !o)) { toast('⚠️ ใส่ตัวเลือกครบ 4 ข้อ'); return; }
-      const item = cleanQ({ q, opts, correct, image: formImage, double: document.getElementById('qDouble').checked });
-      const wasEditing = editingIndex !== null;
-      if (wasEditing) questions[editingIndex] = item;
-      else questions.push(item);
-      cancelEditQ();
-      renderQList();
-      toast(wasEditing ? 'แก้ไขคำถามแล้ว ✓' : 'เพิ่มคำถามแล้ว ✓');
+    // ── ตั้งค่าเกม (จำไว้ในเครื่อง) ──
+    const SETTINGS_IDS = ['gameName', 'timePerQ', 'optShuffleQ', 'optShuffleOpts', 'optFinalDouble', 'optTeams', 'teamNames'];
+    function toggleTeamsInput() {
+      document.getElementById('teamsWrap').style.display = document.getElementById('optTeams').checked ? '' : 'none';
     }
-
-    // index ของข้อที่กำลังแก้ในฟอร์มด้านบน (null = โหมดเพิ่มข้อใหม่)
-    let editingIndex = null;
-
-    function editQ(i) {
-      const q = questions[i];
-      if (!q) return;
-      editingIndex = i;
-      document.getElementById('qText').value = q.q;
-      [0, 1, 2, 3].forEach(k => document.getElementById('opt' + k).value = q.opts[k] ?? '');
-      document.getElementById('correctOpt').value = String(q.correct);
-      document.getElementById('qDouble').checked = !!q.double;
-      document.getElementById('qImageUrl').value = /^https?:/i.test(q.image || '') ? q.image : '';
-      setFormImage(q.image || null);
-      document.getElementById('qFormTitle').textContent = `✏️ แก้ไขคำถามข้อ ${i + 1}`;
-      document.getElementById('qSubmitBtn').textContent = '💾 บันทึกการแก้ไข';
-      document.getElementById('qCancelBtn').style.display = '';
-      renderQList();
-      document.getElementById('qFormTitle').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      document.getElementById('qText').focus({ preventScroll: true });
+    function updateSettingsSummary() {
+      const v = (id) => document.getElementById(id);
+      const parts = [`${v('timePerQ').value} วิ/ข้อ`];
+      if (v('optShuffleQ').checked) parts.push('สุ่มข้อ');
+      if (v('optShuffleOpts').checked) parts.push('สุ่มตัวเลือก');
+      if (v('optFinalDouble').checked) parts.push('ข้อสุดท้าย x2');
+      if (v('optTeams').checked) parts.push(`👥 ${v('teamNames').value.split(/[,\n]/).map(x => x.trim()).filter(Boolean).length} ทีม`);
+      v('settingsSummary').textContent = parts.join(' · ');
     }
-
-    function cancelEditQ() {
-      editingIndex = null;
-      document.getElementById('qText').value = '';
-      [0, 1, 2, 3].forEach(k => document.getElementById('opt' + k).value = '');
-      document.getElementById('correctOpt').value = '0';
-      document.getElementById('qDouble').checked = false;
-      clearImage();
-      document.getElementById('qFormTitle').textContent = 'เพิ่มคำถาม';
-      document.getElementById('qSubmitBtn').textContent = '➕ เพิ่มคำถาม';
-      document.getElementById('qCancelBtn').style.display = 'none';
-      renderQList();
+    function saveSettings() {
+      try {
+        const o = {};
+        SETTINGS_IDS.forEach(id => { const e = document.getElementById(id); o[id] = e.type === 'checkbox' ? e.checked : e.value; });
+        localStorage.setItem('tb_settings', JSON.stringify(o));
+      } catch { }
     }
-
-    function removeQ(i) {
-      questions.splice(i, 1);
-      if (editingIndex === i) cancelEditQ();
-      else if (editingIndex !== null && editingIndex > i) editingIndex--;
-      renderQList();
+    function loadSettings() {
+      try {
+        const o = JSON.parse(localStorage.getItem('tb_settings') || 'null');
+        if (o) SETTINGS_IDS.forEach(id => {
+          const e = document.getElementById(id);
+          if (!(id in o)) return;
+          if (e.type === 'checkbox') e.checked = !!o[id]; else e.value = o[id];
+        });
+      } catch { }
+      toggleTeamsInput();
+      updateSettingsSummary();
     }
+    ['input', 'change'].forEach(ev => document.getElementById('settingsCard').addEventListener(ev, () => {
+      toggleTeamsInput();
+      updateSettingsSummary();
+      saveSettings();
+    }));
 
-    function renderQList() {
-      saveDraft();
-      document.getElementById('qCountBadge').textContent = questions.length;
-      const el = document.getElementById('qList');
-      if (!questions.length) { el.innerHTML = '<p class="text-muted text-center" style="padding:14px;">ยังไม่มีคำถาม</p>'; return; }
-      const filter = (document.getElementById('qFilter')?.value || '').trim().toLowerCase();
-      const items = questions
-        .map((q, i) => ({ q, i }))
-        .filter(x => !filter || x.q.q.toLowerCase().includes(filter) || x.q.opts.some(o => o.toLowerCase().includes(filter)));
-      if (!items.length) { el.innerHTML = '<p class="text-muted text-center" style="padding:14px;">ไม่พบคำถามที่ค้นหา</p>'; return; }
-      el.innerHTML = items.map(({ q, i }) => `
-    <div class="q-item${i === editingIndex ? ' editing' : ''}" onclick="editQ(${i})" style="cursor:pointer;" title="กดเพื่อแก้ไข">
-      <div class="q-num">${i + 1}</div>
-      <div class="q-text">${esc(q.q)} <span class="text-muted" style="font-size:11px;">· ตอบ ${'ABCD'[q.correct]}</span>${q.image ? '<span class="q-tag" style="background:#fff;">🖼️ รูป</span>' : ''}${q.double ? '<span class="q-tag">⚡ x2</span>' : ''}</div>
-      <span style="opacity:.6;">✏️</span>
-      <button class="q-remove" onclick="event.stopPropagation();removeQ(${i})">✕</button>
-    </div>`).join('');
-    }
+    // Cmd/Ctrl+S = บันทึกลงคลัง
+    document.addEventListener('keydown', e => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's' && document.getElementById('screen-setup').classList.contains('active')) {
+        e.preventDefault();
+        saveCurrentSet();
+      }
+    });
 
     // เก็บเฉพาะ field ที่ server รู้จัก
     function cleanQ(x) {
@@ -2324,48 +2678,6 @@
       return out;
     }
 
-    // ── autosave: refresh หน้าตั้งค่าแล้วคำถามไม่หาย ──
-    function saveDraft() {
-      try { localStorage.setItem('tb_draft', JSON.stringify(questions)); }
-      catch { /* เต็ม quota (รูปเยอะ) — ข้ามไป ไม่ให้ UI พัง */ }
-    }
-    function loadDraft() {
-      try {
-        const d = JSON.parse(localStorage.getItem('tb_draft') || 'null');
-        if (Array.isArray(d) && d.length) questions = d;
-      } catch { }
-    }
-
-    function toggleTeamsInput() {
-      document.getElementById('teamsWrap').style.display = document.getElementById('optTeams').checked ? '' : 'none';
-    }
-
-    // ── รูปประกอบคำถาม ──
-    let formImage = null;
-    function setFormImage(src) {
-      formImage = src || null;
-      const wrap = document.getElementById('qImagePreviewWrap');
-      const img = document.getElementById('qImagePreview');
-      if (formImage) { img.src = formImage; wrap.style.display = 'inline-block'; }
-      else { img.removeAttribute('src'); wrap.style.display = 'none'; }
-    }
-    function onImageUrl() {
-      const v = document.getElementById('qImageUrl').value.trim();
-      setFormImage(/^https?:\/\/\S+$/i.test(v) ? v : null);
-    }
-    function clearImage() {
-      document.getElementById('qImageUrl').value = '';
-      document.getElementById('qImageFile').value = '';
-      setFormImage(null);
-    }
-    async function onImageFile(input) {
-      const f = input.files?.[0];
-      if (!f) return;
-      try {
-        document.getElementById('qImageUrl').value = '';
-        setFormImage(await resizeImage(f, 900, .74));
-      } catch { toast('❌ อ่านรูปไม่ได้'); }
-    }
     // ย่อรูปฝั่ง client ให้เหลือ ~50–120KB — ส่งให้ผู้เล่นทุกคนทุกข้อ ต้องเบา
     function resizeImage(file, max, quality) {
       return new Promise((resolve, reject) => {
@@ -2405,11 +2717,12 @@
             count: Number(document.getElementById('aiCount').value),
             difficulty: document.getElementById('aiDifficulty').value,
             language: document.getElementById('aiLang').value,
-            model: document.getElementById('aiModel').value,
           }),
         });
         questions.push(...r.questions.map(cleanQ));
+        openIndex = null;
         renderQList();
+        closeSheet('dlgAI');
         SFX.correct();
         toast(`✨ AI สร้าง ${r.questions.length} ข้อแล้ว — ตรวจเฉลยก่อนเล่นนะ`, 3500);
         document.getElementById('qList').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -2493,7 +2806,7 @@
       if (!items.length) { toast('⚠️ ไม่พบข้อมูลคำถามในไฟล์', 3000); return; }
       importState = { name, items };
       renderImportPreview();
-      document.getElementById('importPreview').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.getElementById('importPreview').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     function renderImportPreview() {
@@ -2523,7 +2836,7 @@
                 ${it.double ? '<span class="q-tag">⚡ x2</span>' : ''}
                 <span class="text-muted" style="font-size:11px;font-weight:500;">· แถว ${it.row}</span>
               </div>
-              ${it.image ? `<img class="imp-thumb" src="${esc(it.image)}" alt="" onerror="this.style.display='none'">` : ''}
+              ${it.image ? `<img class="imp-thumb" src="${escAttr(it.image)}" alt="" onerror="this.style.display='none'">` : ''}
             </div>
             <div class="imp-opts">
               ${it.opts.map((o, k) => `
@@ -2539,7 +2852,7 @@
           <label class="chk" style="align-self:flex-start;"><input type="checkbox" id="importReplace"> แทนที่คำถามเดิมในรายการ (${questions.length} ข้อ)</label>
           <button class="btn btn-gold w-full" onclick="confirmImport()">➕ ใช้ ${good.length} ข้อนี้ในเกม</button>
           <div style="display:flex;gap:8px;">
-            <input type="text" id="importSetName" value="${esc(name.replace(/\.[^.]+$/, ''))}" placeholder="ชื่อชุดคำถาม" maxlength="100" style="flex:1;min-width:0;">
+            <input type="text" id="importSetName" value="${escAttr(name.replace(/\.[^.]+$/, ''))}" placeholder="ชื่อชุดคำถาม" maxlength="100" style="flex:1;min-width:0;">
             <button class="btn btn-cyan btn-sm" style="white-space:nowrap;" onclick="saveImportToBank()">💾 บันทึกลงคลัง</button>
           </div>
         </div>` : '<p class="imp-err">ยังไม่มีข้อที่ใช้ได้ — แก้ไฟล์แล้วเลือกใหม่อีกครั้ง</p>'}`;
@@ -2553,15 +2866,23 @@
     function confirmImport() {
       if (!importState) return;
       const qs = importedQuestions();
-      if (document.getElementById('importReplace')?.checked) {
-        if (editingIndex !== null) cancelEditQ();
+      const replace = document.getElementById('importReplace')?.checked;
+      if (replace) {
         questions = qs;
+        savedSnapshot = null;
+        loadedSetName = null;
+        // ชุดใหม่จากไฟล์ — ตั้งชื่อตามไฟล์ให้ (ถ้ายังไม่ได้ตั้ง)
+        const nameEl = document.getElementById('setName');
+        const fname = (document.getElementById('importSetName')?.value || '').trim();
+        if (fname && importState.name !== 'ข้อมูลที่วาง') nameEl.value = fname;
       } else {
         questions.push(...qs);
       }
+      openIndex = null;
       renderQList();
       toast(`📥 เพิ่ม ${qs.length} ข้อเข้ารายการแล้ว ✓`, 3000);
       cancelImport();
+      closeSheet('dlgCSV');
       document.getElementById('qList').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
@@ -2758,6 +3079,7 @@
     // HOST ACTIONS
     // ══════════════════════════════════════
     function createRoom() {
+      if (questions.some(q => !isValidQ(q))) { toast('⚠️ มีข้อที่ยังไม่ครบ — แก้ก่อนสร้างห้อง'); openFirstInvalid(); return; }
       if (questions.length < 2) { toast('⚠️ ต้องมีอย่างน้อย 2 คำถาม'); return; }
       role = 'host';
       gameName = document.getElementById('gameName').value || 'Quiz Rush';
@@ -2768,7 +3090,6 @@
         : [];
       if (teamMode && teams.length < 2) { toast('⚠️ โหมดทีมต้องมีอย่างน้อย 2 ทีม'); return; }
       if (teams.length > 8) { toast('⚠️ ได้สูงสุด 8 ทีม'); return; }
-      if (editingIndex !== null) cancelEditQ();
       send({
         type: 'create_room', gameName, timePerQ: timeTotal, questions: questions.map(cleanQ),
         shuffleQuestions: document.getElementById('optShuffleQ').checked,
@@ -3238,6 +3559,10 @@
     }
 
     loadDraft();
+    loadSettings();
+    renderSamples();
+    renderSourceBar();
+    renderQList();
     loadConfig();
     initReactBar();
     connectWs();

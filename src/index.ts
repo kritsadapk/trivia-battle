@@ -5,7 +5,7 @@ import {
   listSets, getSet, saveSet, deleteSet, searchQuestions, validateQuestions, cleanQuestion,
   type QuestionInput,
 } from "./db";
-import { aiEnabled, aiModels, generateQuestions, type GenerateInput } from "./ai";
+import { aiEnabled, generateQuestions, type GenerateInput } from "./ai";
 
 // Serve index.html natively — works without @elysiajs/static
 const HTML = readFileSync(join(import.meta.dir, "../public/index.html"), "utf-8");
@@ -719,7 +719,7 @@ const app = new Elysia()
     "Pragma": "no-cache",
   } }))
   .get("/health", () => ({ status: "ok", rooms: rooms.size }))
-  .get("/api/config", () => ({ pinRequired: !!ADMIN_PIN, aiEnabled, aiModels: aiEnabled ? aiModels : [] }))
+  .get("/api/config", () => ({ pinRequired: !!ADMIN_PIN, aiEnabled }))
   .post("/api/admin/check", ({ headers, set }) => {
     if (!isAdmin(headers)) { set.status = 401; return { error: "pin" }; }
     return { ok: true };
@@ -760,8 +760,6 @@ const app = new Elysia()
     const count = Math.min(20, Math.max(3, Number(b.count) || 10));
     const difficulty = (["easy", "medium", "hard", "mixed"] as const).includes(b.difficulty as any) ? b.difficulty! : "mixed";
     const language = b.language === "en" ? "en" : "th";
-    // เลือกได้เฉพาะโมเดลใน allowlist — กันเรียกโมเดลแพงผ่าน API ตรงๆ
-    const model = typeof b.model === "string" && aiModels.includes(b.model) ? b.model : aiModels[0];
 
     const now = Date.now();
     aiCalls = aiCalls.filter((t) => now - t < 3_600_000);
@@ -769,7 +767,7 @@ const app = new Elysia()
     aiCalls.push(now);
     aiInFlight++;
     try {
-      const questions = await generateQuestions({ topic, count, difficulty, language, model });
+      const questions = await generateQuestions({ topic, count, difficulty, language });
       if (!questions.length) { set.status = 502; return { error: "empty" }; }
       return { questions };
     } catch (e) {

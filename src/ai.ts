@@ -4,27 +4,14 @@ import { cleanQuestion, validateQuestions, type QuestionInput } from "./db";
 const API_KEY = process.env.OPENROUTER_API_KEY?.trim() || "";
 export const aiEnabled = !!API_KEY;
 
-// โมเดลที่อนุญาตให้ host เลือก — ตัวแรก = ค่าเริ่มต้น
-// ตั้ง OPENROUTER_MODELS="vendor/model-a,vendor/model-b" เพื่อเปลี่ยน (id ดูได้ที่ openrouter.ai/models)
-const DEFAULT_MODELS = [
-  "google/gemini-2.5-flash",
-  "google/gemini-2.5-flash-lite",
-  "deepseek/deepseek-chat-v3.1",
-  "openai/gpt-4o-mini",
-  "anthropic/claude-haiku-4.5",
-];
-export const aiModels: string[] = (process.env.OPENROUTER_MODELS || "")
-  .split(",")
-  .map((m) => m.trim())
-  .filter(Boolean);
-if (!aiModels.length) aiModels.push(...DEFAULT_MODELS);
+// Gemini 2.5 Flash: ภาษาไทยดี ราคาถูก รองรับ structured outputs
+const MODEL = "google/gemini-2.5-flash";
 
 export interface GenerateInput {
   topic: string;
   count: number;
   difficulty: "easy" | "medium" | "hard" | "mixed";
   language: "th" | "en";
-  model: string;
 }
 
 const DIFFICULTY = { easy: "easy", medium: "medium", hard: "hard", mixed: "mixed, from easy to hard" };
@@ -79,7 +66,7 @@ export async function generateQuestions(input: GenerateInput): Promise<QuestionI
       "X-Title": "Quiz Rush",
     },
     body: JSON.stringify({
-      model: input.model,
+      model: MODEL,
       messages: [
         { role: "system", content: SYSTEM },
         {
