@@ -12,8 +12,6 @@ services:
     sync: false
   - key: OPENROUTER_API_KEY
     sync: false
-  - key: OPENROUTER_MODELS
-    sync: false
   # คลังคำถาม (SQLite) จะคงอยู่ข้าม deploy ได้ต้องมี Persistent Disk
   # ซึ่ง Render รองรับเฉพาะแผนเสียเงิน (Starter ขึ้นไป) — ถ้าอัปแผนแล้ว
   # เปิดคอมเมนต์ 4 บรรทัดนี้ (Dockerfile ตั้ง DB_PATH=/data/trivia.db รอไว้แล้ว):

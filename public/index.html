@@ -6,7 +6,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
-  <title>Quiz Rush 🚀</title>
+  <title>Quizzy — ควิซปาร์ตี้สำหรับทีม</title>
+  <meta name="description" content="ควิซปาร์ตี้สำหรับทีม สร้างคำถามเอง ให้ AI คิด หรือนำเข้าจาก Excel แล้วให้ทุกคนสแกน QR เล่นพร้อมกันจากมือถือ">
+  <meta name="theme-color" content="#ff2e88">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <!-- พรีวิวตอนแชร์ลิงก์ (LINE / Slack / Facebook) — %PUBLIC_URL% ถูกแทนที่ฝั่ง server -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Quizzy">
+  <meta property="og:title" content="Quizzy — ควิซปาร์ตี้สำหรับทีม">
+  <meta property="og:description" content="สแกน QR แล้วเล่นพร้อมกันจากมือถือ ตอบไว ได้แต้มเยอะ">
+  <meta property="og:url" content="%PUBLIC_URL%/">
+  <meta property="og:image" content="%PUBLIC_URL%/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600;700&family=Anuphan:wght@400;500;600;700&family=Bungee&display=swap" rel="stylesheet">
@@ -69,7 +83,10 @@
     }
 
     /* ── FLOATING DOODLES ── */
-    .bg-doodles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .bg-doodles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; transition: opacity .4s; }
+    /* ระหว่างตอบคำถาม/เฉลย ซ่อนอีโมจิลอย — ไม่แย่งสายตาจากคำถาม (โดยเฉพาะบนจอโปรเจกเตอร์) */
+    body:has(#screen-question.active) .bg-doodles { opacity: 0; }
+    body:has(#screen-question.active) .bg-doodles span { animation-play-state: paused; }
     .bg-doodles span {
       position: absolute;
       font-size: 34px;
@@ -146,6 +163,22 @@
       50%      { transform: rotate(-1deg) scale(1.025); }
     }
 
+    /* โลโก้ Quizzy: wordmark + สติกเกอร์ ? */
+    .logo-q {
+      position: absolute; top: -6px; right: -26px;
+      width: clamp(40px, 8vw, 64px); height: clamp(40px, 8vw, 64px);
+      display: grid; place-items: center;
+      font-family: 'Bungee', monospace; font-size: clamp(22px, 4.6vw, 38px); color: var(--ink);
+      background: var(--gold); border: 4px solid var(--ink); border-radius: 50%;
+      box-shadow: 3px 4px 0 var(--ink);
+      animation: logoQ 2.4s ease-in-out infinite;
+    }
+    @keyframes logoQ {
+      0%, 100% { transform: rotate(12deg) translateY(0); }
+      50%      { transform: rotate(-6deg) translateY(-6px); }
+    }
+    .by-line { font-family: 'Mitr', sans-serif; font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 1px; margin-top: 4px; opacity: .8; }
+    @media (prefers-reduced-motion: reduce) { .logo-q, .title { animation: none; } }
     .subtitle { font-family: 'Mitr', sans-serif; font-size: 15px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; }
     h2 { font-family: 'Mitr', sans-serif; font-size: 26px; font-weight: 700; line-height: 1.2; }
     h3 { font-family: 'Mitr', sans-serif; font-size: 15px; font-weight: 600; color: var(--ink); letter-spacing: 1px; }
@@ -1071,6 +1104,313 @@
     .ai-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
     .btn.loading { opacity: .8; pointer-events: none; animation: suspensePulse .5s ease-in-out infinite alternate; }
 
+    /* ══ QUIZZY MASCOT (ควิซซี่) ══ ตัวกลมเหลือง = จุดของ "?" ปอยผมชมพู = หัวตะขอ */
+    .qz-box { position: relative; }
+    .qz-box svg.qz { display: block; width: 100%; height: auto; overflow: visible; }
+    .qz .ink { fill: var(--ink); }
+    .qz .line { fill: none; stroke: var(--ink); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+    .qz .sclera { fill: #fff; stroke: var(--ink); stroke-width: 4.5; }
+    .qz .cheek { fill: #ff8fb8; opacity: .75; }
+    .qz .body-g, .qz .curl, .qz .arm, .qz .crown, .qz .sweat, .qz .tear, .qz .spark,
+    .qz .eyes, .qz .pupil, .qz .glasses, .qz .ground { transform-box: view-box; }
+    .qz .m, .qz .eyes-happy, .qz .glasses, .qz .sweat, .qz .tear, .qz .crown, .qz .spark, .qz .brows { display: none; }
+    .qz-idle .m-idle, .qz-happy .m-open, .qz-win .m-open, .qz-worry .m-worry, .qz-sad .m-sad, .qz-cool .m-cool { display: inline; }
+    .qz-happy .eyes, .qz-win .eyes, .qz-cool .eyes { display: none; }
+    .qz-happy .eyes-happy, .qz-win .eyes-happy { display: inline; }
+    .qz-cool .glasses, .qz-worry .sweat, .qz-sad .tear, .qz-win .crown,
+    .qz-happy .spark, .qz-win .spark, .qz-worry .brows, .qz-sad .brows { display: inline; }
+    .qz-worry .pupil { transform: scale(.65); }
+    .qz .body-g { transform-origin: 100px 180px; animation: qzBob 2.6s ease-in-out infinite; }
+    .qz .eyes { transform-origin: 100px 100px; animation: qzBlink 4.6s infinite; }
+    .qz .curl { transform-origin: 100px 60px; animation: qzWiggle 3.2s ease-in-out infinite; }
+    .qz .ground { transform-origin: 100px 188px; animation: qzGroundBob 2.6s ease-in-out infinite; }
+    .qz-happy .body-g { animation: qzJump .7s cubic-bezier(.3, .7, .4, 1) infinite; }
+    .qz-happy .ground, .qz-win .ground { animation: qzGroundJump .7s cubic-bezier(.3, .7, .4, 1) infinite; }
+    .qz-happy .arm.r { transform-origin: 154px 118px; animation: qzWave .35s ease-in-out infinite alternate; }
+    .qz-happy .arm.l { transform-origin: 46px 118px; animation: qzWaveL .35s ease-in-out infinite alternate; }
+    .qz-win .body-g { animation: qzJump 1s cubic-bezier(.3, .7, .4, 1) infinite; }
+    .qz-win .crown { animation: qzCrown 1s ease-in-out infinite; }
+    .qz-worry .body-g { animation: qzShiver .14s linear infinite; }
+    .qz-worry .sweat { animation: qzDrip 1.1s ease-in infinite; }
+    .qz-sad .body-g { animation: none; transform: translateY(6px) scale(1.03, .95); }
+    .qz-sad .tear { animation: qzDrip 1.4s ease-in infinite; }
+    .qz-sad .curl { animation: none; transform: rotate(28deg); }
+    .qz-cool .body-g { animation: qzCool 1.6s ease-in-out infinite; }
+    .qz-cool .glasses { animation: qzGlasses .5s cubic-bezier(.34, 1.56, .64, 1) both; }
+    .qz-happy .spark, .qz-win .spark { animation: qzTwinkle .9s ease-in-out infinite; }
+    .qz .spark.s2 { animation-delay: .3s; }
+    .qz .spark.s3 { animation-delay: .6s; }
+    @keyframes qzBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+    @keyframes qzGroundBob { 0%, 100% { transform: scale(1); } 50% { transform: scale(.9); } }
+    @keyframes qzBlink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.08); } }
+    @keyframes qzWiggle { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(7deg); } }
+    @keyframes qzJump { 0%, 100% { transform: translateY(0) scale(1.06, .92); } 35% { transform: translateY(-26px) scale(.95, 1.06); } 60% { transform: translateY(-24px); } }
+    @keyframes qzGroundJump { 0%, 100% { transform: scale(1); } 40%, 60% { transform: scale(.65); opacity: .5; } }
+    @keyframes qzWave { from { transform: rotate(10deg); } to { transform: rotate(-55deg); } }
+    @keyframes qzWaveL { from { transform: rotate(-10deg); } to { transform: rotate(45deg); } }
+    @keyframes qzShiver { 0%, 100% { transform: translateX(-1.6px); } 50% { transform: translateX(1.6px); } }
+    @keyframes qzDrip { 0% { transform: translateY(-4px); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(16px); opacity: 0; } }
+    @keyframes qzCool { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(-1deg) translateY(-3px); } }
+    @keyframes qzGlasses { from { transform: translateY(-40px); opacity: 0; } to { transform: none; opacity: 1; } }
+    @keyframes qzCrown { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg) translateY(-3px); } }
+    @keyframes qzTwinkle { 0%, 100% { transform: scale(.4); opacity: .3; } 50% { transform: scale(1.15); opacity: 1; } }
+    .qz-say {
+      position: absolute; left: 50%; bottom: 100%; z-index: 3; pointer-events: none;
+      transform: translateX(-50%) scale(.6); opacity: 0;
+      font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 15px; white-space: nowrap; color: var(--ink);
+      background: #fff; border: 2.5px solid var(--ink); border-radius: 14px; padding: 5px 12px;
+      box-shadow: 3px 3px 0 var(--ink);
+      transition: opacity .2s, transform .25s cubic-bezier(.34, 1.56, .64, 1);
+    }
+    .qz-say.show { opacity: 1; transform: translateX(-50%) scale(1); }
+
+    /* มาสคอตในแต่ละหน้า */
+    .wait-mascot { width: 130px; }
+    .room-code-box { position: relative; }
+    .lobby-mascot { position: absolute; width: 84px; top: -46px; right: -18px; transform: rotate(8deg); pointer-events: none; }
+    .timer-row { position: relative; }
+    .q-mascot { position: absolute; width: 62px; right: calc(50% + 46px); top: 50%; transform: translateY(-58%); pointer-events: none; }
+    .ds-mascot { width: clamp(110px, 22vw, 170px); }
+    .win-row { display: flex; align-items: flex-end; justify-content: center; gap: 4px; }
+    .final-mascot { width: 104px; margin-bottom: 6px; }
+
+    /* ══ HOME ══ */
+    .home-hero {
+      width: 100%; max-width: 1080px; margin: 0 auto;
+      padding-block: 12px 4px; text-align: left;
+      display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr); gap: 32px 40px; align-items: center;
+    }
+    .home-main { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; min-width: 0; }
+    .home-brand { display: flex; align-items: center; gap: 2px; }
+    .home-brand .title { margin: 0; font-size: clamp(54px, 9vw, 104px); }
+    .home-mascot { width: clamp(104px, 15vw, 168px); flex-shrink: 0; cursor: pointer; margin-left: -4px; }
+    .home-mascot:focus-visible { outline: 3px solid var(--cyan); outline-offset: 4px; border-radius: 20px; }
+    .home-tagline { margin: 0; font-family: 'Mitr', sans-serif; font-weight: 700; font-size: clamp(21px, 2.7vw, 30px); line-height: 1.3; color: var(--ink); max-width: 20ch; text-wrap: balance; }
+    .home-sub { margin: -8px 0 0; color: var(--muted); font-size: 16px; max-width: 42ch; }
+    .home-cta { display: flex; flex-wrap: wrap; gap: 14px; align-items: stretch; }
+    .home-create { font-size: 18px; padding: 15px 28px; border-radius: 16px; }
+    .home-join {
+      display: flex; align-items: stretch; overflow: hidden;
+      background: #fff; border: 3px solid var(--ink); border-radius: 16px; box-shadow: 0 5px 0 var(--ink);
+    }
+    .home-join input[type=text] {
+      width: 140px; border: none; border-radius: 0; box-shadow: none; translate: none; padding: 12px 10px;
+      font-family: 'Bungee', monospace; font-size: 20px; letter-spacing: 5px; text-align: center; text-transform: uppercase;
+    }
+    .home-join input[type=text]:focus { box-shadow: none; translate: none; background: var(--paper); }
+    .home-join button {
+      border: none; border-left: 3px solid var(--ink); background: var(--gold); color: var(--ink); cursor: pointer;
+      font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 16px; padding: 0 18px;
+    }
+    .home-join button:hover { background: #ffc63d; }
+    .home-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .home-chip {
+      font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 14px; color: var(--ink);
+      background: var(--card); border: 2.5px solid var(--ink); border-radius: 999px; padding: 6px 14px;
+      box-shadow: 2px 3px 0 var(--ink);
+    }
+    .home-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; font-size: 12px; color: var(--muted); }
+    .home-foot .by-line { margin: 0; }
+    .conn-line { display: inline-flex; align-items: center; gap: 2px; transition: opacity .4s; }
+    .conn-line.ok { display: none; }
+
+    /* เดโมโทรศัพท์: วนให้เห็นการเล่นใน 6 วินาที */
+    .demo { justify-self: center; position: relative; width: 250px; max-width: 100%; }
+    .demo-phone {
+      position: relative; display: flex; flex-direction: column; gap: 10px;
+      background: var(--card); border: 4px solid var(--ink); border-radius: 32px; padding: 14px 14px 18px;
+      box-shadow: 8px 10px 0 var(--ink); transform: rotate(3deg);
+    }
+    .dp-notch { width: 64px; height: 8px; border-radius: 999px; background: var(--ink); margin: 0 auto 2px; }
+    .dp-top { display: flex; justify-content: space-between; font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 12px; color: var(--ink); }
+    .dp-bar { height: 9px; border: 2px solid var(--ink); border-radius: 999px; overflow: hidden; background: #fff; }
+    .dp-bar i { display: block; height: 100%; background: var(--green); transform-origin: left; animation: dpBar 6s linear infinite; }
+    .dp-q { font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 15px; text-align: center; background: #fff; border: 2.5px solid var(--ink); border-radius: 12px; padding: 12px 8px; }
+    .dp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .dp-a {
+      position: relative; text-align: center; color: #fff; padding: 13px 4px;
+      font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 15px;
+      border: 2.5px solid var(--ink); border-radius: 12px; box-shadow: 0 3px 0 var(--ink);
+      animation: dpDim 6s infinite;
+    }
+    .dp-a.a1 { background: var(--red); }
+    .dp-a.a2 { background: var(--cyan); }
+    .dp-a.a3 { background: var(--gold); color: var(--ink); animation-name: dpPick; }
+    .dp-a.a4 { background: var(--purple); }
+    .dp-tap {
+      position: absolute; left: 50%; top: 50%; width: 36px; height: 36px; margin: -18px 0 0 -18px;
+      border-radius: 50%; background: rgba(255, 255, 255, .55); border: 3px solid var(--ink);
+      opacity: 0; animation: dpTap 6s infinite;
+    }
+    .dp-pop {
+      position: absolute; right: -22px; top: 44%; opacity: 0;
+      font-family: 'Bungee', monospace; font-size: 30px; color: var(--green);
+      text-shadow: 2px 2px 0 var(--ink), -1px -1px 0 var(--ink), 1px -1px 0 var(--ink), -1px 1px 0 var(--ink);
+      animation: dpPop 6s infinite;
+    }
+    .dp-rank {
+      align-self: center; opacity: 0;
+      font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 13px; color: var(--ink);
+      background: var(--gold); border: 2.5px solid var(--ink); border-radius: 999px; padding: 3px 12px;
+      animation: dpRank 6s infinite;
+    }
+    @keyframes dpBar { from { transform: scaleX(1); } to { transform: scaleX(.15); } }
+    @keyframes dpDim { 0%, 40% { opacity: 1; } 48%, 90% { opacity: .35; } 100% { opacity: 1; } }
+    @keyframes dpPick {
+      0%, 32% { transform: none; background: var(--gold); color: var(--ink); }
+      36% { transform: scale(.9); }
+      42% { transform: scale(1.05); background: var(--gold); color: var(--ink); }
+      50%, 90% { transform: none; background: var(--green); color: #fff; }
+      100% { background: var(--gold); color: var(--ink); }
+    }
+    @keyframes dpTap { 0%, 20% { opacity: 0; transform: translate(34px, 40px) scale(1.4); } 30% { opacity: 1; transform: none; } 36% { transform: scale(.7); } 44%, 100% { opacity: 0; transform: scale(1.6); } }
+    @keyframes dpPop { 0%, 48% { opacity: 0; transform: translateY(12px) scale(.6); } 54% { opacity: 1; transform: scale(1.18); } 62%, 84% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; transform: translateY(-16px); } }
+    @keyframes dpRank { 0%, 58% { opacity: 0; transform: scale(.7); } 64%, 90% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+
+    @media (max-width: 820px) {
+      .home-hero { grid-template-columns: minmax(0, 1fr); padding-top: 28px; text-align: center; }
+      /* โลโก้ + ควิซซี่ ต้องพอดีจอมือถือ ไม่งั้นดันทั้งคอลัมน์ให้ล้นขวา */
+      .home-brand .title { font-size: clamp(38px, 11.5vw, 96px); }
+      .home-mascot { width: clamp(74px, 21vw, 150px); }
+      .home-main { align-items: center; }
+      .home-cta, .home-chips, .home-foot { justify-content: center; }
+      .home-sub { margin-top: -8px; }
+    }
+    @media (max-width: 420px) {
+      .home-cta { flex-direction: column; flex-wrap: nowrap; width: 100%; }
+      .home-join input[type=text] { flex: 1; width: auto; min-width: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .qz *, .demo-phone * { animation: none !important; }
+      .dp-a.a3 { background: var(--green); color: #fff; }
+      .dp-a.a1, .dp-a.a2, .dp-a.a4 { opacity: .35; }
+      .dp-pop, .dp-rank { opacity: 1; }
+    }
+
+    /* ── SETUP (question-first) ── */
+    #screen-setup > div { overflow: visible; padding-bottom: 8px; }
+    /* เลื่อนหาข้อ/ปุ่ม ให้พ้นแถบสร้างห้องที่ติดล่างจอ */
+    html:has(#screen-setup.active) { scroll-padding-bottom: 104px; scroll-padding-top: 16px; }
+    /* หน้าเตรียมคำถามไม่มีเสียง — ซ่อนปุ่มเสียงที่ลอยทับปุ่มกลับ/ล้างทั้งหมด */
+    body:has(#screen-setup.active) .mute-btn { display: none; }
+    .set-bar { padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; }
+    .set-bar-row { display: flex; gap: 8px; align-items: center; }
+    .set-bar-row .btn { white-space: nowrap; }
+    input.set-name { font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 18px; }
+    .set-status { font-size: 13px; color: var(--muted); padding-left: 4px; }
+    .set-status.ok { color: #0b6b3a; font-weight: 600; }
+    .set-status.dirty { color: #b35a00; font-weight: 600; }
+
+    .src-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
+    .src-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 11px 10px; cursor: pointer; color: var(--ink);
+      background: var(--card); border: 3px solid var(--ink); border-radius: 14px;
+      box-shadow: 3px 4px 0 rgba(36, 26, 77, .9);
+      font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 15px;
+      transition: transform .12s, box-shadow .12s, background .12s;
+    }
+    .src-btn:hover { background: var(--paper-2); transform: translateY(-2px); box-shadow: 3px 6px 0 rgba(36, 26, 77, .9); }
+    .src-btn:active { transform: translateY(2px); box-shadow: 1px 1px 0 rgba(36, 26, 77, .9); }
+
+    .empty-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .empty-tile {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 22px 12px; text-align: center; cursor: pointer; color: var(--ink);
+      background: #fff; border: 3px solid var(--ink); border-radius: 18px;
+      box-shadow: 4px 5px 0 rgba(36, 26, 77, .9);
+      transition: transform .15s, background .15s;
+    }
+    .empty-tile:hover { transform: translateY(-3px) rotate(-.6deg); background: var(--paper-2); }
+    .et-title { font-family: 'Mitr', sans-serif; font-weight: 700; font-size: 17px; }
+    .et-desc { font-size: 13px; color: var(--muted); line-height: 1.4; }
+
+    .qi { background: #fff; border: 2.5px solid var(--ink); border-radius: 14px; margin-bottom: 8px; transition: box-shadow .15s; }
+    .qi.invalid { border-color: #e08a00; }
+    .qi.open { box-shadow: 4px 5px 0 var(--gold); }
+    .qi-head { display: flex; align-items: center; gap: 10px; padding: 10px 12px; cursor: pointer; border-radius: 12px; }
+    .qi-head:hover { background: var(--paper); }
+    .qi-title { flex: 1; min-width: 0; font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .qi-tags { display: flex; gap: 4px; flex-shrink: 0; }
+    .qi-tags .q-tag { margin-left: 0; }
+    .q-tag.ans { background: #baf1d4; }
+    .q-tag.warn { background: #ffe1b8; }
+    .qi-chev { flex-shrink: 0; transition: transform .2s; color: var(--muted); }
+    .qi.open .qi-chev { transform: rotate(180deg); }
+    .qi-body { display: flex; flex-direction: column; gap: 10px; padding: 12px; border-top: 2px dashed #ddd6ea; }
+    textarea.qi-q { min-height: 64px; }
+    .qi-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .qi-opt { display: flex; gap: 6px; align-items: center; }
+    .qi-opt input { padding: 10px 12px; min-width: 0; }
+    .qi-mark {
+      flex-shrink: 0; width: 40px; height: 40px; cursor: pointer;
+      border: 2.5px solid var(--ink); border-radius: 12px; background: var(--c); color: #fff;
+      font-family: 'Bungee', monospace; font-size: 14px;
+      transition: transform .12s, background .15s;
+    }
+    .qi-mark:hover { transform: scale(1.08); }
+    .qi-opt.correct .qi-mark { background: var(--green); font-size: 18px; box-shadow: 0 0 0 3px #baf1d4; }
+    .qi-opt.correct input { border-color: var(--green); background: #f0fff6; }
+    .qi-tools { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .qi-tools .btn-sm { padding: 7px 12px; }
+    .qi-done { margin-left: auto; }
+    .add-row { border-style: dashed; box-shadow: none; }
+
+    details.settings-card > summary {
+      list-style: none; cursor: pointer;
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 15px; color: var(--ink);
+    }
+    details.settings-card > summary::-webkit-details-marker { display: none; }
+    details.settings-card > summary::after { content: '▾'; transition: transform .2s; }
+    details.settings-card[open] > summary::after { transform: rotate(180deg); }
+    .settings-sum { flex: 1; min-width: 0; text-align: right; font-family: 'Anuphan', sans-serif; font-weight: 500; font-size: 13px; color: var(--muted); }
+    .settings-body { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; }
+
+    .setup-footer {
+      position: sticky; bottom: 12px; z-index: 30;
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 10px 10px 20px; color: #fff;
+      background: var(--ink); border-radius: 999px;
+      box-shadow: 0 10px 28px rgba(36, 26, 77, .35);
+    }
+    .sf-info { flex: 1; min-width: 0; font-size: 15px; }
+    .sf-info strong { font-family: 'Bungee', monospace; color: var(--gold); }
+    .sf-warn { background: none; border: none; padding: 0; color: #ffcf6b; font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
+    .setup-footer .btn { box-shadow: 0 4px 0 #000; }
+
+    /* ── SHEET (dialog) ── */
+    dialog.sheet {
+      width: min(580px, calc(100vw - 24px)); max-height: min(88vh, 920px);
+      margin: auto; padding: 0; color: var(--ink);
+      background: var(--card); border: 3px solid var(--ink); border-radius: 22px;
+      box-shadow: 6px 7px 0 rgba(36, 26, 77, .9);
+    }
+    dialog.sheet[open] { display: flex; flex-direction: column; animation: sheetIn .3s cubic-bezier(.34, 1.3, .64, 1); }
+    dialog.sheet::backdrop { background: rgba(36, 26, 77, .55); }
+    @keyframes sheetIn { from { opacity: 0; transform: translateY(24px) scale(.97); } to { opacity: 1; transform: none; } }
+    .sheet-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px 14px 20px; border-bottom: 3px solid var(--ink); }
+    .sheet-head h3 { flex: 1; font-size: 17px; letter-spacing: 0; }
+    .sheet-x { width: 36px; height: 36px; border: 2.5px solid var(--ink); border-radius: 50%; background: #fff; font-size: 16px; cursor: pointer; flex-shrink: 0; }
+    .sheet-body { display: flex; flex-direction: column; gap: 12px; padding: 16px 20px 22px; overflow-y: auto; }
+    .sheet-sec { font-family: 'Mitr', sans-serif; font-weight: 600; font-size: 14px; color: var(--muted); margin-top: 4px; }
+    .sample-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    @media (max-width: 600px) {
+      dialog.sheet {
+        width: 100vw; max-width: 100vw; max-height: 92vh;
+        margin: auto 0 0; border-radius: 22px 22px 0 0; border-bottom: none;
+      }
+      @keyframes sheetIn { from { transform: translateY(100%); } to { transform: none; } }
+    }
+    @media (max-width: 480px) {
+      .qi-opts { grid-template-columns: 1fr; }
+      .empty-tiles { gap: 8px; }
+      .empty-tile { padding: 16px 8px; }
+      .src-bar { grid-template-columns: 1fr 1fr; }
+      .setup-footer { padding-left: 16px; }
+      .sf-info { font-size: 13px; }
+    }
+
     /* ── CSV IMPORT ── */
     .imp-steps { display: flex; flex-direction: column; gap: 10px; }
     .imp-step { display: flex; gap: 10px; align-items: flex-start; }
@@ -1212,6 +1552,7 @@
   <div id="urgency-overlay"></div>
   <div class="toast" id="toast"></div>
   <div class="double-splash" id="doubleSplash" aria-live="assertive">
+    <div class="qz-box ds-mascot" data-mascot="cool" aria-hidden="true"></div>
     <div class="ds-big">x2</div>
     <div class="ds-sub">⚡ ข้อนี้คะแนนคูณสอง! ⚡</div>
   </div>
@@ -1229,36 +1570,49 @@
 
   <!-- ══ HOME ══ -->
   <div id="screen-home" class="screen active">
-    <div style="text-align:center;padding:56px 24px 12px;">
-      <div class="home-logo-wrap">
-        <div class="title">QUIZ RUSH</div>
-      </div>
-      <div class="subtitle">ควิซปาร์ตี้ · ตอบไว ได้แต้มเยอะ</div>
-    </div>
-    <div
-      style="display:flex;align-items:center;justify-content:center;padding:0 24px 28px;flex-direction:column;gap:24px;">
-      <div class="home-modes">
-        <div class="mode-card" onclick="goSetup()">
-          <div class="mode-icon"><img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f451/512.webp"
-              width="60" height="60" alt="👑" onerror="this.replaceWith(this.alt)"></div>
-          <div class="mode-title">สร้างเกม</div>
-          <div class="mode-desc">Host / ผู้จัดเกม</div>
+    <div class="home-hero">
+      <div class="home-main">
+        <div class="home-brand">
+          <h1 class="title">QUIZZY</h1>
+          <div class="qz-box home-mascot" id="homeMascot" data-mascot="idle" role="button" tabindex="0" aria-label="แตะควิซซี่">
+            <div class="qz-say" id="homeSay"></div>
+          </div>
         </div>
-        <div class="mode-card" onclick="goScreen('screen-join')">
-          <div class="mode-icon"><img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3af/512.webp"
-              width="60" height="60" alt="🎯" onerror="this.replaceWith(this.alt)"></div>
-          <div class="mode-title">เข้าร่วม</div>
-          <div class="mode-desc">ใส่รหัสห้อง</div>
+        <p class="home-tagline">ควิซปาร์ตี้ที่ทั้งทีมเล่นพร้อมกันจากมือถือ</p>
+        <p class="home-sub">ตั้งคำถามเอง ให้ AI คิด หรือนำเข้าจาก Excel แล้วให้ทุกคนสแกน QR เข้าเล่น ตอบไวได้แต้มเยอะ</p>
+        <div class="home-cta">
+          <button class="btn btn-pink home-create" onclick="goSetup()">🚀 สร้างเกม</button>
+          <form class="home-join" onsubmit="homeJoin(event)">
+            <input type="text" id="homeCode" maxlength="4" size="4" placeholder="รหัส" autocomplete="off" autocapitalize="characters" aria-label="รหัสห้อง 4 ตัว">
+            <button type="submit">เข้าร่วม →</button>
+          </form>
+        </div>
+        <div class="home-chips" id="homeChips">
+          <span class="home-chip" id="chipAI">🤖 AI คิดคำถามให้</span>
+          <span class="home-chip">📱 สแกน QR เล่นได้ทันที</span>
+          <span class="home-chip">👥 โหมดทีม & รีแอคชัน</span>
+        </div>
+        <div class="home-foot">
+          <span class="by-line">by Deskmate</span>
+          <span class="conn-line" id="connLine"><span class="conn-dot" id="homeDot"></span><span id="homeConnStatus">กำลังเชื่อมต่อ...</span></span>
         </div>
       </div>
-      <div class="home-stats">
-        <div class="home-stat"><span class="home-stat-dot"></span> ตอบเร็ว = โบนัส ⚡</div>
-        <div class="home-stat"><span class="home-stat-dot"
-            style="background:var(--pink);box-shadow:0 0 6px var(--pink);"></span> รองรับ 20+ คน</div>
-      </div>
-      <div class="flex gap-8" style="font-size:12px;color:var(--muted);">
-        <span class="conn-dot" id="homeDot"></span>
-        <span id="homeConnStatus">กำลังเชื่อมต่อ...</span>
+
+      <div class="demo" aria-hidden="true">
+        <div class="demo-phone">
+          <div class="dp-notch"></div>
+          <div class="dp-top"><span>ข้อ 3/10</span><span>⚡ ตอบไว = โบนัส</span></div>
+          <div class="dp-bar"><i></i></div>
+          <div class="dp-q">HTTPS ใช้ port ใด?</div>
+          <div class="dp-grid">
+            <div class="dp-a a1">▲ 80</div>
+            <div class="dp-a a2">◆ 8080</div>
+            <div class="dp-a a3">● 443<span class="dp-tap"></span></div>
+            <div class="dp-a a4">■ 3000</div>
+          </div>
+          <div class="dp-rank">🔥 ขึ้นเป็นอันดับ 1!</div>
+          <div class="dp-pop">+240</div>
+        </div>
       </div>
     </div>
   </div>
@@ -1269,117 +1623,112 @@
       <div class="flex-between">
         <div>
           <div class="flex gap-8">
-            <h2>ตั้งค่าเกม</h2><span class="badge badge-host">HOST</span>
+            <h2>สร้างเกม</h2><span class="badge badge-host">HOST</span>
           </div>
-          <p class="text-muted mt-4">เพิ่มคำถามสำหรับทีม</p>
+          <p class="text-muted mt-4">เตรียมคำถาม แล้วกดสร้างห้อง</p>
         </div>
         <button class="btn btn-outline btn-sm" onclick="goScreen('screen-home')">← กลับ</button>
       </div>
 
-      <div class="card" style="display:flex;flex-direction:column;gap:14px;">
-        <h3>ตั้งค่าเกม</h3>
-        <div class="settings-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-          <div><label>ชื่อเกม</label><input type="text" id="gameName" value="Quiz Rush 🚀" maxlength="40"></div>
-          <div><label>เวลาต่อข้อ</label>
-            <select id="timePerQ">
-              <option value="10">10 วิ (เร็ว)</option>
-              <option value="20" selected>20 วิ (ปกติ)</option>
-              <option value="30">30 วิ (ง่าย)</option>
-              <option value="60">60 วิ (คิดเยอะ)</option>
-            </select>
-          </div>
+      <!-- ชุดคำถาม: ชื่อ + บันทึก ที่เดียว -->
+      <div class="card set-bar">
+        <div class="set-bar-row">
+          <input type="text" id="setName" class="set-name" placeholder="ตั้งชื่อชุด เช่น Town Hall Q3" maxlength="100"
+            oninput="onSetNameInput()" aria-label="ชื่อชุดคำถาม">
+          <button class="btn btn-gold btn-sm" id="saveSetBtn" onclick="saveCurrentSet()">☁️ บันทึก</button>
         </div>
-        <div class="toggle-row">
-          <label class="chk"><input type="checkbox" id="optShuffleQ"> 🔀 สุ่มลำดับคำถาม</label>
-          <label class="chk"><input type="checkbox" id="optShuffleOpts"> 🔀 สุ่มลำดับตัวเลือก</label>
-          <label class="chk"><input type="checkbox" id="optFinalDouble"> ⚡ ข้อสุดท้าย x2</label>
-          <label class="chk"><input type="checkbox" id="optTeams" onchange="toggleTeamsInput()"> 👥 โหมดทีม</label>
-        </div>
-        <div id="teamsWrap" style="display:none;">
-          <label>ชื่อทีม <span style="font-weight:400;color:var(--muted);font-size:12px;">(คั่นด้วย , · 2–8 ทีม)</span></label>
-          <input type="text" id="teamNames" value="ทีมแดง, ทีมน้ำเงิน, ทีมเขียว" maxlength="200">
-          <p class="hint" style="margin-top:6px;">ผู้เล่นเลือกทีมเองระหว่างรอ ใครไม่เลือกระบบจัดให้ · คะแนนทีม = ค่าเฉลี่ยต่อคน (ทีมคนเยอะไม่ได้เปรียบ)</p>
-        </div>
+        <div class="set-status" id="setStatus"></div>
       </div>
 
-      <div class="card" style="display:flex;flex-direction:column;gap:14px;">
-        <h3 id="qFormTitle">เพิ่มคำถาม</h3>
-        <div><label>คำถาม</label><textarea id="qText" placeholder="พิมพ์คำถาม..."></textarea></div>
-        <div><label>ตัวเลือก</label>
-          <div class="options-grid">
-            <div class="opt-row"><span class="opt-lbl" style="background:var(--red);color:#fff;">A</span><input
-                type="text" id="opt0" placeholder="ตัวเลือก A"></div>
-            <div class="opt-row"><span class="opt-lbl" style="background:var(--cyan);color:#fff;">B</span><input
-                type="text" id="opt1" placeholder="ตัวเลือก B"></div>
-            <div class="opt-row"><span class="opt-lbl" style="background:var(--gold);">C</span><input type="text"
-                id="opt2" placeholder="ตัวเลือก C"></div>
-            <div class="opt-row"><span class="opt-lbl" style="background:var(--purple);color:#fff;">D</span><input
-                type="text" id="opt3" placeholder="ตัวเลือก D"></div>
-          </div>
-        </div>
-        <div><label>รูปประกอบ <span style="font-weight:400;color:var(--muted);font-size:12px;">(ไม่บังคับ)</span></label>
-          <div class="img-row">
-            <input type="text" id="qImageUrl" placeholder="วางลิงก์รูป https://..." oninput="onImageUrl()" style="flex:1;min-width:0;">
-            <label class="btn btn-outline btn-sm" style="margin:0;white-space:nowrap;">📷 อัปโหลด<input type="file"
-                id="qImageFile" accept="image/*" onchange="onImageFile(this)" hidden></label>
-          </div>
-          <div class="img-preview-wrap" id="qImagePreviewWrap" style="display:none;">
-            <img id="qImagePreview" class="img-preview" alt="ตัวอย่างรูป">
-            <button class="q-remove" onclick="clearImage()" title="ลบรูป">✕</button>
-          </div>
-        </div>
-        <div><label>คำตอบที่ถูก</label>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <select id="correctOpt" style="flex:1;min-width:120px;">
-              <option value="0">A</option>
-              <option value="1">B</option>
-              <option value="2">C</option>
-              <option value="3">D</option>
-            </select>
-            <label class="chk"><input type="checkbox" id="qDouble"> ⚡ ข้อนี้ x2</label>
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-gold w-full" id="qSubmitBtn" onclick="addQuestion()">➕ เพิ่มคำถาม</button>
-          <button class="btn btn-outline" id="qCancelBtn" onclick="cancelEditQ()" style="display:none;white-space:nowrap;">ยกเลิก</button>
-        </div>
-      </div>
+      <!-- วิธีเพิ่มคำถาม (โชว์เมื่อมีคำถามแล้ว — ตอนว่างใช้การ์ดใหญ่ในรายการแทน) -->
+      <div class="src-bar" id="srcBar"></div>
 
+      <!-- รายการคำถาม = พระเอกของหน้า -->
       <div class="card" style="display:flex;flex-direction:column;gap:12px;">
-        <h3>⚡ เพิ่มคำถามแบบเร็ว</h3>
-        <details class="quick" id="aiCard" style="display:none;">
-          <summary>🤖 ให้ AI ช่วยคิดคำถาม</summary>
-          <div class="quick-body">
-            <textarea id="aiTopic" maxlength="20000" style="min-height:100px;"
-              placeholder="ใส่หัวข้อ เช่น &quot;ความรู้เรื่อง Q3 roadmap&quot; หรือวางเนื้อหาเอกสาร/สไลด์ทั้งก้อนก็ได้ AI จะออกข้อสอบจากเนื้อหานั้น"></textarea>
-            <div class="ai-grid">
-              <select id="aiCount" aria-label="จำนวนข้อ">
-                <option value="5">5 ข้อ</option>
-                <option value="10" selected>10 ข้อ</option>
-                <option value="15">15 ข้อ</option>
-                <option value="20">20 ข้อ</option>
-              </select>
-              <select id="aiDifficulty" aria-label="ความยาก">
-                <option value="mixed">คละความยาก</option>
-                <option value="easy">ง่าย</option>
-                <option value="medium">ปานกลาง</option>
-                <option value="hard">ยาก</option>
-              </select>
-              <select id="aiLang" aria-label="ภาษา">
-                <option value="th">ภาษาไทย</option>
-                <option value="en">English</option>
+        <div class="flex-between">
+          <h3>คำถาม (<span id="qCountBadge">0</span>)</h3>
+          <button class="btn btn-outline btn-sm" id="clearAllBtn" onclick="clearAll()">🗑️ ล้างทั้งหมด</button>
+        </div>
+        <input type="text" id="qFilter" placeholder="🔍 ค้นหาในรายการ..." oninput="renderQList()" style="display:none;">
+        <div id="qList"></div>
+        <button class="btn btn-outline w-full add-row" id="addRowBtn" onclick="addBlankQuestion()">＋ เพิ่มข้อใหม่</button>
+      </div>
+
+      <!-- ตั้งค่าเกม: พับไว้ โชว์ค่าปัจจุบันสั้นๆ -->
+      <details class="card settings-card" id="settingsCard">
+        <summary><span>⚙️ ตั้งค่าเกม</span><span class="settings-sum" id="settingsSummary"></span></summary>
+        <div class="settings-body">
+          <div class="settings-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            <div><label for="gameName">ชื่อเกม</label><input type="text" id="gameName" value="Quizzy 🎉" maxlength="40"></div>
+            <div><label for="timePerQ">เวลาต่อข้อ</label>
+              <select id="timePerQ">
+                <option value="10">10 วิ (เร็ว)</option>
+                <option value="20" selected>20 วิ (ปกติ)</option>
+                <option value="30">30 วิ (ง่าย)</option>
+                <option value="60">60 วิ (คิดเยอะ)</option>
               </select>
             </div>
-            <div><label for="aiModel">โมเดล AI <span style="font-weight:400;color:var(--muted);font-size:12px;">(ผ่าน OpenRouter)</span></label>
-              <select id="aiModel"></select>
-            </div>
-            <button class="btn btn-pink w-full" id="aiBtn" onclick="generateAI()">✨ สร้างคำถาม</button>
-            <p class="hint">AI อาจผิดได้ — ตรวจเฉลยก่อนเล่น (กดที่ข้อในรายการเพื่อแก้)</p>
           </div>
-        </details>
-        <details class="quick" id="importCard" open>
-          <summary>📄 นำเข้าคำถามจากไฟล์ CSV / Excel</summary>
-          <div class="quick-body">
+          <div class="toggle-row">
+            <label class="chk"><input type="checkbox" id="optShuffleQ"> 🔀 สุ่มลำดับคำถาม</label>
+            <label class="chk"><input type="checkbox" id="optShuffleOpts"> 🔀 สุ่มลำดับตัวเลือก</label>
+            <label class="chk"><input type="checkbox" id="optFinalDouble"> ⚡ ข้อสุดท้าย x2</label>
+            <label class="chk"><input type="checkbox" id="optTeams"> 👥 โหมดทีม</label>
+          </div>
+          <div id="teamsWrap" style="display:none;">
+            <label for="teamNames">ชื่อทีม <span style="font-weight:400;color:var(--muted);font-size:12px;">(คั่นด้วย , · 2–8 ทีม)</span></label>
+            <input type="text" id="teamNames" value="ทีมแดง, ทีมน้ำเงิน, ทีมเขียว" maxlength="200">
+            <p class="hint" style="margin-top:6px;">ผู้เล่นเลือกทีมเองระหว่างรอ ใครไม่เลือกระบบจัดให้ · คะแนนทีม = ค่าเฉลี่ยต่อคน</p>
+          </div>
+        </div>
+      </details>
+
+      <!-- แถบสร้างห้อง ติดล่างจอตลอด -->
+      <div class="setup-footer">
+        <div class="sf-info" id="sfInfo">ยังไม่มีคำถาม</div>
+        <button class="btn btn-pink" id="createBtn" onclick="createRoom()">🚀 สร้างห้อง</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SHEETS (หน้าต่างเพิ่มคำถาม) ══ -->
+  <dialog class="sheet" id="dlgAI" aria-labelledby="dlgAITitle">
+    <div class="sheet-head">
+      <h3 id="dlgAITitle">🤖 ให้ AI ช่วยคิดคำถาม</h3>
+      <button class="sheet-x" onclick="closeSheet('dlgAI')" aria-label="ปิด">✕</button>
+    </div>
+    <div class="sheet-body">
+      <textarea id="aiTopic" maxlength="20000" style="min-height:120px;"
+        placeholder="ใส่หัวข้อ เช่น &quot;ความรู้เรื่อง Q3 roadmap&quot; หรือวางเนื้อหาเอกสาร/สไลด์ทั้งก้อนก็ได้ AI จะออกข้อสอบจากเนื้อหานั้น"></textarea>
+      <div class="ai-grid">
+        <select id="aiCount" aria-label="จำนวนข้อ">
+          <option value="5">5 ข้อ</option>
+          <option value="10" selected>10 ข้อ</option>
+          <option value="15">15 ข้อ</option>
+          <option value="20">20 ข้อ</option>
+        </select>
+        <select id="aiDifficulty" aria-label="ความยาก">
+          <option value="mixed">คละความยาก</option>
+          <option value="easy">ง่าย</option>
+          <option value="medium">ปานกลาง</option>
+          <option value="hard">ยาก</option>
+        </select>
+        <select id="aiLang" aria-label="ภาษา">
+          <option value="th">ภาษาไทย</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+      <button class="btn btn-pink w-full" id="aiBtn" onclick="generateAI()">✨ สร้างคำถาม</button>
+      <p class="hint">คำถามจะถูกเพิ่มต่อท้ายรายการ · AI อาจผิดได้ ตรวจเฉลยก่อนเล่น (กดที่ข้อเพื่อแก้)</p>
+    </div>
+  </dialog>
+
+  <dialog class="sheet" id="dlgCSV" aria-labelledby="dlgCSVTitle">
+    <div class="sheet-head">
+      <h3 id="dlgCSVTitle">📄 นำเข้าคำถามจากไฟล์ CSV / Excel</h3>
+      <button class="sheet-x" onclick="closeSheet('dlgCSV')" aria-label="ปิด">✕</button>
+    </div>
+    <div class="sheet-body">
             <div class="imp-steps">
               <div class="imp-step">
                 <div class="imp-num">1</div>
@@ -1414,55 +1763,24 @@
               </div>
             </div>
             <div class="imp-preview" id="importPreview" style="display:none;"></div>
-          </div>
-        </details>
-      </div>
-
-      <div class="card" style="display:flex;flex-direction:column;gap:12px;">
-        <div class="flex-between">
-          <h3>คำถามทั้งหมด (<span id="qCountBadge">0</span>)</h3>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <select id="sampleCat" style="width:auto;padding:8px 12px;font-size:14px;">
-              <option value="dev">💻 Dev</option>
-              <option value="qa">🧪 QA</option>
-              <option value="po">📋 PO</option>
-              <option value="pm">📊 PM</option>
-              <option value="mixed">🌀 Mixed ทุกสาย</option>
-              <option value="general">🌍 ความรู้ทั่วไป</option>
-              <option value="funny">😂 ขำๆ</option>
-            </select>
-            <button class="btn btn-outline btn-sm" onclick="loadSample()">📋 โหลดตัวอย่าง</button>
-          </div>
-        </div>
-        <input type="text" id="qFilter" placeholder="🔍 กรองคำถามในรายการ..." oninput="renderQList()">
-        <div id="qList">
-          <p class="text-muted text-center" style="padding:16px;">ยังไม่มีคำถาม</p>
-        </div>
-      </div>
-
-      <div class="card" style="display:flex;flex-direction:column;gap:12px;">
-        <div class="flex-between">
-          <h3>☁️ คลังคำถาม</h3>
-          <span class="text-muted" style="font-size:11px;">บันทึกไว้ใช้ซ้ำได้ทุกเครื่อง</span>
-        </div>
-        <div style="display:flex;gap:8px;">
-          <input type="text" id="setName" placeholder="ชื่อชุดคำถาม เช่น Town Hall Q3" style="flex:1;" oninput="updateSaveBtn()">
-          <button class="btn btn-gold btn-sm" id="saveSetBtn" onclick="saveCurrentSet()" style="white-space:nowrap;">💾 บันทึกชุดนี้</button>
-        </div>
-        <div id="setList">
-          <p class="text-muted text-center" style="padding:10px;">ยังไม่มีชุดที่บันทึกไว้</p>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          <input type="text" id="bankSearch" placeholder="🔍 ค้นหาคำถามในคลัง..." oninput="debouncedBankSearch()">
-          <div id="bankResults"></div>
-        </div>
-      </div>
-
-      <button class="btn btn-pink w-full" style="font-size:16px;padding:17px;border-radius:14px;"
-        onclick="createRoom()"><img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f680/512.webp"
-          width="22" height="22" alt="🚀" onerror="this.replaceWith(this.alt)"> สร้างห้องเกม</button>
     </div>
-  </div>
+  </dialog>
+
+  <dialog class="sheet" id="dlgBank" aria-labelledby="dlgBankTitle">
+    <div class="sheet-head">
+      <h3 id="dlgBankTitle">☁️ คลังคำถาม</h3>
+      <button class="sheet-x" onclick="closeSheet('dlgBank')" aria-label="ปิด">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div class="sheet-sec">ชุดที่บันทึกไว้</div>
+      <div id="setList"><p class="text-muted text-center" style="padding:10px;">กำลังโหลด...</p></div>
+      <div class="sheet-sec">หยิบทีละข้อจากคลัง</div>
+      <input type="text" id="bankSearch" placeholder="🔍 พิมพ์คำค้น..." oninput="debouncedBankSearch()">
+      <div id="bankResults"></div>
+      <div class="sheet-sec">ชุดตัวอย่าง</div>
+      <div class="sample-grid" id="sampleGrid"></div>
+    </div>
+  </dialog>
 
   <!-- ══ JOIN ══ -->
   <div id="screen-join" class="screen">
@@ -1492,13 +1810,14 @@
       <div class="flex-between">
         <div>
           <div class="flex gap-8">
-            <h2 id="lobbyName">Quiz Rush</h2><span class="badge badge-host">HOST</span>
+            <h2 id="lobbyName">Quizzy</h2><span class="badge badge-host">HOST</span>
           </div>
           <p class="text-muted mt-4">รอผู้เล่นเข้าร่วม...</p>
         </div>
       </div>
 
       <div class="room-code-box">
+        <div class="qz-box lobby-mascot" data-mascot="idle" aria-hidden="true"></div>
         <p
           style="font-family:'Mitr',sans-serif;font-size:14px;font-weight:600;color:var(--ink);letter-spacing:2px;margin-bottom:8px;">
           <img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f39f/512.webp" width="20" height="20"
@@ -1538,7 +1857,7 @@
       <div class="title" style="font-size:clamp(36px,8vw,60px);">พร้อมแล้ว!</div>
     </div>
     <div style="display:flex;flex-direction:column;align-items:center;gap:20px;padding:0 24px;">
-      <div class="dots"><span></span><span></span><span></span></div>
+      <div class="qz-box wait-mascot" id="waitMascot" data-mascot="idle"></div>
       <p class="text-muted">รอ Host เริ่มเกม...</p>
       <div class="card" style="max-width:320px;text-align:center;">
         <div class="wait-avatar-big" id="waitAvatar">🎮</div>
@@ -1566,7 +1885,8 @@
     <div class="timer-wrap">
       <div class="timer-bar" id="timerBar" style="width:100%;"></div>
     </div>
-    <div class="flex-center">
+    <div class="flex-center timer-row">
+      <div class="qz-box q-mascot" id="qMascot" data-mascot="idle" aria-hidden="true"></div>
       <div class="timer-num" id="timerNum">20</div>
     </div>
     <div class="card">
@@ -1623,8 +1943,11 @@
     <div class="final-suspense" id="finalSuspense">🥁 ประกาศผล...</div>
 
     <div id="winnerWrap" style="display:none;text-align:center;">
-      <div class="trophy"><img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3c6/512.webp"
-          width="130" height="130" alt="🏆" onerror="this.replaceWith(this.alt)"></div>
+      <div class="win-row">
+        <div class="trophy"><img class="emo" src="https://fonts.gstatic.com/s/e/notoemoji/latest/1f3c6/512.webp"
+            width="130" height="130" alt="🏆" onerror="this.replaceWith(this.alt)"></div>
+        <div class="qz-box final-mascot" data-mascot="win" aria-hidden="true"></div>
+      </div>
       <p style="font-size:12px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin:8px 0 3px;">ผู้ชนะ
       </p>
       <div class="win-name" id="winName">-</div>
@@ -1659,45 +1982,91 @@
     // SOUND ENGINE (Web Audio — สังเคราะห์เสียงเอง ไม่มีไฟล์)
     // ══════════════════════════════════════
     const SFX = (() => {
+      // เสียงโทน "ไม้เคาะ/มาริมบา" สังเคราะห์สด (ไม่มีไฟล์) + เพลงประกาศแชมป์จากไฟล์จริง (Kenney, CC0)
+      // จอ host = ลำโพงหลักของห้อง: เสียงลุ้น (ติ๊ก/กลอง/มีคนเข้า) ดังเฉพาะจอนี้
+      // มือถือผู้เล่น: เบากว่า และมีแค่เสียงของตัวเอง — กัน 30 เครื่องร้องพร้อมกันจนฟังไม่รู้เรื่อง
       let ctx = null;
       let muted = false;
+      let fanfareBuf = null, fanfareLoad = null;
       try { muted = localStorage.getItem('tb_muted') === '1'; } catch { }
       function ensure() {
         if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
         if (ctx.state === 'suspended') ctx.resume();
         return ctx;
       }
-      // autoplay policy: ปลดล็อก AudioContext จาก gesture แรกของผู้ใช้
-      addEventListener('pointerdown', () => { try { ensure(); } catch { } }, { once: true });
+      function loadFanfare() {
+        if (fanfareLoad) return;
+        fanfareLoad = fetch('/sfx/fanfare.mp3')
+          .then(r => r.arrayBuffer())
+          .then(b => ensure().decodeAudioData(b))
+          .then(buf => { fanfareBuf = buf; })
+          .catch(() => { fanfareLoad = null; });
+      }
+      // autoplay policy: ปลดล็อก AudioContext จาก gesture แรกของผู้ใช้ แล้วโหลดเพลงแชมป์รอไว้
+      addEventListener('pointerdown', () => { try { ensure(); loadFanfare(); } catch { } }, { once: true });
 
-      function tone(freq, dur, { type = 'square', vol = .15, when = 0, slide = 0 } = {}) {
+      const onPhone = () => role === 'player';
+      const level = () => onPhone() ? .55 : 1;
+
+      function mallet(freq, when = 0, { dur = .45, vol = .32 } = {}) {
         if (muted) return;
         let c; try { c = ensure(); } catch { return; }
         const t0 = c.currentTime + when;
-        const o = c.createOscillator(), g = c.createGain();
-        o.type = type;
-        o.frequency.setValueAtTime(freq, t0);
-        if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, freq + slide), t0 + dur);
-        g.gain.setValueAtTime(vol, t0);
-        g.gain.exponentialRampToValueAtTime(.001, t0 + dur);
-        o.connect(g); g.connect(c.destination);
-        o.start(t0); o.stop(t0 + dur + .05);
+        const lp = c.createBiquadFilter();
+        lp.type = 'lowpass'; lp.frequency.value = 3200; lp.connect(c.destination);
+        // เสียงหลัก + โอเวอร์โทนสั้นๆ ให้เหมือนตีไม้/โลหะ
+        [[1, vol, dur], [4, vol * .22, dur * .25], [10, vol * .06, .04]].forEach(([mul, v, d]) => {
+          const o = c.createOscillator(), g = c.createGain();
+          o.type = 'sine'; o.frequency.setValueAtTime(freq * mul, t0);
+          g.gain.setValueAtTime(0, t0);
+          g.gain.linearRampToValueAtTime(v * level(), t0 + .004);
+          g.gain.exponentialRampToValueAtTime(.0008, t0 + d);
+          o.connect(g); g.connect(lp); o.start(t0); o.stop(t0 + d + .05);
+        });
       }
+      function noiseHit(when, vol, freq = 180) {
+        if (muted) return;
+        let c; try { c = ensure(); } catch { return; }
+        const t0 = c.currentTime + when, len = .09;
+        const buf = c.createBuffer(1, Math.floor(c.sampleRate * len), c.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 3);
+        const src = c.createBufferSource(), bp = c.createBiquadFilter(), g = c.createGain();
+        src.buffer = buf; bp.type = 'bandpass'; bp.frequency.value = freq; bp.Q.value = .8; g.gain.value = vol * level();
+        src.connect(bp); bp.connect(g); g.connect(c.destination); src.start(t0);
+      }
+
       return {
         get muted() { return muted; },
         toggle() { muted = !muted; try { localStorage.setItem('tb_muted', muted ? '1' : '0'); } catch { } return muted; },
-        tick(urgent) { tone(urgent ? 1150 : 880, .06, { vol: .07 }); },
-        qStart() { tone(520, .09, { type: 'triangle', vol: .14 }); tone(780, .13, { type: 'triangle', vol: .14, when: .09 }); },
-        select() { tone(640, .06, { type: 'triangle', vol: .13 }); },
-        join() { tone(700, .07, { type: 'triangle', vol: .1 }); tone(1050, .1, { type: 'triangle', vol: .1, when: .07 }); },
-        correct() { [523, 659, 784, 1047].forEach((f, i) => tone(f, .13, { type: 'triangle', vol: .16, when: i * .07 })); },
-        wrong() { tone(220, .32, { type: 'sawtooth', vol: .12, slide: -140 }); },
-        streak() { tone(880, .08, { type: 'triangle', vol: .15 }); tone(1175, .14, { type: 'triangle', vol: .15, when: .08 }); },
+        tick(urgent) { if (!onPhone()) mallet(urgent ? 1568 : 1175, 0, { dur: .09, vol: urgent ? .28 : .2 }); },
+        qStart() { mallet(784); mallet(1175, .1); },
+        select() { mallet(880, 0, { dur: .2, vol: .26 }); },
+        join() { if (!onPhone()) { mallet(1047, 0, { dur: .25 }); mallet(1568, .08, { dur: .3 }); } },
+        correct() { [523, 659, 784, 1047].forEach((f, i) => mallet(f, i * .075, { dur: i === 3 ? .7 : .35 })); },
+        wrong() { mallet(330, 0, { dur: .35, vol: .3 }); mallet(247, .16, { dur: .55, vol: .3 }); },
+        streak() { [1047, 1319, 1568].forEach((f, i) => mallet(f, i * .06, { dur: .3, vol: .24 })); },
+        // ข้อ x2: ไล่โน้ตขึ้นเร็วๆ — แยกจากเพลงแชมป์ ให้ตอนประกาศแชมป์ยังพิเศษ
+        double() { [523, 659, 784, 1047, 1319, 1568].forEach((f, i) => mallet(f, i * .055, { dur: i === 5 ? .6 : .25, vol: .26 })); },
         drumroll(dur = 1.6) {
-          const n = Math.floor(dur / .07);
-          for (let i = 0; i < n; i++) tone(130 + Math.random() * 50, .05, { type: 'triangle', vol: .05 + (i / n) * .07, when: i * .07 });
+          if (onPhone()) return;
+          const n = Math.max(6, Math.round(dur / .062));
+          for (let i = 0; i < n; i++) noiseHit(i * .062, .25 + (i / n) * .9, 160 + (i % 2) * 40);
+          noiseHit(n * .062 + .02, 1.4, 120);
         },
-        fanfare() { [523, 523, 659, 784, 659, 784, 1047].forEach((f, i) => tone(f, i >= 5 ? .4 : .15, { type: 'triangle', vol: .17, when: i * .14 })); },
+        fanfare() {
+          if (muted) return;
+          if (fanfareBuf) {
+            let c; try { c = ensure(); } catch { return; }
+            const src = c.createBufferSource(), g = c.createGain();
+            src.buffer = fanfareBuf; g.gain.value = .9 * level();
+            src.connect(g); g.connect(c.destination); src.start();
+            return;
+          }
+          // ไฟล์ยังโหลดไม่เสร็จ/โหลดไม่ได้ — ใช้เวอร์ชันสังเคราะห์แทน
+          [[523, 0], [659, .14], [784, .28], [1047, .46], [784, .66], [1047, .8]].forEach(([f, t]) => mallet(f, t, { dur: .5 }));
+          [523, 659, 784, 1047].forEach(f => mallet(f, .98, { dur: 1.3, vol: .22 }));
+        },
       };
     })();
 
@@ -1852,6 +2221,7 @@
     let revealed = false;
     let answerOpenAt = 0;
     let introTimer = null;
+    let qzBase = 'idle';
 
     // ══════════════════════════════════════
     // SESSION (กลับเข้าห้องเดิมหลัง refresh / เน็ตหลุด)
@@ -1924,6 +2294,8 @@
     }
 
     function setConnStatus(ok) {
+      // โชว์สถานะเฉพาะตอนยังไม่ต่อ/หลุด — ต่อติดแล้วไม่ต้องรบกวนสายตา
+      document.getElementById('connLine')?.classList.toggle('ok', ok);
       const dot = document.getElementById('homeDot');
       const txt = document.getElementById('homeConnStatus');
       if (dot) dot.className = 'conn-dot ' + (ok ? 'connected' : 'disconnected');
@@ -2099,13 +2471,125 @@
       document.body.classList.remove('warning','urgent','critical');
       updateReactBar();
       updateWakeLock();
+      if (!qzRaf) qzRaf = requestAnimationFrame(qzLook);
     }
     function goSetup() { renderQList(); refreshSets(); goScreen('screen-setup'); }
 
     // ══════════════════════════════════════
-    // QUESTION BANK (คลังคำถามใน DB)
+    // QUIZZY MASCOT — ตัวกลมเหลือง = จุดของ "?" ปอยผมชมพู = หัวตะขอ
+    // ══════════════════════════════════════
+    const QZ_BLOB = 'M38 122 C38 78 64 58 100 58 C136 58 162 78 162 122 C162 160 136 178 100 178 C64 178 38 160 38 122 Z';
+    const QZ_CURL = 'M100 62 L100 46 C100 36 114 34 116 22 C118 9 104 2 93 7 C85 11 83 18 85 24';
+    function qzStar(x, y, cls) {
+      return `<path class="spark ${cls}" style="transform-origin:${x}px ${y}px" fill="var(--gold)" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"
+        d="M${x} ${y - 11} L${x + 3.5} ${y - 3.5} L${x + 11} ${y} L${x + 3.5} ${y + 3.5} L${x} ${y + 11} L${x - 3.5} ${y + 3.5} L${x - 11} ${y} L${x - 3.5} ${y - 3.5} Z"/>`;
+    }
+    function qzEye(x) {
+      return `<g transform="translate(${x} 100)"><ellipse class="sclera" rx="15" ry="17"/>
+        <g class="look"><g class="pupil"><circle class="ink" r="8.5"/><circle cx="3" cy="-3.4" r="2.8" fill="#fff"/></g></g></g>`;
+    }
+    function mascotSVG(st = 'idle') {
+      return `<svg class="qz qz-${st}" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+        <ellipse class="ground" cx="100" cy="188" rx="46" ry="7" fill="rgba(36,26,77,.16)"/>
+        ${qzStar(30, 60, 's1')}${qzStar(172, 52, 's2')}${qzStar(178, 150, 's3')}
+        <g class="body-g">
+          <path class="ink" d="${QZ_BLOB}" transform="translate(6 7)"/>
+          <ellipse class="arm l" cx="40" cy="128" rx="11" ry="17" transform="rotate(24 40 128)" fill="var(--gold)" stroke="var(--ink)" stroke-width="5"/>
+          <ellipse class="arm r" cx="160" cy="128" rx="11" ry="17" transform="rotate(-24 160 128)" fill="var(--gold)" stroke="var(--ink)" stroke-width="5"/>
+          <g class="curl">
+            <path d="${QZ_CURL}" fill="none" stroke="var(--ink)" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="${QZ_CURL}" fill="none" stroke="var(--pink)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+          <path d="${QZ_BLOB}" fill="var(--gold)" stroke="var(--ink)" stroke-width="6"/>
+          <path d="M58 98 Q66 76 88 68" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".55"/>
+          <ellipse cx="80" cy="180" rx="15" ry="7.5" fill="var(--gold)" stroke="var(--ink)" stroke-width="5"/>
+          <ellipse cx="120" cy="180" rx="15" ry="7.5" fill="var(--gold)" stroke="var(--ink)" stroke-width="5"/>
+          <g class="brows"><path class="line" d="M64 78 L90 70"/><path class="line" d="M136 78 L110 70"/></g>
+          <g class="eyes">${qzEye(80)}${qzEye(120)}</g>
+          <g class="eyes-happy">
+            <path class="line" style="stroke-width:6" d="M66 104 Q80 86 94 104"/>
+            <path class="line" style="stroke-width:6" d="M106 104 Q120 86 134 104"/>
+          </g>
+          <ellipse class="cheek" cx="61" cy="124" rx="10" ry="6"/>
+          <ellipse class="cheek" cx="139" cy="124" rx="10" ry="6"/>
+          <path class="m m-idle line" d="M88 128 Q100 140 112 128"/>
+          <g class="m m-open"><path class="ink" d="M83 124 Q100 156 117 124 Z"/><path fill="#ff8fb8" d="M91 138 Q100 150 109 138 Q100 133 91 138 Z"/></g>
+          <path class="m m-worry line" d="M86 136 Q93 130 100 136 Q107 142 114 136"/>
+          <path class="m m-sad line" d="M88 140 Q100 128 112 140"/>
+          <path class="m m-cool line" d="M90 132 Q104 140 115 127"/>
+          <g class="glasses">
+            <path class="line" d="M58 94 H142"/>
+            <rect class="ink" x="61" y="89" width="36" height="22" rx="9"/><rect class="ink" x="103" y="89" width="36" height="22" rx="9"/>
+            <path d="M68 95 L76 95 M110 95 L118 95" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+          </g>
+          <path class="sweat" d="M152 62 Q161 77 152 84 Q143 77 152 62 Z" fill="#7cc8ff" stroke="var(--ink)" stroke-width="3"/>
+          <path class="tear" d="M70 116 Q76 127 70 131 Q64 127 70 116 Z" fill="#7cc8ff" stroke="var(--ink)" stroke-width="2.5"/>
+          <g class="crown" style="transform-origin:70px 62px"><g transform="translate(70 52) rotate(-18)">
+            <path d="M-27 12 L-22 -14 L-9 2 L0 -19 L9 2 L22 -14 L27 12 Z" fill="var(--gold)" stroke="var(--ink)" stroke-width="4.5" stroke-linejoin="round"/>
+            <circle cx="0" cy="4" r="4" fill="var(--pink)" stroke="var(--ink)" stroke-width="2"/>
+          </g></g>
+        </g>
+      </svg>`;
+    }
+    function mountMascots() {
+      document.querySelectorAll('[data-mascot]').forEach(el => {
+        if (!el.querySelector('svg.qz')) el.insertAdjacentHTML('beforeend', mascotSVG(el.dataset.mascot));
+      });
+    }
+    function setMascot(target, st) {
+      const box = typeof target === 'string' ? document.getElementById(target) : target;
+      const svgEl = box?.querySelector('svg.qz');
+      const cls = 'qz qz-' + st;
+      if (svgEl && svgEl.getAttribute('class') !== cls) svgEl.setAttribute('class', cls);
+    }
+
+    // แตะควิซซี่หน้าแรก = กระโดด + พูด
+    const QZ_LINES = ['พร้อมยัง?!', 'ตอบไว ได้แต้มเยอะ!', 'สร้างห้องเลย!', 'ฉันชื่อควิซซี่!', 'สู้ๆ ทุกคน!', 'สแกน QR แล้วมาเล่นกัน!'];
+    let qzPokeTimer = null;
+    function pokeMascot() {
+      const say = document.getElementById('homeSay');
+      say.textContent = QZ_LINES[Math.floor(Math.random() * QZ_LINES.length)];
+      say.classList.add('show');
+      setMascot('homeMascot', 'happy');
+      SFX.join();
+      clearTimeout(qzPokeTimer);
+      qzPokeTimer = setTimeout(() => { say.classList.remove('show'); setMascot('homeMascot', 'idle'); }, 1500);
+    }
+
+    // ตาควิซซี่มองตามเมาส์/นิ้ว (เฉพาะตัวที่อยู่บนจอ)
+    let qzRaf = 0, qzPx = innerWidth / 2, qzPy = innerHeight / 3;
+    function qzLook() {
+      qzRaf = 0;
+      document.querySelectorAll('.screen.active .qz .look, .double-splash.show .qz .look').forEach(g => {
+        const r = g.parentNode.getBoundingClientRect();
+        if (!r.width) return;
+        const dx = qzPx - (r.left + r.width / 2), dy = qzPy - (r.top + r.height / 2);
+        const d = Math.hypot(dx, dy) || 1;
+        const k = Math.min(1, d / 160) * 5;
+        g.setAttribute('transform', `translate(${(dx / d * k).toFixed(2)} ${(dy / d * k).toFixed(2)})`);
+      });
+    }
+    addEventListener('pointermove', e => {
+      qzPx = e.clientX; qzPy = e.clientY;
+      if (!qzRaf) qzRaf = requestAnimationFrame(qzLook);
+    }, { passive: true });
+
+    // ใส่รหัสห้องจากหน้าแรก → ไปหน้าใส่ชื่อ (รหัสกรอกให้แล้ว)
+    function homeJoin(e) {
+      e.preventDefault();
+      const code = document.getElementById('homeCode').value.trim().toUpperCase();
+      if (!/^[A-Z0-9]{4}$/.test(code)) { toast('⚠️ ใส่รหัสห้อง 4 ตัว'); document.getElementById('homeCode').focus(); return; }
+      document.getElementById('joinCode').value = code;
+      goScreen('screen-join');
+      document.getElementById('joinName').focus();
+    }
+
+    // ══════════════════════════════════════
+    // API / CONFIG
     // ══════════════════════════════════════
     function esc(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
+    // ใช้ใน attribute (value="..." / src="...") — esc() ไม่ได้กัน "
+    function escAttr(s) { return esc(s).replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
 
     // PIN ผู้ดูแล — server ตั้ง ADMIN_PIN ไว้ จะถามครั้งแรกที่บันทึก/ลบ/ใช้ AI แล้วจำไว้ในเครื่อง
     function getPin() { try { return localStorage.getItem('tb_pin') || ''; } catch { return ''; } }
@@ -2127,79 +2611,366 @@
 
     let appConfig = { pinRequired: false, aiEnabled: false };
     async function loadConfig() {
+      try { appConfig = await (await fetch('/api/config')).json(); } catch { }
+      document.getElementById('chipAI').hidden = !appConfig.aiEnabled;
+      renderSourceBar();
+      renderQList();
+    }
+
+    // ══════════════════════════════════════
+    // SETUP — เตรียมชุดคำถาม (รายการคำถามเป็นตัวหลัก แก้ในที่)
+    // ══════════════════════════════════════
+    const SAMPLE_LABELS = { dev: '💻 Dev', qa: '🧪 QA', po: '📋 PO', pm: '📊 PM', mixed: '🌀 Mixed', general: '🌍 ความรู้ทั่วไป', funny: '😂 ขำๆ' };
+    const OPT_COLORS = ['var(--red)', 'var(--cyan)', 'var(--gold)', 'var(--purple)'];
+    let openIndex = null;      // ข้อที่กางแก้อยู่ (ทีละข้อ)
+    let savedSnapshot = null;  // สถานะตอนบันทึก/เปิดจากคลังล่าสุด — ใช้บอก "ยังไม่บันทึก"
+    let loadedSetName = null;  // ชุดที่เปิดมาจากคลัง — บันทึกทับชุดนี้ไม่ต้องถามซ้ำ
+    let savedSetNames = [];
+    let bankSets = [];
+
+    const blankQ = () => ({ q: '', opts: ['', '', '', ''], correct: -1 });
+    function qProblems(q) {
+      const p = [];
+      if (!q.q.trim()) p.push('ยังไม่มีคำถาม');
+      if (q.opts.some(o => !o.trim())) p.push('ตัวเลือกไม่ครบ');
+      if (!(q.correct >= 0 && q.correct <= 3)) p.push('ยังไม่เลือกคำตอบ');
+      return p;
+    }
+    const isValidQ = (q) => !qProblems(q).length;
+    const setNameValue = () => document.getElementById('setName').value.trim();
+    const snapshot = () => JSON.stringify({ n: setNameValue(), q: questions.map(cleanQ) });
+
+    // ── autosave ร่างในเครื่อง: refresh แล้วไม่หาย ──
+    function saveDraft() {
       try {
-        appConfig = await (await fetch('/api/config')).json();
-        document.getElementById('aiCard').style.display = appConfig.aiEnabled ? '' : 'none';
-        let saved = '';
-        try { saved = localStorage.getItem('tb_ai_model') || ''; } catch { }
-        const sel = document.getElementById('aiModel');
-        sel.innerHTML = (appConfig.aiModels || []).map((m, i) =>
-          `<option value="${esc(m)}"${m === saved ? ' selected' : ''}>${esc(m)}${i === 0 ? ' (ค่าเริ่มต้น)' : ''}</option>`).join('');
-        sel.onchange = () => { try { localStorage.setItem('tb_ai_model', sel.value); } catch { } };
+        localStorage.setItem('tb_draft', JSON.stringify({
+          name: document.getElementById('setName').value, questions, saved: savedSnapshot, loaded: loadedSetName,
+        }));
+      } catch { /* เต็ม quota (รูปเยอะ) — ข้ามไป ไม่ให้ UI พัง */ }
+    }
+    function loadDraft() {
+      try {
+        const d = JSON.parse(localStorage.getItem('tb_draft') || 'null');
+        if (Array.isArray(d)) { if (d.length) questions = d; return; } // รูปแบบเก่า
+        if (d && Array.isArray(d.questions)) {
+          questions = d.questions;
+          document.getElementById('setName').value = d.name || '';
+          savedSnapshot = d.saved || null;
+          loadedSetName = d.loaded || null;
+        }
       } catch { }
     }
 
-    let savedSetNames = [];
-    function updateSaveBtn() {
-      const name = document.getElementById('setName').value.trim();
-      document.getElementById('saveSetBtn').textContent = savedSetNames.includes(name) ? '💾 บันทึกทับ' : '💾 บันทึกชุดนี้';
+    function markSaved() {
+      savedSnapshot = snapshot();
+      loadedSetName = setNameValue();
+      saveDraft();
+      updateSetStatus();
+    }
+
+    function updateSetStatus() {
+      const name = setNameValue();
+      const el = document.getElementById('setStatus');
+      const exists = savedSetNames.includes(name);
+      document.getElementById('saveSetBtn').textContent = exists ? '☁️ บันทึกทับ' : '☁️ บันทึก';
+      if (!questions.length && !name) {
+        el.textContent = 'ตั้งชื่อแล้วกดบันทึก — เก็บในคลัง ใช้ซ้ำได้ทุกเครื่อง';
+        el.className = 'set-status';
+      } else if (savedSnapshot && savedSnapshot === snapshot()) {
+        el.textContent = '✓ บันทึกในคลังแล้ว';
+        el.className = 'set-status ok';
+      } else {
+        el.textContent = exists ? '● มีการแก้ไข — กด "บันทึกทับ" เพื่ออัปเดตในคลัง' : '● ยังไม่ได้บันทึกลงคลัง (ร่างเก็บในเครื่องนี้แล้ว)';
+        el.className = 'set-status dirty';
+      }
+    }
+    function onSetNameInput() { saveDraft(); updateSetStatus(); }
+
+    function updateFooter() {
+      const bad = questions.filter(q => !isValidQ(q)).length;
+      const good = questions.length - bad;
+      document.getElementById('sfInfo').innerHTML = !questions.length ? 'ยังไม่มีคำถาม'
+        : bad ? `<strong>${good}</strong> ข้อพร้อม · <button class="sf-warn" onclick="openFirstInvalid()">⚠ ${bad} ข้อยังไม่ครบ</button>`
+          : good < 2 ? `<strong>${good}</strong> ข้อ · ต้องมีอย่างน้อย 2 ข้อ`
+            : `<strong>${good}</strong> ข้อ · พร้อมเล่น ✓`;
+    }
+    function changed() { saveDraft(); updateSetStatus(); updateFooter(); }
+
+    // ── วิธีเพิ่มคำถาม ──
+    const SOURCES = [
+      { key: 'type', ico: '✍️', title: 'พิมพ์เอง', desc: 'เริ่มจากข้อแรก', run: 'addBlankQuestion()' },
+      { key: 'ai', ico: '🤖', title: 'ให้ AI คิด', desc: 'ใส่หัวข้อหรือวางเนื้อหา ได้คำถามในไม่กี่วิ', run: "openSheet('dlgAI')" },
+      { key: 'csv', ico: '📄', title: 'นำเข้า CSV', desc: 'โหลดเทมเพลต แก้ใน Excel แล้วเลือกไฟล์', run: "openSheet('dlgCSV')" },
+      { key: 'bank', ico: '☁️', title: 'คลัง & ตัวอย่าง', desc: 'เปิดชุดที่บันทึกไว้ หรือชุดตัวอย่าง', run: 'openBank()' },
+    ];
+    const activeSources = () => SOURCES.filter(x => x.key !== 'ai' || appConfig.aiEnabled);
+    function renderSourceBar() {
+      document.getElementById('srcBar').innerHTML = activeSources().map(x =>
+        `<button class="src-btn" onclick="${x.run}">${emo(x.ico, 22)}<span>${x.title}</span></button>`).join('');
+    }
+
+    // ── รายการคำถาม ──
+    function renderQList() {
+      saveDraft();
+      const has = questions.length > 0;
+      document.getElementById('qCountBadge').textContent = questions.length;
+      document.getElementById('srcBar').style.display = has ? '' : 'none';
+      document.getElementById('addRowBtn').style.display = has ? '' : 'none';
+      document.getElementById('clearAllBtn').style.display = has ? '' : 'none';
+      const filterEl = document.getElementById('qFilter');
+      filterEl.style.display = questions.length > 8 ? '' : 'none';
+      const el = document.getElementById('qList');
+      if (!has) {
+        el.innerHTML = `<p class="hint text-center" style="margin-bottom:4px;">เริ่มเพิ่มคำถามด้วยวิธีไหนก็ได้ 👇</p>
+          <div class="empty-tiles">${activeSources().map(x => `
+          <button class="empty-tile" onclick="${x.run}">
+            ${emo(x.ico, 44)}
+            <span class="et-title">${x.title}</span>
+            <span class="et-desc">${x.desc}</span>
+          </button>`).join('')}</div>`;
+      } else {
+        const filter = questions.length > 8 ? filterEl.value.trim().toLowerCase() : '';
+        const items = questions.map((q, i) => ({ q, i })).filter(({ q, i }) =>
+          !filter || i === openIndex || q.q.toLowerCase().includes(filter) || q.opts.some(o => o.toLowerCase().includes(filter)));
+        el.innerHTML = items.length
+          ? items.map(({ q, i }) => qItemHtml(q, i)).join('')
+          : '<p class="text-muted text-center" style="padding:14px;">ไม่พบคำถามที่ค้นหา</p>';
+      }
+      updateFooter();
+      updateSetStatus();
+    }
+
+    function qHeadHtml(q, i) {
+      const probs = qProblems(q);
+      return `
+        <div class="q-num">${i + 1}</div>
+        <div class="qi-title">${q.q.trim() ? esc(q.q) : '<span class="text-muted">คำถามใหม่...</span>'}</div>
+        <div class="qi-tags">
+          ${q.double ? '<span class="q-tag">⚡ x2</span>' : ''}
+          ${q.image ? '<span class="q-tag" style="background:#fff;">🖼️</span>' : ''}
+          ${probs.length ? `<span class="q-tag warn" title="${escAttr(probs.join(', '))}">⚠ ${esc(probs[0])}</span>`
+          : `<span class="q-tag ans">ตอบ ${'ABCD'[q.correct]}</span>`}
+        </div>
+        <span class="qi-chev">▾</span>`;
+    }
+
+    function qBodyHtml(q, i) {
+      return `<div class="qi-body">
+        <textarea class="qi-q" placeholder="พิมพ์คำถาม..." maxlength="500" oninput="setQText(${i}, this.value)">${esc(q.q)}</textarea>
+        <div class="qi-opts">
+          ${q.opts.map((o, k) => `
+          <div class="qi-opt${k === q.correct ? ' correct' : ''}">
+            <button type="button" class="qi-mark" style="--c:${OPT_COLORS[k]}" onclick="setCorrect(${i}, ${k})"
+              title="ตั้ง ${'ABCD'[k]} เป็นคำตอบที่ถูก" aria-pressed="${k === q.correct}">${k === q.correct ? '✓' : 'ABCD'[k]}</button>
+            <input type="text" value="${escAttr(o)}" placeholder="ตัวเลือก ${'ABCD'[k]}" maxlength="500"
+              oninput="setOpt(${i}, ${k}, this.value)" onkeydown="optKey(event, ${i}, ${k})">
+          </div>`).join('')}
+        </div>
+        <p class="hint">${q.correct >= 0
+          ? `คำตอบที่ถูก: <strong>${'ABCD'[q.correct]}</strong> · แตะตัวอักษรเพื่อเปลี่ยน`
+          : '<strong style="color:#b35a00;">👆 แตะตัวอักษรหน้าตัวเลือกที่ถูก</strong>'} · Enter = ช่องถัดไป</p>
+        ${q.image
+          ? `<div><div class="img-preview-wrap"><img class="img-preview" src="${escAttr(q.image)}" alt="รูปประกอบ">
+               <button class="q-remove" onclick="setImage(${i}, null)" title="ลบรูป">✕</button></div></div>`
+          : `<div class="img-row">
+              <input type="text" placeholder="🖼️ ลิงก์รูป https://..." onchange="setImageUrl(${i}, this.value)" style="flex:1;min-width:0;">
+              <label class="btn btn-outline btn-sm" style="margin:0;white-space:nowrap;">📷 อัปโหลด<input type="file" accept="image/*" hidden onchange="uploadImage(${i}, this)"></label>
+            </div>`}
+        <div class="qi-tools">
+          <label class="chk"><input type="checkbox" ${q.double ? 'checked' : ''} onchange="setDouble(${i}, this.checked)"> ⚡ x2</label>
+          <button class="btn btn-outline btn-sm" onclick="moveQ(${i}, -1)" ${i === 0 ? 'disabled' : ''} title="เลื่อนขึ้น" aria-label="เลื่อนขึ้น">↑</button>
+          <button class="btn btn-outline btn-sm" onclick="moveQ(${i}, 1)" ${i === questions.length - 1 ? 'disabled' : ''} title="เลื่อนลง" aria-label="เลื่อนลง">↓</button>
+          <button class="btn btn-outline btn-sm" onclick="dupQ(${i})" title="ทำสำเนา" aria-label="ทำสำเนา">⧉</button>
+          <button class="btn btn-outline btn-sm" onclick="removeQ(${i})" title="ลบข้อนี้" aria-label="ลบข้อนี้">🗑️</button>
+          <button class="btn btn-gold btn-sm qi-done" onclick="toggleQ(${i})">✓ เสร็จ</button>
+        </div>
+      </div>`;
+    }
+
+    function qItemHtml(q, i) {
+      const open = i === openIndex;
+      return `<div class="qi${open ? ' open' : ''}${isValidQ(q) ? '' : ' invalid'}" id="qi${i}">
+        <div class="qi-head" onclick="toggleQ(${i})" role="button" tabindex="0" aria-expanded="${open}"
+          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleQ(${i});}">${qHeadHtml(q, i)}</div>
+        ${open ? qBodyHtml(q, i) : ''}
+      </div>`;
+    }
+
+    // แก้ข้อความ: อัปเดตแค่หัวข้อ ไม่ render ใหม่ทั้งรายการ (cursor ไม่หลุด)
+    function refreshHead(i) {
+      const item = document.getElementById('qi' + i);
+      if (item) {
+        item.querySelector('.qi-head').innerHTML = qHeadHtml(questions[i], i);
+        item.classList.toggle('invalid', !isValidQ(questions[i]));
+      }
+      changed();
+    }
+    function rerenderItem(i) {
+      const item = document.getElementById('qi' + i);
+      if (item) item.outerHTML = qItemHtml(questions[i], i);
+      changed();
+    }
+    function setQText(i, v) { questions[i].q = v; refreshHead(i); }
+    function setOpt(i, k, v) { questions[i].opts[k] = v; refreshHead(i); }
+    function setCorrect(i, k) { questions[i].correct = k; SFX.select(); rerenderItem(i); }
+    function setDouble(i, on) { if (on) questions[i].double = true; else delete questions[i].double; refreshHead(i); }
+    function setImage(i, src) { if (src) questions[i].image = src; else delete questions[i].image; rerenderItem(i); }
+    function setImageUrl(i, v) {
+      v = v.trim();
+      if (!v) return;
+      if (!/^https?:\/\/\S+$/i.test(v)) { toast('⚠️ ลิงก์รูปต้องขึ้นต้นด้วย https://'); return; }
+      setImage(i, v);
+    }
+    async function uploadImage(i, input) {
+      const f = input.files?.[0];
+      if (!f) return;
+      try { setImage(i, await resizeImage(f, 900, .74)); } catch { toast('❌ อ่านรูปไม่ได้'); }
+    }
+    function optKey(e, i, k) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      const inputs = document.querySelectorAll(`#qi${i} .qi-opt input`);
+      if (k < 3) inputs[k + 1].focus(); else e.target.blur();
+    }
+
+    function toggleQ(i) {
+      openIndex = openIndex === i ? null : i;
+      renderQList();
+      if (openIndex !== null) document.getElementById('qi' + openIndex)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    function openQ(i, focus) {
+      openIndex = i;
+      document.getElementById('qFilter').value = '';
+      renderQList();
+      const item = document.getElementById('qi' + i);
+      if (!item) return;
+      item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (focus) item.querySelector('.qi-q')?.focus({ preventScroll: true });
+    }
+    function openFirstInvalid() {
+      const i = questions.findIndex(q => !isValidQ(q));
+      if (i >= 0) openQ(i, false);
+    }
+    function addBlankQuestion() {
+      questions.push(blankQ());
+      openQ(questions.length - 1, true);
+    }
+    function removeQ(i) {
+      const q = questions[i];
+      if ((q.q.trim() || q.opts.some(o => o.trim())) && !confirm(`ลบข้อ ${i + 1}?`)) return;
+      questions.splice(i, 1);
+      if (openIndex === i) openIndex = null;
+      else if (openIndex !== null && openIndex > i) openIndex--;
+      renderQList();
+    }
+    function moveQ(i, d) {
+      const j = i + d;
+      if (j < 0 || j >= questions.length) return;
+      [questions[i], questions[j]] = [questions[j], questions[i]];
+      if (openIndex === i) openIndex = j;
+      renderQList();
+      document.getElementById('qi' + j)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    function dupQ(i) {
+      questions.splice(i + 1, 0, JSON.parse(JSON.stringify(questions[i])));
+      openQ(i + 1, true);
+      toast('ทำสำเนาแล้ว ✓');
+    }
+    function clearAll() {
+      if (!questions.length || !confirm(`ล้างคำถามทั้งหมด ${questions.length} ข้อ? (ชุดที่บันทึกในคลังไม่หาย)`)) return;
+      questions = [];
+      openIndex = null;
+      document.getElementById('setName').value = '';
+      savedSnapshot = null;
+      loadedSetName = null;
+      renderQList();
+    }
+    // จะเอาชุดอื่นมาแทน — เตือนถ้ามีงานที่ยังไม่บันทึก
+    function confirmReplace() {
+      if (!questions.length || savedSnapshot === snapshot()) return true;
+      return confirm(`แทนที่คำถามปัจจุบัน ${questions.length} ข้อ? (ส่วนที่ยังไม่บันทึกจะหายไป)`);
+    }
+
+    // ── หน้าต่าง (sheet) ──
+    function openSheet(id) {
+      const d = document.getElementById(id);
+      if (!d.open) d.showModal();
+    }
+    function closeSheet(id) {
+      const d = document.getElementById(id);
+      if (d.open) d.close();
+    }
+    // คลิกพื้นหลังนอกกล่อง = ปิด
+    document.querySelectorAll('dialog.sheet').forEach(d =>
+      d.addEventListener('click', e => { if (e.target === d) d.close(); }));
+
+    // ── คลังคำถาม ──
+    function openBank() {
+      document.getElementById('bankSearch').value = '';
+      document.getElementById('bankResults').innerHTML = '';
+      openSheet('dlgBank');
+      refreshSets();
     }
 
     async function refreshSets() {
       try {
-        const sets = await api('/api/sets');
-        savedSetNames = sets.map(s => s.name);
-        updateSaveBtn();
+        bankSets = await api('/api/sets');
+        savedSetNames = bankSets.map(x => x.name);
+        updateSetStatus();
         const el = document.getElementById('setList');
-        if (!sets.length) { el.innerHTML = '<p class="text-muted text-center" style="padding:10px;">ยังไม่มีชุดที่บันทึกไว้</p>'; return; }
-        el.innerHTML = sets.map(s => `
+        if (!bankSets.length) { el.innerHTML = '<p class="text-muted text-center" style="padding:10px;">ยังไม่มีชุดที่บันทึกไว้</p>'; return; }
+        el.innerHTML = bankSets.map(x => `
       <div class="q-item">
-        <div class="q-text">${esc(s.name)} <span class="text-muted" style="font-size:11px;">· ${s.count} ข้อ</span></div>
-        <button class="btn btn-outline btn-sm" onclick="loadSet(${s.id})">โหลด</button>
-        <button class="btn btn-outline btn-sm" onclick="loadSet(${s.id}, true)" title="แก้ไขชุดนี้">✏️</button>
-        <button class="q-remove" onclick="deleteSetUi(${s.id})">✕</button>
+        <div class="q-text">${esc(x.name)} <span class="text-muted" style="font-size:11px;">· ${x.count} ข้อ</span></div>
+        <button class="btn btn-gold btn-sm" onclick="loadSet(${x.id})">เปิด</button>
+        <button class="q-remove" onclick="deleteSetUi(${x.id})" title="ลบชุดนี้" aria-label="ลบชุดนี้">✕</button>
       </div>`).join('');
       } catch { }
     }
 
     async function saveCurrentSet() {
-      const name = document.getElementById('setName').value.trim();
-      if (!name) { toast('⚠️ ตั้งชื่อชุดคำถามก่อน'); return; }
+      const nameEl = document.getElementById('setName');
+      const name = nameEl.value.trim();
       if (!questions.length) { toast('⚠️ ยังไม่มีคำถามให้บันทึก'); return; }
-      if (savedSetNames.includes(name) && !confirm(`บันทึกทับชุด "${name}" ที่มีอยู่แล้ว?`)) return;
+      if (!name) { toast('⚠️ ตั้งชื่อชุดคำถามก่อน'); nameEl.focus(); return; }
+      if (questions.some(q => !isValidQ(q))) { toast('⚠️ มีข้อที่ยังไม่ครบ — แก้ก่อนบันทึก'); openFirstInvalid(); return; }
+      if (savedSetNames.includes(name) && name !== loadedSetName && !confirm(`มีชุดชื่อ "${name}" อยู่แล้ว บันทึกทับ?`)) return;
       try {
         await api('/api/sets', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, questions }),
+          body: JSON.stringify({ name, questions: questions.map(cleanQ) }),
         });
-        toast(`บันทึก "${name}" (${questions.length} ข้อ) ✓`);
+        if (!savedSetNames.includes(name)) savedSetNames.push(name);
+        markSaved();
+        toast(`☁️ บันทึก "${name}" (${questions.length} ข้อ) ✓`);
         refreshSets();
       } catch (e) { toast(e.status === 401 ? '🔒 ต้องใช้ PIN ผู้ดูแล' : '❌ บันทึกไม่สำเร็จ'); }
     }
 
-    async function loadSet(id, edit = false) {
+    async function loadSet(id) {
+      if (!confirmReplace()) return;
       try {
-        const s = await api('/api/sets/' + id);
-        questions = s.questions;
-        cancelEditQ();
+        const x = await api('/api/sets/' + id);
+        questions = x.questions;
+        openIndex = null;
+        document.getElementById('setName').value = x.name;
         renderQList();
-        // ใส่ชื่อชุดไว้ให้ — แก้คำถามแล้วกดบันทึกจะบันทึกทับชุดเดิม (upsert ตามชื่อ)
-        document.getElementById('setName').value = s.name;
-        updateSaveBtn();
-        if (edit) {
-          document.getElementById('qList').scrollIntoView({ behavior: 'smooth', block: 'start' });
-          toast(`แก้ไข "${s.name}" — กดข้อที่ต้องการแก้ แล้วกด 💾 บันทึกทับ`);
-        } else {
-          toast(`โหลด "${s.name}" ${s.questions.length} ข้อ ✓`);
-        }
-      } catch { toast('❌ โหลดชุดคำถามไม่สำเร็จ'); }
+        markSaved();
+        closeSheet('dlgBank');
+        toast(`เปิด "${x.name}" ${x.questions.length} ข้อ ✓ — กดที่ข้อเพื่อแก้`);
+      } catch { toast('❌ เปิดชุดคำถามไม่สำเร็จ'); }
     }
 
     async function deleteSetUi(id) {
-      if (!confirm('ลบชุดคำถามนี้ออกจากคลัง?')) return;
-      try { await api('/api/sets/' + id, { method: 'DELETE' }); refreshSets(); toast('ลบแล้ว ✓'); }
-      catch (e) { toast(e.status === 401 ? '🔒 ต้องใช้ PIN ผู้ดูแล' : '❌ ลบไม่สำเร็จ'); }
+      const name = bankSets.find(x => x.id === id)?.name || '';
+      if (!confirm(`ลบชุด "${name}" ออกจากคลัง?`)) return;
+      try {
+        await api('/api/sets/' + id, { method: 'DELETE' });
+        if (name === loadedSetName) { loadedSetName = null; savedSnapshot = null; }
+        await refreshSets();
+        toast('ลบแล้ว ✓');
+      } catch (e) { toast(e.status === 401 ? '🔒 ต้องใช้ PIN ผู้ดูแล' : '❌ ลบไม่สำเร็จ'); }
     }
 
     let bankSearchTimer = null;
@@ -2216,105 +2987,83 @@
         el.innerHTML = bankResults.map((r, i) => `
       <div class="q-item">
         <div class="q-text">${esc(r.q)} <span class="text-muted" style="font-size:11px;">· ${esc(r.setName)}</span></div>
-        <button class="btn btn-outline btn-sm" onclick="addFromBank(${i})">➕</button>
+        <button class="btn btn-outline btn-sm" onclick="addFromBank(${i}, this)">➕ เพิ่ม</button>
       </div>`).join('');
       } catch { }
     }
 
-    function addFromBank(i) {
+    function addFromBank(i, btn) {
       const r = bankResults[i];
       if (!r) return;
       questions.push(cleanQ(r));
       renderQList();
+      if (btn) { btn.disabled = true; btn.textContent = '✓ เพิ่มแล้ว'; }
       toast('เพิ่มจากคลังแล้ว ✓');
     }
 
-    // ══════════════════════════════════════
-    // SETUP
-    // ══════════════════════════════════════
-    function loadSample() {
-      const cat = document.getElementById('sampleCat').value;
-      const labels = { dev: 'Dev', qa: 'QA', po: 'PO', pm: 'PM', mixed: 'Mixed', general: 'ความรู้ทั่วไป', funny: 'ขำๆ' };
+    function renderSamples() {
+      document.getElementById('sampleGrid').innerHTML = Object.entries(SAMPLE_LABELS).map(([k, label]) =>
+        `<button class="btn btn-outline btn-sm" onclick="loadSample('${k}')">${label} <span class="text-muted" style="font-size:11px;">${SAMPLE_QS[k].length} ข้อ</span></button>`
+      ).join('');
+    }
+    function loadSample(cat) {
+      if (!confirmReplace()) return;
       questions = JSON.parse(JSON.stringify(SAMPLE_QS[cat]));
-      cancelEditQ();
+      openIndex = null;
+      document.getElementById('setName').value = '';
+      savedSnapshot = null;
+      loadedSetName = null;
       renderQList();
-      toast(`โหลด 10 คำถาม ${labels[cat]} แล้ว ✓`);
+      closeSheet('dlgBank');
+      toast(`โหลดชุดตัวอย่าง ${SAMPLE_LABELS[cat]} ✓`);
     }
 
-    function addQuestion() {
-      const q = document.getElementById('qText').value.trim();
-      const opts = [0, 1, 2, 3].map(i => document.getElementById('opt' + i).value.trim());
-      const correct = parseInt(document.getElementById('correctOpt').value);
-      if (!q) { toast('⚠️ กรุณาใส่คำถาม'); return; }
-      if (opts.some(o => !o)) { toast('⚠️ ใส่ตัวเลือกครบ 4 ข้อ'); return; }
-      const item = cleanQ({ q, opts, correct, image: formImage, double: document.getElementById('qDouble').checked });
-      const wasEditing = editingIndex !== null;
-      if (wasEditing) questions[editingIndex] = item;
-      else questions.push(item);
-      cancelEditQ();
-      renderQList();
-      toast(wasEditing ? 'แก้ไขคำถามแล้ว ✓' : 'เพิ่มคำถามแล้ว ✓');
+    // ── ตั้งค่าเกม (จำไว้ในเครื่อง) ──
+    const SETTINGS_IDS = ['gameName', 'timePerQ', 'optShuffleQ', 'optShuffleOpts', 'optFinalDouble', 'optTeams', 'teamNames'];
+    function toggleTeamsInput() {
+      document.getElementById('teamsWrap').style.display = document.getElementById('optTeams').checked ? '' : 'none';
     }
-
-    // index ของข้อที่กำลังแก้ในฟอร์มด้านบน (null = โหมดเพิ่มข้อใหม่)
-    let editingIndex = null;
-
-    function editQ(i) {
-      const q = questions[i];
-      if (!q) return;
-      editingIndex = i;
-      document.getElementById('qText').value = q.q;
-      [0, 1, 2, 3].forEach(k => document.getElementById('opt' + k).value = q.opts[k] ?? '');
-      document.getElementById('correctOpt').value = String(q.correct);
-      document.getElementById('qDouble').checked = !!q.double;
-      document.getElementById('qImageUrl').value = /^https?:/i.test(q.image || '') ? q.image : '';
-      setFormImage(q.image || null);
-      document.getElementById('qFormTitle').textContent = `✏️ แก้ไขคำถามข้อ ${i + 1}`;
-      document.getElementById('qSubmitBtn').textContent = '💾 บันทึกการแก้ไข';
-      document.getElementById('qCancelBtn').style.display = '';
-      renderQList();
-      document.getElementById('qFormTitle').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      document.getElementById('qText').focus({ preventScroll: true });
+    function updateSettingsSummary() {
+      const v = (id) => document.getElementById(id);
+      const parts = [`${v('timePerQ').value} วิ/ข้อ`];
+      if (v('optShuffleQ').checked) parts.push('สุ่มข้อ');
+      if (v('optShuffleOpts').checked) parts.push('สุ่มตัวเลือก');
+      if (v('optFinalDouble').checked) parts.push('ข้อสุดท้าย x2');
+      if (v('optTeams').checked) parts.push(`👥 ${v('teamNames').value.split(/[,\n]/).map(x => x.trim()).filter(Boolean).length} ทีม`);
+      v('settingsSummary').textContent = parts.join(' · ');
     }
-
-    function cancelEditQ() {
-      editingIndex = null;
-      document.getElementById('qText').value = '';
-      [0, 1, 2, 3].forEach(k => document.getElementById('opt' + k).value = '');
-      document.getElementById('correctOpt').value = '0';
-      document.getElementById('qDouble').checked = false;
-      clearImage();
-      document.getElementById('qFormTitle').textContent = 'เพิ่มคำถาม';
-      document.getElementById('qSubmitBtn').textContent = '➕ เพิ่มคำถาม';
-      document.getElementById('qCancelBtn').style.display = 'none';
-      renderQList();
+    function saveSettings() {
+      try {
+        const o = {};
+        SETTINGS_IDS.forEach(id => { const e = document.getElementById(id); o[id] = e.type === 'checkbox' ? e.checked : e.value; });
+        localStorage.setItem('tb_settings', JSON.stringify(o));
+      } catch { }
     }
-
-    function removeQ(i) {
-      questions.splice(i, 1);
-      if (editingIndex === i) cancelEditQ();
-      else if (editingIndex !== null && editingIndex > i) editingIndex--;
-      renderQList();
+    function loadSettings() {
+      try {
+        const o = JSON.parse(localStorage.getItem('tb_settings') || 'null');
+        if (o) SETTINGS_IDS.forEach(id => {
+          const e = document.getElementById(id);
+          if (!(id in o)) return;
+          if (e.type === 'checkbox') e.checked = !!o[id]; else e.value = o[id];
+        });
+      } catch { }
+      toggleTeamsInput();
+      updateSettingsSummary();
     }
+    ['input', 'change'].forEach(ev => document.getElementById('settingsCard').addEventListener(ev, () => {
+      toggleTeamsInput();
+      updateSettingsSummary();
+      saveSettings();
+    }));
 
-    function renderQList() {
-      saveDraft();
-      document.getElementById('qCountBadge').textContent = questions.length;
-      const el = document.getElementById('qList');
-      if (!questions.length) { el.innerHTML = '<p class="text-muted text-center" style="padding:14px;">ยังไม่มีคำถาม</p>'; return; }
-      const filter = (document.getElementById('qFilter')?.value || '').trim().toLowerCase();
-      const items = questions
-        .map((q, i) => ({ q, i }))
-        .filter(x => !filter || x.q.q.toLowerCase().includes(filter) || x.q.opts.some(o => o.toLowerCase().includes(filter)));
-      if (!items.length) { el.innerHTML = '<p class="text-muted text-center" style="padding:14px;">ไม่พบคำถามที่ค้นหา</p>'; return; }
-      el.innerHTML = items.map(({ q, i }) => `
-    <div class="q-item${i === editingIndex ? ' editing' : ''}" onclick="editQ(${i})" style="cursor:pointer;" title="กดเพื่อแก้ไข">
-      <div class="q-num">${i + 1}</div>
-      <div class="q-text">${esc(q.q)} <span class="text-muted" style="font-size:11px;">· ตอบ ${'ABCD'[q.correct]}</span>${q.image ? '<span class="q-tag" style="background:#fff;">🖼️ รูป</span>' : ''}${q.double ? '<span class="q-tag">⚡ x2</span>' : ''}</div>
-      <span style="opacity:.6;">✏️</span>
-      <button class="q-remove" onclick="event.stopPropagation();removeQ(${i})">✕</button>
-    </div>`).join('');
-    }
+    // Cmd/Ctrl+S = บันทึกลงคลัง
+    document.addEventListener('keydown', e => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's' && document.getElementById('screen-setup').classList.contains('active')) {
+        e.preventDefault();
+        saveCurrentSet();
+      }
+    });
 
     // เก็บเฉพาะ field ที่ server รู้จัก
     function cleanQ(x) {
@@ -2324,48 +3073,6 @@
       return out;
     }
 
-    // ── autosave: refresh หน้าตั้งค่าแล้วคำถามไม่หาย ──
-    function saveDraft() {
-      try { localStorage.setItem('tb_draft', JSON.stringify(questions)); }
-      catch { /* เต็ม quota (รูปเยอะ) — ข้ามไป ไม่ให้ UI พัง */ }
-    }
-    function loadDraft() {
-      try {
-        const d = JSON.parse(localStorage.getItem('tb_draft') || 'null');
-        if (Array.isArray(d) && d.length) questions = d;
-      } catch { }
-    }
-
-    function toggleTeamsInput() {
-      document.getElementById('teamsWrap').style.display = document.getElementById('optTeams').checked ? '' : 'none';
-    }
-
-    // ── รูปประกอบคำถาม ──
-    let formImage = null;
-    function setFormImage(src) {
-      formImage = src || null;
-      const wrap = document.getElementById('qImagePreviewWrap');
-      const img = document.getElementById('qImagePreview');
-      if (formImage) { img.src = formImage; wrap.style.display = 'inline-block'; }
-      else { img.removeAttribute('src'); wrap.style.display = 'none'; }
-    }
-    function onImageUrl() {
-      const v = document.getElementById('qImageUrl').value.trim();
-      setFormImage(/^https?:\/\/\S+$/i.test(v) ? v : null);
-    }
-    function clearImage() {
-      document.getElementById('qImageUrl').value = '';
-      document.getElementById('qImageFile').value = '';
-      setFormImage(null);
-    }
-    async function onImageFile(input) {
-      const f = input.files?.[0];
-      if (!f) return;
-      try {
-        document.getElementById('qImageUrl').value = '';
-        setFormImage(await resizeImage(f, 900, .74));
-      } catch { toast('❌ อ่านรูปไม่ได้'); }
-    }
     // ย่อรูปฝั่ง client ให้เหลือ ~50–120KB — ส่งให้ผู้เล่นทุกคนทุกข้อ ต้องเบา
     function resizeImage(file, max, quality) {
       return new Promise((resolve, reject) => {
@@ -2405,11 +3112,12 @@
             count: Number(document.getElementById('aiCount').value),
             difficulty: document.getElementById('aiDifficulty').value,
             language: document.getElementById('aiLang').value,
-            model: document.getElementById('aiModel').value,
           }),
         });
         questions.push(...r.questions.map(cleanQ));
+        openIndex = null;
         renderQList();
+        closeSheet('dlgAI');
         SFX.correct();
         toast(`✨ AI สร้าง ${r.questions.length} ข้อแล้ว — ตรวจเฉลยก่อนเล่นนะ`, 3500);
         document.getElementById('qList').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -2493,7 +3201,7 @@
       if (!items.length) { toast('⚠️ ไม่พบข้อมูลคำถามในไฟล์', 3000); return; }
       importState = { name, items };
       renderImportPreview();
-      document.getElementById('importPreview').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.getElementById('importPreview').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     function renderImportPreview() {
@@ -2523,7 +3231,7 @@
                 ${it.double ? '<span class="q-tag">⚡ x2</span>' : ''}
                 <span class="text-muted" style="font-size:11px;font-weight:500;">· แถว ${it.row}</span>
               </div>
-              ${it.image ? `<img class="imp-thumb" src="${esc(it.image)}" alt="" onerror="this.style.display='none'">` : ''}
+              ${it.image ? `<img class="imp-thumb" src="${escAttr(it.image)}" alt="" onerror="this.style.display='none'">` : ''}
             </div>
             <div class="imp-opts">
               ${it.opts.map((o, k) => `
@@ -2539,7 +3247,7 @@
           <label class="chk" style="align-self:flex-start;"><input type="checkbox" id="importReplace"> แทนที่คำถามเดิมในรายการ (${questions.length} ข้อ)</label>
           <button class="btn btn-gold w-full" onclick="confirmImport()">➕ ใช้ ${good.length} ข้อนี้ในเกม</button>
           <div style="display:flex;gap:8px;">
-            <input type="text" id="importSetName" value="${esc(name.replace(/\.[^.]+$/, ''))}" placeholder="ชื่อชุดคำถาม" maxlength="100" style="flex:1;min-width:0;">
+            <input type="text" id="importSetName" value="${escAttr(name.replace(/\.[^.]+$/, ''))}" placeholder="ชื่อชุดคำถาม" maxlength="100" style="flex:1;min-width:0;">
             <button class="btn btn-cyan btn-sm" style="white-space:nowrap;" onclick="saveImportToBank()">💾 บันทึกลงคลัง</button>
           </div>
         </div>` : '<p class="imp-err">ยังไม่มีข้อที่ใช้ได้ — แก้ไฟล์แล้วเลือกใหม่อีกครั้ง</p>'}`;
@@ -2553,15 +3261,23 @@
     function confirmImport() {
       if (!importState) return;
       const qs = importedQuestions();
-      if (document.getElementById('importReplace')?.checked) {
-        if (editingIndex !== null) cancelEditQ();
+      const replace = document.getElementById('importReplace')?.checked;
+      if (replace) {
         questions = qs;
+        savedSnapshot = null;
+        loadedSetName = null;
+        // ชุดใหม่จากไฟล์ — ตั้งชื่อตามไฟล์ให้ (ถ้ายังไม่ได้ตั้ง)
+        const nameEl = document.getElementById('setName');
+        const fname = (document.getElementById('importSetName')?.value || '').trim();
+        if (fname && importState.name !== 'ข้อมูลที่วาง') nameEl.value = fname;
       } else {
         questions.push(...qs);
       }
+      openIndex = null;
       renderQList();
       toast(`📥 เพิ่ม ${qs.length} ข้อเข้ารายการแล้ว ✓`, 3000);
       cancelImport();
+      closeSheet('dlgCSV');
       document.getElementById('qList').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
@@ -2758,9 +3474,10 @@
     // HOST ACTIONS
     // ══════════════════════════════════════
     function createRoom() {
+      if (questions.some(q => !isValidQ(q))) { toast('⚠️ มีข้อที่ยังไม่ครบ — แก้ก่อนสร้างห้อง'); openFirstInvalid(); return; }
       if (questions.length < 2) { toast('⚠️ ต้องมีอย่างน้อย 2 คำถาม'); return; }
       role = 'host';
-      gameName = document.getElementById('gameName').value || 'Quiz Rush';
+      gameName = document.getElementById('gameName').value || 'Quizzy';
       timeTotal = parseInt(document.getElementById('timePerQ').value);
       const teamMode = document.getElementById('optTeams').checked;
       const teams = teamMode
@@ -2768,7 +3485,6 @@
         : [];
       if (teamMode && teams.length < 2) { toast('⚠️ โหมดทีมต้องมีอย่างน้อย 2 ทีม'); return; }
       if (teams.length > 8) { toast('⚠️ ได้สูงสุด 8 ทีม'); return; }
-      if (editingIndex !== null) cancelEditQ();
       send({
         type: 'create_room', gameName, timePerQ: timeTotal, questions: questions.map(cleanQ),
         shuffleQuestions: document.getElementById('optShuffleQ').checked,
@@ -2845,6 +3561,8 @@
       if (msg.question.image) { qImg.src = msg.question.image; qImg.style.display = 'block'; }
       else { qImg.removeAttribute('src'); qImg.style.display = 'none'; }
       document.getElementById('doubleBadge').style.display = msg.question.double ? '' : 'none';
+      qzBase = msg.question.double ? 'cool' : 'idle';
+      setMascot('qMascot', qzBase);
       document.getElementById('myScoreQ').textContent = myScore.toLocaleString();
       document.getElementById('answeredC').textContent = '0';
       document.getElementById('totalP').textContent = totalPlayers;
@@ -2890,7 +3608,7 @@
       el.classList.remove('show'); void el.offsetWidth; // restart animation
       el.classList.add('show');
       SFX.drumroll(Math.min(1.4, ms / 1000));
-      setTimeout(() => SFX.fanfare(), Math.max(0, ms - 900));
+      setTimeout(() => SFX.double(), Math.max(0, ms - 700));
       vibrate([40, 40, 40, 40, 120]);
       setTimeout(hideDoubleSplash, ms);
     }
@@ -2907,6 +3625,9 @@
       // Clear all urgency states
       num.classList.remove('warning','urgent','critical');
       document.body.classList.remove('warning','urgent','critical');
+
+      // ควิซซี่ลุ้นตัวสั่นช่วง 5 วิสุดท้าย
+      if (!revealed) setMascot('qMascot', t <= 5 && t > 0 ? 'worry' : qzBase);
 
       // เสียงติ๊ก 10 วิสุดท้าย (กันเบิ้ลจาก server msg + local interval ที่วิ่งพร้อมกัน)
       if (t <= 10 && t > 0 && t !== lastTickSec) { lastTickSec = t; SFX.tick(t <= 5); }
@@ -2977,6 +3698,7 @@
       }
 
       grid.classList.add('suspense');
+      setMascot('qMascot', 'worry');
       SFX.drumroll(1.6);
 
       setTimeout(() => {
@@ -2990,6 +3712,7 @@
 
         const r = pendingResult;
         pendingResult = null;
+        setMascot('qMascot', role === 'player' && !(r && r.correct) ? 'sad' : 'happy');
         if (role === 'player') {
           if (r && r.correct) {
             SFX.correct();
@@ -3237,7 +3960,16 @@
       btn.classList.add('muted');
     }
 
+    mountMascots();
+    document.getElementById('homeMascot').addEventListener('click', pokeMascot);
+    document.getElementById('homeMascot').addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pokeMascot(); }
+    });
     loadDraft();
+    loadSettings();
+    renderSamples();
+    renderSourceBar();
+    renderQList();
     loadConfig();
     initReactBar();
     connectWs();
